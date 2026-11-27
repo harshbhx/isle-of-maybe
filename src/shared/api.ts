@@ -1,18 +1,3 @@
-export type InitResponse = {
-  type: 'init';
-  postId: string;
-  count: number;
-  username: string;
-};
-
-export type IncrementResponse = {
-  type: 'increment';
-  postId: string;
-  count: number;
-};
-
-export type DecrementResponse = {
-  type: 'decrement';
-  postId: string;
-  count: number;
-};
+// Request and response types shared by the client and the /api routes.
+// Endpoint types are added with the server tasks (docs/05-ARCHITECTURE.md §4).
+export {};
