@@ -1,6 +1,6 @@
 # 05 · Community — tasks
 
-- [ ] T25 Reports, auto-hide and moderator review — COM-1.1, COM-1.2, COM-1.3
+- [x] T25 Reports, auto-hide and moderator review — COM-1.1, COM-1.2, COM-1.3
 - [ ] T26 Leaderboard and Hall of Charts endpoints — COM-3.1, COM-3.2, COM-3.3, COM-4.2, COM-4.3
 - [ ] T28 Share endpoint: upload chart image, comment as the user under the sticky — COM-2.2, COM-2.5
 - [ ] T29 Realtime finds and burials ticker — COM-5.1, COM-5.2
