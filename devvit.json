@@ -49,8 +49,18 @@
         "location": "subreddit",
         "forUserType": "moderator",
         "endpoint": "/internal/menu/rerun"
+      },
+      {
+        "label": "Isle of Maybe: Review reported charts",
+        "description": "Restore or delete charts hidden by player reports",
+        "location": "subreddit",
+        "forUserType": "moderator",
+        "endpoint": "/internal/menu/review"
       }
     ]
+  },
+  "forms": {
+    "reviewForm": "/internal/forms/review"
   },
   "scripts": {
     "dev": "vite build --watch",

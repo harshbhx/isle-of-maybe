@@ -147,3 +147,17 @@ Voice: short, salty, kind. Tease the map, never the player. Every string lives i
 ## Daily post and sticky comment (server)
 - Post title: `Isle of Maybe · Day {n} — {island}`
 - Sticky comment: `🗺️ Chart shares for Day {n} go here. Share yours from inside the game: it replies to this comment from your account.`
+
+## Moderator review (server)
+| Key | Text |
+|---|---|
+| Menu item | Isle of Maybe: Review reported charts |
+| reviewEmpty | No reported charts to review. |
+| reviewTitle | Review reported charts |
+| reviewDescription | These charts were hidden after 3 player reports. Restore puts a chart back; Delete removes it for good. |
+| reviewCharts / reviewAction | Charts / Action |
+| reviewRestore / reviewDelete | Restore / Delete |
+| reviewOption | `u/{author} · {day} · {n} reports` |
+| reviewRestored / reviewDeleted | Restored {n} chart(s). / Deleted {n} chart(s). |
+| reviewNone | Pick at least one chart. |
+

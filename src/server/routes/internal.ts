@@ -5,6 +5,8 @@ import type { TriggerResponse, UiResponse } from '@devvit/web/shared';
 import { serverCopy } from '../copy.ts';
 import { redditPort } from '../jobs/reddit-port.ts';
 import { runDaily } from '../services/daily.ts';
+import { applyReview, reviewQueue } from '../services/reports.ts';
+import { parseReview, reviewFormFor } from './review-form.ts';
 
 export const internal = new Hono();
 
@@ -61,3 +63,34 @@ internal.post('/menu/post-today', async (c) =>
 internal.post('/menu/rerun', async (c) =>
   c.json<UiResponse>(await menuRun(), 200)
 );
+
+/** Moderator menu: list hidden charts for review (COM-1.3). */
+internal.post('/menu/review', async (c) => {
+  try {
+    return c.json<UiResponse>(reviewFormFor(await reviewQueue(redis)), 200);
+  } catch (e) {
+    console.error(`review menu failed: ${String(e)}`);
+    return c.json<UiResponse>({ showToast: serverCopy.toastFailed }, 200);
+  }
+});
+
+internal.post('/forms/review', async (c) => {
+  const picked = parseReview(await c.req.json().catch(() => null));
+  if (picked === null)
+    return c.json<UiResponse>({ showToast: serverCopy.reviewNone }, 200);
+  try {
+    const n = await applyReview(redis, picked.chartIds, picked.action);
+    return c.json<UiResponse>(
+      {
+        showToast:
+          picked.action === 'restore'
+            ? serverCopy.reviewRestored(n)
+            : serverCopy.reviewDeleted(n),
+      },
+      200
+    );
+  } catch (e) {
+    console.error(`review form failed: ${String(e)}`);
+    return c.json<UiResponse>({ showToast: serverCopy.toastFailed }, 200);
+  }
+});

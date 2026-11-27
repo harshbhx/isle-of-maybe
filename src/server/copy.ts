@@ -10,4 +10,18 @@ export const serverCopy = {
   toastAlready: (n: number) =>
     `Day ${n} already exists. Filled in anything missing.`,
   toastFailed: 'Could not post today’s island. Check the app logs.',
+  reviewEmpty: 'No reported charts to review.',
+  reviewTitle: 'Review reported charts',
+  reviewDescription:
+    'These charts were hidden after 3 player reports. Restore puts a chart back; Delete removes it for good.',
+  reviewCharts: 'Charts',
+  reviewAction: 'Action',
+  reviewRestore: 'Restore',
+  reviewDelete: 'Delete',
+  reviewOption: (author: string, day: string, reports: number) =>
+    `u/${author} · ${day} · ${reports} reports`,
+  reviewRestored: (n: number) =>
+    `Restored ${n} ${n === 1 ? 'chart' : 'charts'}.`,
+  reviewDeleted: (n: number) => `Deleted ${n} ${n === 1 ? 'chart' : 'charts'}.`,
+  reviewNone: 'Pick at least one chart.',
 } as const;
