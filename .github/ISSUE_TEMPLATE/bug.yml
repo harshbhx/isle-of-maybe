@@ -1,0 +1,34 @@
+name: Bug
+description: Something doesn't match the spec
+title: "bug: "
+labels: ["bug"]
+body:
+  - type: input
+    id: requirement
+    attributes:
+      label: Requirement broken
+      description: The requirement ID it violates, if any
+      placeholder: HUNT-4.3
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      placeholder: "1. Open today's post on Android\n2. …"
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected vs actual
+    validations:
+      required: true
+  - type: dropdown
+    id: where
+    attributes:
+      label: Where
+      options: [Android app, iOS app, Desktop Chrome, Desktop Firefox, Desktop Safari, Server/job]
+      multiple: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Screenshot or logs

@@ -1,0 +1,34 @@
+name: Task (from a spec)
+description: A task line from specs/<feature>/tasks.md
+title: "T00 "
+labels: ["task"]
+body:
+  - type: input
+    id: spec
+    attributes:
+      label: Spec
+      description: Feature folder, e.g. specs/02-hunt
+      placeholder: specs/02-hunt
+    validations:
+      required: true
+  - type: input
+    id: requirements
+    attributes:
+      label: Requirement IDs
+      description: The acceptance criteria for this task
+      placeholder: HUNT-3.1, HUNT-3.2
+    validations:
+      required: true
+  - type: textarea
+    id: notes
+    attributes:
+      label: Notes
+      description: Anything beyond the spec (estimate, gotchas, links)
+  - type: checkboxes
+    id: dod
+    attributes:
+      label: Definition of done (AGENTS.md §5)
+      options:
+        - label: Every requirement ID is met and tested
+        - label: CI green (types, lint, unit, build)
+        - label: Task ticked in specs/<feature>/tasks.md
