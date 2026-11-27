@@ -38,6 +38,7 @@ Scope: pure, deterministic game logic in `src/shared/`, used by both client and 
 
 ## ENG-6 Old Captain charts
 - **ENG-6.1** WHEN given an island, a chest and an RNG, THE engine SHALL produce a valid chart (ENG-5.1) with 3–5 stamps of real nearby landmarks jittered ≤ 1 tile, a path from the dock simplified to ≤ 8 segments with one waypoint nudged 1–2 tiles, and an X within 1–2 tiles of the chest.
+- **ENG-6.3** THE engine SHALL end an Old Captain chart's path at its X, and no path point SHALL be the chest tile.
 - **ENG-6.2** THE engine SHALL choose 3 Old Captain chest tiles per day, one per depth class, on walkable tiles.
 
 ## ENG-7 Atlas (dev tool)
