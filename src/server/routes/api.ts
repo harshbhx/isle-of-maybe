@@ -3,6 +3,7 @@ import { Hono } from 'hono';
 import { buryChest, seenFor, submitChart } from '../services/bury.ts';
 import { pickCharts } from '../services/charts.ts';
 import { rateChart } from '../services/rating.ts';
+import { reportChart } from '../services/reports.ts';
 import {
   applySteps,
   dig,
@@ -93,6 +94,18 @@ api.post('/hunt/rate', (c) =>
       currentActor(),
       reqString(b, 'chartId', 80),
       reqVote(b, 'vote')
+    );
+  })
+);
+
+api.post('/chart/report', (c) =>
+  handle(c, async () => {
+    const b = await guarded(c.req.json());
+    return reportChart(
+      kv,
+      currentActor(),
+      reqString(b, 'chartId', 80),
+      Date.now()
     );
   })
 );

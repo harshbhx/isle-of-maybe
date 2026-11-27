@@ -90,3 +90,7 @@ export type Vote = 'true' | 'cursed';
 export const VOTES: readonly Vote[] = ['true', 'cursed'];
 export type RateRequest = { chartId: string; vote: Vote };
 export type RateResponse = { trueVotes: number; cursedVotes: number };
+
+export type ReportRequest = { chartId: string };
+/** Always the same answer, so reporting reveals nothing about other reports. */
+export type ReportResponse = { reported: true };
