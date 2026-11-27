@@ -1,0 +1,31 @@
+name: Spec change
+description: Change or add a requirement before changing code
+title: "spec: "
+labels: ["spec"]
+body:
+  - type: input
+    id: spec
+    attributes:
+      label: Spec
+      placeholder: specs/01-island-engine
+    validations:
+      required: true
+  - type: textarea
+    id: change
+    attributes:
+      label: What changes
+      description: Old requirement text → new requirement text (use EARS, keep IDs stable, add new IDs at the end)
+    validations:
+      required: true
+  - type: textarea
+    id: why
+    attributes:
+      label: Why
+      description: Playtest finding, bug, rule, or judge-facing reason
+    validations:
+      required: true
+  - type: textarea
+    id: impact
+    attributes:
+      label: Impact
+      description: Tasks, tests, docs and posted days affected
