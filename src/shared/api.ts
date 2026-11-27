@@ -85,3 +85,8 @@ export type BuryResponse = { at: Tile; depth: Depth };
 
 export type ChartSubmitRequest = { pieces: ChartPiece[] };
 export type ChartSubmitResponse = { chartId: string; ink: InkCheck };
+
+export type Vote = 'true' | 'cursed';
+export const VOTES: readonly Vote[] = ['true', 'cursed'];
+export type RateRequest = { chartId: string; vote: Vote };
+export type RateResponse = { trueVotes: number; cursedVotes: number };
