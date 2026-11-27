@@ -48,3 +48,22 @@ export const tierFor = (finds: number): Tier => {
   for (const [tier, min] of TIER_THRESHOLDS) if (finds >= min) return tier;
   return 'deckhand';
 };
+
+export type TierProgress = {
+  tier: Tier;
+  finds: number;
+  /** The next tier and the all-time finds it needs; null at the top. */
+  next: { tier: Tier; at: number } | null;
+};
+
+/** Where a player stands on the tier ladder, for the Dispatch (DAY-5.1). */
+export const tierProgress = (finds: number): TierProgress => {
+  const tier = tierFor(finds);
+  const i = TIER_THRESHOLDS.findIndex(([t]) => t === tier);
+  const up = i > 0 ? TIER_THRESHOLDS[i - 1] : undefined;
+  return {
+    tier,
+    finds,
+    next: up === undefined ? null : { tier: up[0], at: up[1] },
+  };
+};

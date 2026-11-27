@@ -8,6 +8,7 @@ import { K } from '../store/keys.ts';
 import { FakeKv } from '../testing/fake-kv.ts';
 import {
   DAY,
+  NOW,
   addChart,
   alice,
   anon,
@@ -17,6 +18,7 @@ import {
 import { requireDay } from './island.ts';
 import { applySteps, dig, giveUp, startHunt } from './hunts.ts';
 import { hasSeen, readSeen } from './seen.ts';
+import { readStreak } from './streak.ts';
 
 /** A walkable chest tile a few steps from the dock, and the route there. */
 const setup = async (): Promise<{ kv: FakeKv; chest: Tile; route: Tile[] }> => {
@@ -111,9 +113,9 @@ test('HUNT-3.2 / HUNT-3.3 steps reveal tiles and resent batches are no-ops', asy
 test('HUNT-4.1 you can only dig where you stand, and a near dig finds the chest', async () => {
   const { kv, chest, route } = await setup();
   await startHunt(kv, alice, DAY, 'bobs', 'h');
-  await assert.rejects(dig(kv, alice, 'h', chest), ApiError);
+  await assert.rejects(dig(kv, alice, 'h', chest, NOW), ApiError);
   await applySteps(kv, alice, 'h', 0, route.slice(1));
-  const r = await dig(kv, alice, 'h', chest);
+  const r = await dig(kv, alice, 'h', chest, NOW);
   assert.equal(r.found, true);
   assert.equal(r.done, true);
 });
@@ -125,7 +127,7 @@ test('HUNT-4.3 the chest is in no response before the hunt ends', async () => {
   responses.push(await applySteps(kv, alice, 'h', 0, route.slice(1, -1)));
   const far = route[route.length - 2];
   assert.ok(far !== undefined);
-  const miss = await dig(kv, alice, 'h', far);
+  const miss = await dig(kv, alice, 'h', far, NOW);
   if (!miss.done) {
     responses.push(miss);
     for (const r of responses) assert.equal(has(r, chest), false);
@@ -133,7 +135,7 @@ test('HUNT-4.3 the chest is in no response before the hunt ends', async () => {
     assert.ok(last !== undefined);
     responses.push(await applySteps(kv, alice, 'h', route.length - 2, [last]));
     assert.equal(has(responses[responses.length - 1], chest), false);
-    const end = await dig(kv, alice, 'h', last);
+    const end = await dig(kv, alice, 'h', last, NOW);
     assert.equal(has(end, chest), true);
   }
 });
@@ -142,23 +144,23 @@ test('HUNT-4.2 three misses end the hunt with a reveal of the chart error', asyn
   const { kv, chest } = await setup();
   const { island } = await requireDay(kv, DAY);
   await startHunt(kv, alice, DAY, 'bobs', 'h');
-  await dig(kv, alice, 'h', island.dock);
-  await dig(kv, alice, 'h', island.dock);
-  const last = await dig(kv, alice, 'h', island.dock);
+  await dig(kv, alice, 'h', island.dock, NOW);
+  await dig(kv, alice, 'h', island.dock, NOW);
+  const last = await dig(kv, alice, 'h', island.dock, NOW);
   assert.equal(last.done, true);
   assert.equal(last.reveal?.found, false);
   assert.deepEqual(last.reveal?.chest, chest);
   assert.deepEqual(last.reveal?.chartX, { x: chest.x + 1, y: chest.y });
   assert.equal(last.reveal?.distance, 1);
   assert.equal(last.reveal?.gold, 0);
-  await assert.rejects(dig(kv, alice, 'h', island.dock), ApiError);
+  await assert.rejects(dig(kv, alice, 'h', island.dock, NOW), ApiError);
 });
 
 test('HUNT-4.4 / HUNT-4.5 a find pays the finder and the author once, and updates stats', async () => {
   const { kv, chest, route } = await setup();
   await startHunt(kv, alice, DAY, 'bobs', 'h');
   await applySteps(kv, alice, 'h', 0, route.slice(1));
-  const r = await dig(kv, alice, 'h', chest);
+  const r = await dig(kv, alice, 'h', chest, NOW);
   assert.ok(r.reveal !== undefined && r.reveal.gold > 0);
   assert.equal(r.reveal.gold, 3 * (40 + 20 * 2) + 20);
   assert.equal(await kv.hGet(K.user(alice.id), 'gold'), String(r.reveal.gold));
@@ -167,10 +169,10 @@ test('HUNT-4.4 / HUNT-4.5 a find pays the finder and the author once, and update
   assert.equal(await kv.hGet(K.chartStats('bobs'), 'attempts'), '1');
   assert.equal(await kv.hGet(K.chartStats('bobs'), 'finds'), '1');
   assert.equal(await kv.zScore(K.chartsTrust(DAY), 'bobs'), 2 / 3);
-  assert.equal(await kv.hGet(K.streak(alice.id), DAY), '1');
+  assert.equal(await readStreak(kv, alice.id, NOW), 1);
   assert.equal(await kv.hGet(K.dayCounts(DAY), 'found'), '1');
   // A second end (double tap / give up after) pays nothing more.
-  const again = await giveUp(kv, alice, 'h');
+  const again = await giveUp(kv, alice, 'h', NOW);
   assert.deepEqual(again, r.reveal);
   assert.equal(await kv.hGet(K.user(alice.id), 'gold'), String(r.reveal.gold));
 });
@@ -178,10 +180,10 @@ test('HUNT-4.4 / HUNT-4.5 a find pays the finder and the author once, and update
 test('HUNT-2.3 logged-out hunts touch no boards and write no seen tiles', async () => {
   const { kv } = await setup();
   await startHunt(kv, anon, DAY, `cap-${DAY}-0`, 'h');
-  await giveUp(kv, anon, 'h');
+  await giveUp(kv, anon, 'h', NOW);
   assert.equal(await kv.get(K.seen(anon.id, DAY)), undefined);
   assert.equal(await kv.zCard(K.boardGoldDay(DAY)), 0);
-  assert.equal(await kv.hGet(K.streak(anon.id), DAY), undefined);
+  assert.equal(await readStreak(kv, anon.id, NOW), 0);
 });
 
 test('HUNT-6.1 more than 10 calls a second are rate limited', async () => {
@@ -200,7 +202,7 @@ test('CHART-4.1 hunts leave no key without a TTL', async () => {
   for (const k of kv.data.keys()) kv.ttl.set(k, 1); // ignore fixture writes
   await startHunt(kv, alice, DAY, 'bobs', 'h');
   await applySteps(kv, alice, 'h', 0, route.slice(1));
-  await dig(kv, alice, 'h', chest);
+  await dig(kv, alice, 'h', chest, NOW);
   assert.deepEqual(kv.keysWithoutTtl(), []);
   assert.ok(idx(chest.x, chest.y) >= 0);
 });

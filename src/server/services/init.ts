@@ -6,7 +6,9 @@ import { K } from '../store/keys.ts';
 import type { Kv } from '../store/kv.ts';
 import type { Actor } from './actor.ts';
 import { MAX_HUNTS_PER_DAY } from './charts.ts';
+import { dispatchFor } from './dispatch.ts';
 import { requireDay } from './island.ts';
+import { readStreak } from './streak.ts';
 
 const num = (v: string | undefined): number =>
   v === undefined ? 0 : Number(v) || 0;
@@ -14,7 +16,8 @@ const num = (v: string | undefined): number =>
 export const userState = async (
   kv: Kv,
   actor: Actor,
-  day: string
+  day: string,
+  nowMs: number
 ): Promise<UserState> => {
   const [u, ud] = await Promise.all([
     kv.hGetAll(K.user(actor.id)),
@@ -32,6 +35,7 @@ export const userState = async (
     gold: num(u.gold),
     finds,
     tier: tierFor(finds),
+    streak: actor.loggedIn ? await readStreak(kv, actor.id, nowMs) : 0,
   };
 };
 
@@ -44,6 +48,7 @@ export const initFor = async (
   const { rec, island } = await requireDay(kv, day);
   const today = utcDay(nowMs);
   const counts = await kv.hGetAll(K.dayCounts(day));
+  const user = await userState(kv, actor, day, nowMs);
   return {
     day,
     dayNumber: dayNumber(day),
@@ -55,6 +60,7 @@ export const initFor = async (
       found: num(counts.found),
       hunts: num(counts.hunts),
     },
-    user: await userState(kv, actor, day),
+    user,
+    dispatch: await dispatchFor(kv, actor, today, user.finds),
   };
 };

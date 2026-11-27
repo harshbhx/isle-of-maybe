@@ -1,7 +1,7 @@
 // Request and response types shared by the client and the /api routes (docs/05-ARCHITECTURE.md §4).
 import type { Modifier } from './day.ts';
 import type { InkCheck } from './chart.ts';
-import type { Tier } from './scoring.ts';
+import type { Tier, TierProgress } from './scoring.ts';
 import type { ChartPiece, Depth, Tile } from './types.ts';
 
 export type ApiErrorBody = { error: string; message: string };
@@ -34,6 +34,8 @@ export type UserState = {
   gold: number;
   finds: number;
   tier: Tier;
+  /** Consecutive days with a finished hunt, ending today or yesterday (DAY-4.2). */
+  streak: number;
 };
 
 export type InitResponse = {
@@ -46,7 +48,25 @@ export type InitResponse = {
   island: { seed: string; modifier: Modifier; name: string };
   counts: { buried: number; found: number; hunts: number };
   user: UserState;
+  dispatch: Dispatch;
 };
+
+/** How one of your charts from the last 3 days did (DAY-5.1). */
+export type DispatchChart = {
+  day: string;
+  dayNumber: number;
+  chartId: string;
+  depth: Depth;
+  attempts: number;
+  finds: number;
+  trueVotes: number;
+  cursedVotes: number;
+  /** Gold you earned from finders of this chart. */
+  salvage: number;
+};
+
+/** Newest first. Empty when you have no chart from the last 3 days. */
+export type Dispatch = { charts: DispatchChart[]; tier: TierProgress };
 
 export type HuntStartRequest = { chartId: string };
 export type HuntStartResponse = { huntId: string; at: Tile; shovels: number };

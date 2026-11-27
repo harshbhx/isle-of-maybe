@@ -31,6 +31,7 @@ import {
 } from './charts.ts';
 import { requireDay } from './island.ts';
 import { addSeen } from './seen.ts';
+import { markStreak } from './streak.ts';
 import { weekKey } from './weeks.ts';
 
 export const SHOVELS = 3;
@@ -170,7 +171,8 @@ const endHunt = async (
   actor: Actor,
   hunt: Hunt,
   found: boolean,
-  shovelsLeft: number
+  shovelsLeft: number,
+  nowMs: number
 ): Promise<Reveal> => {
   // Exactly once, even if the client double-taps (no double pay).
   const first = (await kv.hSetNX(K.hunt(hunt.id), 'ended', '1')) === 1;
@@ -214,7 +216,7 @@ const endHunt = async (
       { [chart.id]: found ? 'found' : 'missed' },
       TTL.chart
     );
-    await hSetTtl(kv, K.streak(actor.id), { [hunt.day]: '1' }, TTL.streak);
+    await markStreak(kv, actor.id, nowMs);
     if (actor.name !== null)
       await hSetTtl(kv, K.user(actor.id), { name: actor.name }, TTL.user);
     if (gold > 0) {
@@ -259,7 +261,8 @@ export const dig = async (
   kv: Kv,
   actor: Actor,
   huntId: string,
-  at: Tile
+  at: Tile,
+  nowMs: number
 ): Promise<DigResponse> => {
   const hunt = await loadHunt(kv, actor, huntId);
   if (hunt.done) throw new ApiError('conflict', 'hunt is over');
@@ -278,19 +281,20 @@ export const dig = async (
     found,
     shovelsLeft,
     done: true,
-    reveal: await endHunt(kv, actor, hunt, found, shovelsLeft),
+    reveal: await endHunt(kv, actor, hunt, found, shovelsLeft, nowMs),
   };
 };
 
 export const giveUp = async (
   kv: Kv,
   actor: Actor,
-  huntId: string
+  huntId: string,
+  nowMs: number
 ): Promise<Reveal> => {
   const hunt = await loadHunt(kv, actor, huntId);
   if (hunt.done) {
     const stored = await kv.hGet(K.hunt(huntId), 'reveal');
     if (stored !== undefined) return JSON.parse(stored);
   }
-  return endHunt(kv, actor, hunt, false, hunt.shovels);
+  return endHunt(kv, actor, hunt, false, hunt.shovels, nowMs);
 };
