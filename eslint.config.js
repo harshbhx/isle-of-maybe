@@ -22,11 +22,24 @@ export default defineConfig([
   {
     extends: [js.configs.recommended, ...tseslint.configs.recommended],
     files: ['src/shared/**/*.{ts,tsx,mjs,cjs,js}'],
+    ignores: ['src/shared/**/*.test.ts'],
     languageOptions: {
       ecmaVersion: 2023,
       globals: globals.browser,
       parserOptions: {
         project: ['./tools/tsconfig.shared.json'],
+        tsconfigRootDir: import.meta.dirname,
+      },
+    },
+  },
+  {
+    extends: [js.configs.recommended, ...tseslint.configs.recommended],
+    files: ['src/shared/**/*.test.ts'],
+    languageOptions: {
+      ecmaVersion: 2023,
+      globals: globals.node,
+      parserOptions: {
+        project: ['./tools/tsconfig.test.json'],
         tsconfigRootDir: import.meta.dirname,
       },
     },
@@ -77,5 +90,10 @@ export default defineConfig([
     },
     plugins: { js },
     extends: ['js/recommended'],
+  },
+  {
+    // node:test's test() returns a promise that the runner tracks itself.
+    files: ['src/shared/**/*.test.ts'],
+    rules: { '@typescript-eslint/no-floating-promises': 'off' },
   },
 ]);
