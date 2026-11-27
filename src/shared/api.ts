@@ -1,7 +1,7 @@
 // Request and response types shared by the client and the /api routes (docs/05-ARCHITECTURE.md §4).
 import type { Modifier } from './day.ts';
 import type { Tier } from './scoring.ts';
-import type { ChartPiece, Depth } from './types.ts';
+import type { ChartPiece, Depth, Tile } from './types.ts';
 
 export type ApiErrorBody = { error: string; message: string };
 
@@ -46,3 +46,32 @@ export type InitResponse = {
   counts: { buried: number; found: number; hunts: number };
   user: UserState;
 };
+
+export type HuntStartRequest = { chartId: string };
+export type HuntStartResponse = { huntId: string; at: Tile; shovels: number };
+
+/** Steps from index `from` onward; resending an already-applied batch is a no-op. */
+export type StepsRequest = { huntId: string; from: number; steps: Tile[] };
+export type StepsResponse = { at: Tile; index: number };
+
+export type DigRequest = { huntId: string; at: Tile };
+
+/** Sent only when a hunt ends: the one moment the chest position leaves the server. */
+export type Reveal = {
+  found: boolean;
+  chest: Tile;
+  chartX: Tile | null;
+  /** Paces between the chart's X and the chest. */
+  distance: number | null;
+  gold: number;
+  steps: number;
+  shovelsLeft: number;
+};
+
+export type DigResponse = {
+  found: boolean;
+  shovelsLeft: number;
+  done: boolean;
+  reveal?: Reveal;
+};
+export type GiveUpRequest = { huntId: string };
