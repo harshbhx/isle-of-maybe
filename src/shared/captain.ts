@@ -109,6 +109,8 @@ export const captainChart = (
     return { k: 'stamp', t: l.type, x: j.x, y: j.y };
   });
 
+  // The captain's X is 1–2 tiles off, and his path leads to the X, never onto the chest (ENG-6.3).
+  const x = jitter(rng, chest, 1, 2);
   const route = aStar(island.terrain, island.dock, chest) ?? [
     island.dock,
     chest,
@@ -116,13 +118,18 @@ export const captainChart = (
   const pts = simplifyTo(route, 9);
   if (pts.length > 2) {
     const i = int(rng, 1, pts.length - 2);
-    pts[i] = jitter(rng, at(pts, i), 1, 2);
+    let nudged = jitter(rng, at(pts, i), 1, 2);
+    if (nudged.x === chest.x && nudged.y === chest.y) nudged = at(pts, i);
+    pts[i] = nudged;
   }
-  const cleaned = pts.filter(
-    (p, i) => i === 0 || p.x !== at(pts, i - 1).x || p.y !== at(pts, i - 1).y
-  );
+  pts[pts.length - 1] = x;
+  const cleaned = pts
+    .filter((p) => p.x !== chest.x || p.y !== chest.y)
+    .filter(
+      (p, i, all) =>
+        i === 0 || p.x !== at(all, i - 1).x || p.y !== at(all, i - 1).y
+    );
 
-  const x = jitter(rng, chest, 1, 2);
   const pieces: ChartPiece[] = [...stamps];
   if (cleaned.length >= 2) pieces.push({ k: 'path', pts: cleaned });
   pieces.push({ k: 'x', x: x.x, y: x.y });
