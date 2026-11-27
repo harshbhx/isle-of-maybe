@@ -46,3 +46,5 @@ export const handle = async <T>(
     );
   }
 };
+
+export { rateLimit } from './http-limits.ts';
