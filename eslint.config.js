@@ -93,7 +93,7 @@ export default defineConfig([
   },
   {
     // node:test's test() returns a promise that the runner tracks itself.
-    files: ['src/shared/**/*.test.ts'],
+    files: ['src/shared/**/*.test.ts', 'src/server/**/*.test.ts'],
     rules: { '@typescript-eslint/no-floating-promises': 'off' },
   },
 ]);
