@@ -8,3 +8,4 @@
 - [x] T15 Old Captain chests and charts — ENG-6.1, ENG-6.2
 - [ ] T16 Atlas dev tool for 30 upcoming islands — ENG-7.1
 - [ ] T17 Review the Atlas and add seed overrides (Harsh) — ENG-2.8
+- [ ] T15b Old Captain path ends at the X, never on the chest (bug #79) — ENG-6.3
