@@ -6,6 +6,7 @@ import { K } from '../store/keys.ts';
 import { FakeKv } from '../testing/fake-kv.ts';
 import {
   DAY,
+  NOW,
   addChart,
   alice,
   anon,
@@ -33,7 +34,7 @@ const huntAndQuit = async (
   id: string
 ): Promise<void> => {
   await startHunt(kv, who, DAY, chartId, id);
-  await giveUp(kv, who, id);
+  await giveUp(kv, who, id, NOW);
 };
 
 test('HUNT-5.1 only players who finished a hunt on the chart may rate it', async () => {
@@ -41,7 +42,7 @@ test('HUNT-5.1 only players who finished a hunt on the chart may rate it', async
   await assert.rejects(rateChart(kv, alice, 'bobs', 'true'), code('forbidden'));
   await startHunt(kv, alice, DAY, 'bobs', 'h');
   await assert.rejects(rateChart(kv, alice, 'bobs', 'true'), code('forbidden'));
-  await giveUp(kv, alice, 'h');
+  await giveUp(kv, alice, 'h', NOW);
   const r = await rateChart(kv, alice, 'bobs', 'true');
   assert.deepEqual(r, { trueVotes: 1, cursedVotes: 0 });
   await assert.rejects(

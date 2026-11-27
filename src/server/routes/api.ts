@@ -75,14 +75,27 @@ api.post('/hunt/steps', (c) =>
 api.post('/hunt/dig', (c) =>
   handle(c, async () => {
     const b = await guarded(c.req.json());
-    return dig(kv, currentActor(), reqString(b, 'huntId'), reqTile(b, 'at'));
+    return dig(
+      kv,
+      currentActor(),
+      reqString(b, 'huntId'),
+      reqTile(b, 'at'),
+      Date.now()
+    );
   })
 );
 
 api.post('/hunt/giveup', (c) =>
   handle(c, async () => {
     const b = await guarded(c.req.json());
-    return { reveal: await giveUp(kv, currentActor(), reqString(b, 'huntId')) };
+    return {
+      reveal: await giveUp(
+        kv,
+        currentActor(),
+        reqString(b, 'huntId'),
+        Date.now()
+      ),
+    };
   })
 );
 
