@@ -1,5 +1,6 @@
 // Public API for the game client. Every route lives under /api (Devvit Web requirement).
 import { Hono } from 'hono';
+import { buryChest, seenFor, submitChart } from '../services/bury.ts';
 import { pickCharts } from '../services/charts.ts';
 import {
   applySteps,
@@ -15,8 +16,12 @@ import {
   reqString,
   reqTile,
   reqTiles,
+  reqPieces,
 } from '../store/guards.ts';
 import { currentActor, handle, kv, postDay, rateLimit } from './http.ts';
+
+/** 6 stamps + 1 path + 1 X fit well inside this; validateChart enforces the real budget. */
+const MAX_PIECES = 16;
 
 export const api = new Hono();
 
@@ -75,5 +80,36 @@ api.post('/hunt/giveup', (c) =>
   handle(c, async () => {
     const b = await guarded(c.req.json());
     return { reveal: await giveUp(kv, currentActor(), reqString(b, 'huntId')) };
+  })
+);
+
+api.get('/seen', (c) =>
+  handle(c, async () => seenFor(kv, currentActor(), await postDay()))
+);
+
+api.post('/bury', (c) =>
+  handle(c, async () => {
+    const b = await guarded(c.req.json());
+    return buryChest(
+      kv,
+      currentActor(),
+      await postDay(),
+      reqTile(b, 'at'),
+      Date.now()
+    );
+  })
+);
+
+api.post('/chart', (c) =>
+  handle(c, async () => {
+    const b = await guarded(c.req.json());
+    return submitChart(
+      kv,
+      currentActor(),
+      await postDay(),
+      reqPieces(b, 'pieces', MAX_PIECES),
+      crypto.randomUUID(),
+      Date.now()
+    );
   })
 );
