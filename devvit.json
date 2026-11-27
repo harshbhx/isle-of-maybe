@@ -17,19 +17,40 @@
     "dir": "dist/server",
     "entry": "index.cjs"
   },
+  "permissions": {
+    "redis": true,
+    "reddit": {
+      "enable": true
+    }
+  },
+  "scheduler": {
+    "tasks": {
+      "daily-island": {
+        "endpoint": "/internal/jobs/daily",
+        "cron": "0 0 * * *"
+      }
+    }
+  },
+  "triggers": {
+    "onAppInstall": "/internal/triggers/install"
+  },
   "menu": {
     "items": [
       {
-        "label": "Create a new post",
-        "description": "isle-of-maybe",
+        "label": "Isle of Maybe: Post today's island",
+        "description": "Create today's island post if it is missing",
         "location": "subreddit",
         "forUserType": "moderator",
-        "endpoint": "/internal/menu/post-create"
+        "endpoint": "/internal/menu/post-today"
+      },
+      {
+        "label": "Isle of Maybe: Re-run daily job",
+        "description": "Fill in anything today's job missed",
+        "location": "subreddit",
+        "forUserType": "moderator",
+        "endpoint": "/internal/menu/rerun"
       }
     ]
-  },
-  "triggers": {
-    "onAppInstall": "/internal/triggers/on-app-install"
   },
   "scripts": {
     "dev": "vite build --watch",
