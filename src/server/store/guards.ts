@@ -5,6 +5,7 @@ import {
   type ChartPiece,
   type Tile,
 } from '../../shared/types.ts';
+import { VOTES, type Vote } from '../../shared/api.ts';
 import { ApiError } from './errors.ts';
 
 export const isRecord = (v: unknown): v is Record<string, unknown> =>
@@ -110,4 +111,11 @@ export const reqPieces = (
       `${key} must be a list of at most ${max}`
     );
   return v.map(asPiece);
+};
+
+export const reqVote = (body: Record<string, unknown>, key: string): Vote => {
+  const v = VOTES.find((x) => x === body[key]);
+  if (v === undefined)
+    throw new ApiError('bad_request', `${key} must be true or cursed`);
+  return v;
 };

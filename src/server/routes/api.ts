@@ -2,6 +2,7 @@
 import { Hono } from 'hono';
 import { buryChest, seenFor, submitChart } from '../services/bury.ts';
 import { pickCharts } from '../services/charts.ts';
+import { rateChart } from '../services/rating.ts';
 import {
   applySteps,
   dig,
@@ -17,6 +18,7 @@ import {
   reqTile,
   reqTiles,
   reqPieces,
+  reqVote,
 } from '../store/guards.ts';
 import { currentActor, handle, kv, postDay, rateLimit } from './http.ts';
 
@@ -80,6 +82,18 @@ api.post('/hunt/giveup', (c) =>
   handle(c, async () => {
     const b = await guarded(c.req.json());
     return { reveal: await giveUp(kv, currentActor(), reqString(b, 'huntId')) };
+  })
+);
+
+api.post('/hunt/rate', (c) =>
+  handle(c, async () => {
+    const b = await guarded(c.req.json());
+    return rateChart(
+      kv,
+      currentActor(),
+      reqString(b, 'chartId', 80),
+      reqVote(b, 'vote')
+    );
   })
 );
 
