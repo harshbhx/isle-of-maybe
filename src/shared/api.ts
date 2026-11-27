@@ -1,5 +1,6 @@
 // Request and response types shared by the client and the /api routes (docs/05-ARCHITECTURE.md §4).
 import type { Modifier } from './day.ts';
+import type { InkCheck } from './chart.ts';
 import type { Tier } from './scoring.ts';
 import type { ChartPiece, Depth, Tile } from './types.ts';
 
@@ -75,3 +76,12 @@ export type DigResponse = {
   reveal?: Reveal;
 };
 export type GiveUpRequest = { huntId: string };
+
+/** Today's seen-tiles mask as hex (see `src/shared/seen.ts`); the bury screen fogs everything else. */
+export type SeenResponse = { mask: string };
+
+export type BuryRequest = { at: Tile };
+export type BuryResponse = { at: Tile; depth: Depth };
+
+export type ChartSubmitRequest = { pieces: ChartPiece[] };
+export type ChartSubmitResponse = { chartId: string; ink: InkCheck };
