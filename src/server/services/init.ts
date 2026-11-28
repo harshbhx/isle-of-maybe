@@ -10,7 +10,7 @@ import { depthClass } from '../../shared/depth.ts';
 import { tierFor } from '../../shared/scoring.ts';
 import type { Island } from '../../shared/types.ts';
 import { K } from '../store/keys.ts';
-import type { Kv } from '../store/kv.ts';
+import { TTL, hSetTtl, type Kv } from '../store/kv.ts';
 import type { Actor } from './actor.ts';
 import { MAX_HUNTS_PER_DAY, readStats } from './charts.ts';
 import { dispatchFor } from './dispatch.ts';
@@ -70,6 +70,7 @@ export const userState = async (
     finds,
     tier: tierFor(finds),
     streak: actor.loggedIn ? await readStreak(kv, actor.id, nowMs) : 0,
+    practiced: u.practiced === '1',
     chest: actor.loggedIn ? await myChest(kv, ud, island) : null,
   };
 };
@@ -109,4 +110,13 @@ export const initFor = async (
     user,
     dispatch: await dispatchFor(kv, actor, today, user.finds),
   };
+};
+
+/** Remember that this player finished or skipped Practice Cove (UI-9.2). */
+export const markPracticed = async (
+  kv: Kv,
+  actor: Actor
+): Promise<{ practiced: true }> => {
+  await hSetTtl(kv, K.user(actor.id), { practiced: '1' }, TTL.user);
+  return { practiced: true };
 };

@@ -52,3 +52,16 @@ test('HUNT-1.1 / HUNT-2.1 a client can open the day, pick and start a hunt over 
   );
   assert.equal((await api.request('/boards/nope')).status, 400);
 });
+
+test('UI-9.2 Practice Cove completion is remembered on the server', async () => {
+  const { api } = await app();
+  const before: InitResponse = await (await api.request('/init')).json();
+  assert.equal(before.user.practiced, false);
+  assert.equal(
+    (await api.request('/practice/done', { method: 'POST', body: '{}' }))
+      .status,
+    200
+  );
+  const after: InitResponse = await (await api.request('/init')).json();
+  assert.equal(after.user.practiced, true);
+});
