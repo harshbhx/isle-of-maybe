@@ -8,6 +8,6 @@
 - [x] T55 Hints and copy pass — UI-4.2, UI-4.3
 - [ ] T56 Motion pass with reduced motion — UI-5.1
 - [ ] T57 Generated sound effects, off by default — UI-5.2
-- [ ] T63 Practice Cove first-time tutorial — UI-9.1, UI-9.2
+- [x] T63 Practice Cove first-time tutorial — UI-9.1, UI-9.2
 - [x] T64 Entry points, expanded mode and direct launch — UI-1.1, UI-1.2, UI-1.3
 - [ ] T65 Accessibility and console-clean audit — UI-6.1, UI-6.2, UI-8.3
