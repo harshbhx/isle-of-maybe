@@ -34,7 +34,7 @@ import { Button, Sheet, ShovelIcon, SrTitle } from '../components/ui.tsx';
 import { copy, fmt } from '../copy.ts';
 import { IslandCanvas } from '../island/IslandCanvas.tsx';
 import type { Footprint } from '../island/draw.ts';
-import { useKeys, useRoute } from '../island/input.ts';
+import { useDriveKeys, useKeys, useRoute } from '../island/input.ts';
 import { reducedMotion, useWalker } from '../island/walker.ts';
 import { ApiFailure, post } from '../lib/api.ts';
 import { emptyMask, reveal } from '../lib/fog.ts';
@@ -195,50 +195,7 @@ export const Hunt = ({ start, chart }: Props) => {
   }, [h3d]);
 
   // Keys in 3D: hold to move, Shift to run.
-  useEffect(() => {
-    if (h3d === null) return;
-    const down = new Set<string>();
-    const push = (): void => {
-      const x =
-        (down.has('arrowright') || down.has('d') ? 1 : 0) -
-        (down.has('arrowleft') || down.has('a') ? 1 : 0);
-      const y =
-        (down.has('arrowdown') || down.has('s') ? 1 : 0) -
-        (down.has('arrowup') || down.has('w') ? 1 : 0);
-      const len = Math.hypot(x, y) || 1;
-      h3d.input(x / len, y / len, down.has('shift'));
-    };
-    const keys = [
-      'arrowup',
-      'arrowdown',
-      'arrowleft',
-      'arrowright',
-      'w',
-      'a',
-      's',
-      'd',
-      'shift',
-    ];
-    const on = (e: KeyboardEvent): void => {
-      const k = e.key.toLowerCase();
-      if (!keys.includes(k)) return;
-      if (
-        e.target instanceof HTMLElement &&
-        /INPUT|TEXTAREA|SELECT/.test(e.target.tagName)
-      )
-        return;
-      e.preventDefault();
-      if (e.type === 'keydown') down.add(k);
-      else down.delete(k);
-      push();
-    };
-    window.addEventListener('keydown', on);
-    window.addEventListener('keyup', on);
-    return () => {
-      window.removeEventListener('keydown', on);
-      window.removeEventListener('keyup', on);
-    };
-  }, [h3d]);
+  useDriveKeys(h3d);
 
   // The tide (ADV-1, ADV-4.2): each wave takes 3 s to roll in; the server ends the hunt at 150 s.
   const outOfTime = useRef(false);

@@ -13,6 +13,6 @@
 - [ ] T100 (#178) Live ghost explorers — ADV-6.6, ADV-6.7
 - [ ] T101 (#179) Adaptive quality and the bundle budget — ADV-7.1, ADV-7.2
 - [ ] T102 (#187) Floating joystick (shared by the hunt and Practice Cove) — ADV-3.1
-- [ ] T103 (#188) Practice Cove in 3D with a 5-step coach — ADV-9.1, ADV-9.2
+- [x] T103 (#188) Practice Cove in 3D with a 5-step coach — ADV-9.1, ADV-9.2
 - [ ] T104 (#189) Chart editor: coach strip, labels, loupe, haptics — ADV-9.3, ADV-9.4
 - [ ] T105 (#190) Motion components and the UX audit pass — ADV-9.5

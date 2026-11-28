@@ -1,16 +1,28 @@
-// Practice Cove (UI-9.1): a fixed island, a perfect Old Captain chart and the hunt hints, played
-// entirely in the browser in under a minute. Skippable; finishing or skipping is remembered (UI-9.2).
-import { useCallback, useMemo, useState } from 'react';
+// Practice Cove (UI-9.1, ADV-9.1): a fixed island and a perfect Old Captain chart, played entirely in
+// the browser. In 3D a coach walks you through five steps (move, run, read the chart, the tide, dig)
+// and the find plays the real chest cinematic. Skippable at any step; remembered (UI-9.2).
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { revealRadius } from '../../shared/day.ts';
 import { generateIsland } from '../../shared/island.ts';
 import { aStar, digFinds, walkable } from '../../shared/path.ts';
-import type { ChartPiece, Island, Tile } from '../../shared/types.ts';
+import {
+  W,
+  type ChartPiece,
+  type Island,
+  type Tile,
+} from '../../shared/types.ts';
 import { useApp } from '../app-context.ts';
 import { ChartView } from '../components/ChartView.tsx';
+import { Coach } from '../components/Coach.tsx';
+import { Joystick } from '../components/Joystick.tsx';
+import type { Island3D } from '../island/three/island3d.ts';
+import { reducedMotion } from '../island/walker.ts';
 import { Button, Card, ShovelIcon, Title } from '../components/ui.tsx';
 import { copy } from '../copy.ts';
+import { coastDistance, flooded } from '../../shared/tide.ts';
+import { hazardsFor } from '../../shared/hazards.ts';
 import type { Footprint, Marker } from '../island/draw.ts';
-import { useKeys, useRoute } from '../island/input.ts';
+import { useDriveKeys, useKeys, useRoute } from '../island/input.ts';
 import { IslandCanvas } from '../island/IslandCanvas.tsx';
 import { useWalker } from '../island/walker.ts';
 import { post } from '../lib/api.ts';
@@ -77,6 +89,25 @@ export const Practice = ({ onDone }: { onDone: () => void }) => {
   const [shovels, setShovels] = useState(3);
   const [walked, setWalked] = useState(false);
   const walker = useWalker(island.dock);
+  // 3D coaching (ADV-9.1): the steps wait for the player; steps are counted from the explorer.
+  const [h3d, setH3d] = useState<Island3D | null>(null);
+  const [coach, setCoach] = useState(0);
+  const stepCount = useRef(0);
+  const coachRef = useRef(0);
+  const advance = useCallback((n: number) => {
+    coachRef.current = n;
+    setCoach(n);
+  }, []);
+  const [chartOpen, setChartOpen] = useState(false);
+  const stepsAt = useRef(0);
+  const viewRef = useRef<HTMLDivElement>(null);
+  const coast = useMemo(() => coastDistance(island), [island]);
+  const hz = useMemo(() => hazardsFor(island), [island]);
+  const tideRef = useRef(0);
+  const touch = useMemo(
+    () => window.matchMedia?.('(pointer: coarse)').matches ?? false,
+    []
+  );
 
   const finish = useCallback(() => {
     void post('/practice/done').catch(() => undefined);
@@ -95,16 +126,80 @@ export const Practice = ({ onDone }: { onDone: () => void }) => {
     },
     [walker, at, r]
   );
+  useEffect(() => {
+    if (h3d === null || stage !== 'play') return;
+    h3d.drive({
+      start: at,
+      blocked: (x, y) =>
+        !walkable(island.terrain, x, y) ||
+        flooded(coast, { x, y }, tideRef.current),
+      ground: (x, y) => {
+        const i = y * W + x;
+        // No quicksand in practice: the cove teaches moving, not traps.
+        return hz.thicket.has(i) ? 'thicket' : 'open';
+      },
+      onStep: (t) => {
+        setWalked(true);
+        // Coach steps that finish by doing: walk 3 tiles, then 8 more (running).
+        stepCount.current += 1;
+        if (coachRef.current === 0 && stepCount.current >= 3) {
+          stepsAt.current = stepCount.current;
+          advance(1);
+        } else if (
+          coachRef.current === 1 &&
+          stepCount.current - stepsAt.current >= 8
+        )
+          advance(2);
+        setSeen((m) => reveal(m, [t], r));
+        setPrints((p) => [...p.slice(-60), { ...t, t: performance.now() }]);
+        setAt(t);
+      },
+    });
+    return () => h3d.drive(null);
+    // Driving starts once per renderer; `at` is only its starting tile.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [h3d, stage]);
+  // The practice tide: a gentle rise over 60 s, never a failure (ADV-9.1).
+  useEffect(() => {
+    if (h3d === null || stage !== 'play') return;
+    const born = performance.now();
+    const id = window.setInterval(() => {
+      const el = (performance.now() - born) / 1000;
+      h3d.setTide(Math.min(1, el / 60));
+      tideRef.current = el >= 60 ? 1 : 0;
+    }, 250);
+    return () => window.clearInterval(id);
+  }, [h3d, stage]);
+
+  useDriveKeys(stage === 'play' ? h3d : null);
   const input = useRoute(
     island.terrain,
     at,
     walker.busy || stage !== 'play',
     go
   );
-  const dig = (): void => {
-    if (walker.busy || stage !== 'play' || shovels <= 0) return;
+  const [digging, setDigging] = useState(false);
+  const dig = async (): Promise<void> => {
+    if (walker.busy || digging || stage !== 'play' || shovels <= 0) return;
+    if (h3d !== null) {
+      setDigging(true);
+      h3d.pose('dig');
+      await new Promise((ok) =>
+        window.setTimeout(ok, reducedMotion() ? 0 : 1100)
+      );
+      h3d.pose(null);
+      setDigging(false);
+    }
     setHoles((h) => [...h, at]);
     if (digFinds(at, chest)) {
+      if (h3d !== null)
+        await h3d.cinematic({
+          kind: 'found',
+          chest,
+          label: copy.hunt.plaqueCaptain,
+          stamp: null,
+          font: "'Fraunces', Georgia, serif",
+        });
       setStage('won');
       app.announce(copy.practice.done);
       return;
@@ -114,12 +209,12 @@ export const Practice = ({ onDone }: { onDone: () => void }) => {
   };
   useKeys(
     {
-      ArrowUp: () => input.step(0, -1),
-      ArrowDown: () => input.step(0, 1),
-      ArrowLeft: () => input.step(-1, 0),
-      ArrowRight: () => input.step(1, 0),
+      ArrowUp: () => h3d === null && input.step(0, -1),
+      ArrowDown: () => h3d === null && input.step(0, 1),
+      ArrowLeft: () => h3d === null && input.step(-1, 0),
+      ArrowRight: () => h3d === null && input.step(1, 0),
       Enter: () => void input.confirm(),
-      ' ': dig,
+      ' ': () => void dig(),
     },
     stage === 'play'
   );
@@ -172,12 +267,22 @@ export const Practice = ({ onDone }: { onDone: () => void }) => {
       </div>
     );
   }
-  const hint =
+  const total = 5;
+  const coachText = [
+    touch ? copy.practice.move.touch : copy.practice.move.keys,
+    touch ? copy.practice.run.touch : copy.practice.run.keys,
+    copy.practice.chart,
+    copy.practice.tide,
+    copy.practice.dig,
+  ][coach];
+  const hint2d =
     stage === 'won'
       ? copy.practice.done
       : !walked
         ? copy.hint.hunt
         : copy.hint.dig;
+  const target = (k: number): string =>
+    h3d !== null && stage === 'play' && coach === k ? 'coach-target' : '';
   return (
     <div className="flex h-full flex-col">
       <div className="flex items-center gap-3 px-3 py-1 text-sm">
@@ -188,26 +293,75 @@ export const Practice = ({ onDone }: { onDone: () => void }) => {
           ))}
         </span>
       </div>
-      <div className="relative min-h-0 flex-1">
+      <div ref={viewRef} className="relative min-h-0 flex-1">
         <IslandCanvas
           scene={scene}
-          zoom={1.5}
+          zoom={h3d !== null ? 1 : 1.5}
           focus={walker.pos}
-          onTap={(t) => (walker.busy ? walker.skip() : input.onTap(t))}
+          onTap={(t) =>
+            h3d !== null
+              ? h3d.goTo(t)
+              : walker.busy
+                ? walker.skip()
+                : input.onTap(t)
+          }
+          onHandle={setH3d}
           label={copy.practice.title}
         />
-        <div
-          className="parchment pointer-events-none absolute right-2 top-2 w-28 p-1 sm:w-36"
-          aria-hidden
+        {h3d !== null && touch && stage === 'play' && (
+          <Joystick
+            label={copy.hunt.stick}
+            showHint={coach === 0}
+            onMove={(x, y) => h3d.input(x, y, false)}
+            onTap={(cx, cy) => {
+              const rect = viewRef.current?.getBoundingClientRect();
+              if (rect === undefined) return;
+              const t = h3d.tileAt(cx - rect.left, cy - rect.top);
+              if (t !== null) h3d.goTo(t);
+            }}
+          />
+        )}
+        <button
+          type="button"
+          onClick={() => {
+            setChartOpen(true);
+            if (coach === 2) advance(3);
+          }}
+          aria-label={copy.practice.chartTitle}
+          className={`parchment absolute right-2 top-2 w-28 p-1 sm:w-36 ${target(2)}`}
         >
           <ChartView island={island} pieces={pieces} captain label="" />
+        </button>
+        <div className="absolute left-2 right-32 top-2 sm:right-40">
+          {h3d !== null && stage === 'play' ? (
+            <Coach
+              step={coach + 1}
+              total={total}
+              text={coachText ?? ''}
+              {...(coach === 3 ? { onNext: () => advance(4) } : {})}
+              onSkip={finish}
+            />
+          ) : (
+            <p className="parchment anim-rise px-3 py-2 text-sm" role="status">
+              {h3d !== null ? copy.practice.done : hint2d}
+            </p>
+          )}
         </div>
-        <p
-          className="parchment anim-rise absolute left-2 right-32 top-2 px-3 py-2 text-sm sm:right-40"
-          role="status"
-        >
-          {hint}
-        </p>
+        {chartOpen && (
+          <div className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-3 bg-lagoon/50 p-4 anim-fade">
+            <div className="parchment w-full max-w-[360px] p-2">
+              <ChartView
+                island={island}
+                pieces={pieces}
+                captain
+                label={copy.practice.chartTitle}
+              />
+            </div>
+            <Button kind="gold" onClick={() => setChartOpen(false)}>
+              {copy.common.close}
+            </Button>
+          </div>
+        )}
       </div>
       <div className="flex items-center gap-2 px-3 py-3">
         {stage === 'won' ? (
@@ -221,9 +375,9 @@ export const Practice = ({ onDone }: { onDone: () => void }) => {
             </Button>
             <Button
               kind="gold"
-              className="ml-auto min-w-28"
-              onClick={dig}
-              disabled={walker.busy}
+              className={`ml-auto min-w-28 ${target(4)}`}
+              onClick={() => void dig()}
+              disabled={walker.busy || digging}
             >
               {copy.hunt.dig}
             </Button>

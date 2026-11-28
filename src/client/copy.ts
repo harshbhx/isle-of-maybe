@@ -217,10 +217,27 @@ export const copy = {
   },
   practice: {
     title: 'Practice Cove',
-    intro: 'A tiny island and a perfect map. 45 seconds.',
+    intro: 'A tiny island, a perfect map and five quick steps. Under a minute.',
     start: 'Try it',
     skip: 'Skip',
     done: 'You can read a map. Now the real island.',
+    chartTitle: 'The Old Captain’s chart',
+    move: {
+      touch: 'Put your thumb anywhere on the left and drag to walk.',
+      keys: 'Hold W A S D or the arrow keys to walk.',
+    },
+    run: {
+      touch: 'Push the stick right to the edge to run.',
+      keys: 'Hold Shift while you walk to run.',
+    },
+    chart: 'The chart shows the way to the chest. Tap it to look closer.',
+    tide: 'Every real hunt has a timer: the tide comes in and floods the low beach. Find the chest before it does.',
+    dig: 'Walk to where the X is and tap Dig.',
+  },
+  coach: {
+    step: '{n}/{t}',
+    skip: 'Skip',
+    next: 'Got it',
   },
   common: {
     loading: 'Reading the charts…',
