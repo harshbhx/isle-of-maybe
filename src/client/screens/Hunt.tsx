@@ -10,6 +10,11 @@ import type {
   StepsResponse,
 } from '../../shared/api.ts';
 import { revealRadius } from '../../shared/day.ts';
+import {
+  PACE_SLACK_SECONDS,
+  hazardsFor,
+  stepSeconds,
+} from '../../shared/hazards.ts';
 import type { Tile } from '../../shared/types.ts';
 import { useApp } from '../app-context.ts';
 import { ChartView } from '../components/ChartView.tsx';
@@ -51,20 +56,53 @@ export const Hunt = ({ start, chart }: Props) => {
   const pending = useRef<Tile[]>([]);
   const index = useRef(0);
   const flushing = useRef<Promise<void>>(Promise.resolve());
+  const hz = useMemo(() => hazardsFor(island), [island]);
+  // The client's clock starts a moment after the server's, so pacing by it never runs ahead of
+  // the server's check (ADV-2.3). `sentT` is the summed minimum time of the confirmed steps.
+  const born = useRef(0);
+  useEffect(() => {
+    born.current = performance.now();
+  }, []);
+  const sentT = useRef(0);
+  const ended = useRef<((rev: Reveal) => void) | null>(null);
   const flush = useCallback((): Promise<void> => {
     flushing.current = flushing.current.then(async () => {
       if (pending.current.length === 0) return;
-      const batch = pending.current.slice(0, 200);
+      const elapsed = (performance.now() - born.current) / 1000;
+      let t = sentT.current;
+      let n = 0;
+      for (const s of pending.current.slice(0, 200)) {
+        const c = stepSeconds(hz, s);
+        if (t + c > elapsed + PACE_SLACK_SECONDS / 2) break;
+        t += c;
+        n++;
+      }
+      if (n === 0) return;
+      const batch = pending.current.slice(0, n);
       const res = await post<StepsResponse>('/hunt/steps', {
         huntId: start.huntId,
         from: index.current,
         steps: batch,
       });
+      if (res.reveal !== undefined) {
+        pending.current = [];
+        ended.current?.(res.reveal);
+        return;
+      }
       index.current = res.index;
+      sentT.current = t;
       pending.current = pending.current.slice(batch.length);
     });
     return flushing.current;
-  }, [start.huntId]);
+  }, [start.huntId, hz]);
+  /** Flush everything, waiting for the pace to allow it (before a dig or giving up). */
+  const flushAll = useCallback(async (): Promise<void> => {
+    for (let i = 0; i < 40 && pending.current.length > 0; i++) {
+      await flush();
+      if (pending.current.length > 0)
+        await new Promise((ok) => window.setTimeout(ok, 250));
+    }
+  }, [flush]);
   useEffect(() => {
     const id = window.setInterval(() => {
       if (pending.current.length > 0)
@@ -101,13 +139,16 @@ export const Hunt = ({ start, chart }: Props) => {
     void app.refresh();
     app.go({ k: 'reveal', chart, reveal: rev, holes: finalHoles });
   };
+  useEffect(() => {
+    ended.current = (rev) => finish(rev, holes);
+  });
 
   const dig = async (): Promise<void> => {
     if (busy || walker.busy || shovels <= 0) return;
     setBusy(true);
     setError(null);
     try {
-      await flush();
+      await flushAll();
       play('dig');
       if (!reducedMotion())
         setPuffs((p) => [...p.slice(-3), { at, t: performance.now() }]);
@@ -139,7 +180,7 @@ export const Hunt = ({ start, chart }: Props) => {
     setConfirmQuit(false);
     setBusy(true);
     try {
-      await flush().catch(() => undefined);
+      await flushAll().catch(() => undefined);
       const res = await post<{ reveal: Reveal }>('/hunt/giveup', {
         huntId: start.huntId,
       });

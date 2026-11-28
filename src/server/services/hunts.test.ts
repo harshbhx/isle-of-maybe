@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import { aStar, revealAround, walkable } from '../../shared/path.ts';
+import { HUNT_SECONDS, coastDistance } from '../../shared/tide.ts';
 import { idx, type Tile } from '../../shared/types.ts';
 import { rateLimit } from '../routes/http-limits.ts';
 import { ApiError } from '../store/errors.ts';
@@ -56,7 +57,12 @@ test('HUNT-2.1 a hunt starts at the dock with 3 shovels', async () => {
   const { kv } = await setup();
   const { island } = await requireDay(kv, DAY);
   const r = await startHunt(kv, alice, DAY, 'bobs', 'h1');
-  assert.deepEqual(r, { huntId: 'h1', at: island.dock, shovels: 3 });
+  assert.deepEqual(r, {
+    huntId: 'h1',
+    at: island.dock,
+    shovels: 3,
+    clock: null,
+  });
 });
 
 test('HUNT-2.2 a fourth hunt in a day is refused', async () => {
@@ -205,4 +211,125 @@ test('CHART-4.1 hunts leave no key without a TTL', async () => {
   await dig(kv, alice, 'h', chest, NOW);
   assert.deepEqual(kv.keysWithoutTtl(), []);
   assert.ok(idx(chest.x, chest.y) >= 0);
+});
+
+// --- Rising tide and pace on the server clock (ADV-1, ADV-2) ---
+
+const S = 1000;
+
+test('ADV-1.7 a clocked hunt returns its start and end on the server clock', async () => {
+  const { kv } = await setup();
+  const r = await startHunt(kv, alice, DAY, 'bobs', 'c1', NOW);
+  assert.deepEqual(r.clock, {
+    startedAt: NOW,
+    endsAt: NOW + HUNT_SECONDS * S,
+    now: NOW,
+  });
+});
+
+test('ADV-2.3 steps faster than a run are rejected; the same steps later are accepted', async () => {
+  const { kv, route } = await setup();
+  await startHunt(kv, alice, DAY, 'bobs', 'c', NOW);
+  const steps = route.slice(1);
+  assert.ok(steps.length >= 4);
+  await assert.rejects(applySteps(kv, alice, 'c', 0, steps, NOW), ApiError);
+  assert.equal(await kv.hGet(K.hunt('c'), 'index'), '0');
+  const r = await applySteps(kv, alice, 'c', 0, steps, NOW + 60 * S);
+  assert.equal(r.index, steps.length);
+});
+
+/** A beach tile (coast distance 1) the hunter can stand next to, for flooding tests. */
+const beach = async (kv: FakeKv): Promise<{ to: Tile; from: Tile }> => {
+  const { island } = await requireDay(kv, DAY);
+  const d = coastDistance(island);
+  for (let i = 0; i < d.length; i++) {
+    if (d[i] !== 1) continue;
+    const to = { x: i % 40, y: Math.floor(i / 40) };
+    for (const from of [
+      { x: to.x + 1, y: to.y },
+      { x: to.x - 1, y: to.y },
+      { x: to.x, y: to.y + 1 },
+      { x: to.x, y: to.y - 1 },
+    ])
+      if (
+        walkable(island.terrain, from.x, from.y) &&
+        (d[idx(from.x, from.y)] ?? 0) !== 1
+      )
+        return { to, from };
+  }
+  throw new Error('no beach');
+};
+
+test('ADV-1.4 a step onto sand the tide had already covered is rejected', async () => {
+  const { kv } = await setup();
+  const { to, from } = await beach(kv);
+  await startHunt(kv, alice, DAY, 'bobs', 'c', NOW);
+  // Put the hunter beside the beach, 61 s of walking in (the tide reached level 1 at 60 s).
+  await kv.hSet(K.hunt('c'), {
+    x: String(from.x),
+    y: String(from.y),
+    minT: '61',
+  });
+  await assert.rejects(
+    applySteps(kv, alice, 'c', 0, [to], NOW + 100 * S),
+    (e: unknown) => e instanceof ApiError && /tide/.test(e.message)
+  );
+  await kv.hSet(K.hunt('c'), { minT: '1' });
+  const ok = await applySteps(kv, alice, 'c', 0, [to], NOW + 100 * S);
+  assert.deepEqual(ok.at, to);
+});
+
+test('ADV-1.5 digging on flooded sand is refused and keeps the shovel', async () => {
+  const { kv } = await setup();
+  const { to } = await beach(kv);
+  await startHunt(kv, alice, DAY, 'bobs', 'c', NOW);
+  await kv.hSet(K.hunt('c'), { x: String(to.x), y: String(to.y) });
+  await assert.rejects(
+    dig(kv, alice, 'c', to, NOW + 61 * S),
+    (e: unknown) => e instanceof ApiError && e.code === 'conflict'
+  );
+  assert.equal(await kv.hGet(K.hunt('c'), 'shovels'), '3');
+  const early = await dig(kv, alice, 'c', to, NOW + 10 * S);
+  assert.equal(early.shovelsLeft, 2);
+});
+
+test('ADV-1.6 when time runs out the hunt ends with reason tide and refuses more', async () => {
+  const { kv, route } = await setup();
+  await startHunt(kv, alice, DAY, 'bobs', 'c', NOW);
+  const r = await applySteps(
+    kv,
+    alice,
+    'c',
+    0,
+    route.slice(1, 3),
+    NOW + (HUNT_SECONDS + 1) * S
+  );
+  assert.equal(r.reveal?.reason, 'tide');
+  assert.equal(r.reveal?.found, false);
+  await assert.rejects(
+    applySteps(kv, alice, 'c', 0, route.slice(1, 3), NOW + 200 * S),
+    ApiError
+  );
+  await assert.rejects(
+    dig(kv, alice, 'c', route[0] ?? { x: 0, y: 0 }, NOW + 200 * S),
+    ApiError
+  );
+
+  await startHunt(kv, alice, DAY, `cap-${DAY}-0`, 'd', NOW);
+  const end = await dig(kv, alice, 'd', { x: 0, y: 0 }, NOW + 151 * S);
+  assert.equal(end.reveal?.reason, 'tide');
+  await startHunt(kv, alice, DAY, `cap-${DAY}-1`, 'g', NOW);
+  assert.equal((await giveUp(kv, alice, 'g', NOW + 151 * S)).reason, 'tide');
+});
+
+test('HUNT-4.2 the reveal says why the hunt ended', async () => {
+  const { kv, chest, route } = await setup();
+  await startHunt(kv, alice, DAY, 'bobs', 'f', NOW);
+  await applySteps(kv, alice, 'f', 0, route.slice(1), NOW + 60 * S);
+  assert.equal(
+    (await dig(kv, alice, 'f', chest, NOW + 61 * S)).reveal?.reason,
+    'found'
+  );
+  await startHunt(kv, alice, DAY, `cap-${DAY}-0`, 'g', NOW);
+  assert.equal((await giveUp(kv, alice, 'g', NOW + 5 * S)).reason, 'gaveUp');
 });

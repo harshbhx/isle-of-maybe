@@ -101,17 +101,29 @@ export type DispatchChart = {
 export type Dispatch = { charts: DispatchChart[]; tier: TierProgress };
 
 export type HuntStartRequest = { chartId: string };
-export type HuntStartResponse = { huntId: string; at: Tile; shovels: number };
+/** The hunt's clock in server milliseconds (ADV-1.7); null only for clockless test hunts. */
+export type HuntClock = { startedAt: number; endsAt: number; now: number };
+export type HuntStartResponse = {
+  huntId: string;
+  at: Tile;
+  shovels: number;
+  clock: HuntClock | null;
+};
 
 /** Steps from index `from` onward; resending an already-applied batch is a no-op. */
 export type StepsRequest = { huntId: string; from: number; steps: Tile[] };
-export type StepsResponse = { at: Tile; index: number };
+/** `reveal` is set when the tide ran out during this call (ADV-1.6). */
+export type StepsResponse = { at: Tile; index: number; reveal?: Reveal };
 
 export type DigRequest = { huntId: string; at: Tile };
 
 /** Sent only when a hunt ends: the one moment the chest position leaves the server. */
+export type EndReason = 'found' | 'shovels' | 'gaveUp' | 'tide';
+
 export type Reveal = {
   found: boolean;
+  /** Why the hunt ended (HUNT-4.2, ADV-1.6). */
+  reason: EndReason;
   chest: Tile;
   chartX: Tile | null;
   /** Paces between the chart's X and the chest. */
