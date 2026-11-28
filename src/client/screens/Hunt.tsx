@@ -51,6 +51,22 @@ type Props = { start: HuntStartResponse; chart: ChartPublic; slot: PickSlot };
 /** Fonts are bundled, so the canvas plaque can use them without loading anything (rule 4). */
 const PLAQUE_FONT = "'Fraunces', 'IM Fell English SC', Georgia, serif";
 
+/** Per-device flags; storage can be unavailable in some webviews, which just means defaults. */
+const readFlag = (k: string): string | null => {
+  try {
+    return window.localStorage.getItem(k);
+  } catch {
+    return null;
+  }
+};
+const writeFlag = (k: string, v: string): void => {
+  try {
+    window.localStorage.setItem(k, v);
+  } catch {
+    // Not remembered; the toggle still works for this hunt.
+  }
+};
+
 const clock = (s: number): string =>
   `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, '0')}`;
 
@@ -199,20 +215,31 @@ export const Hunt = ({ start, chart }: Props) => {
   }, [h3d]);
 
   // Ghosts (ADV-6.6, ADV-6.7): others on this island now, and our own ping while we move.
-  const [ghostsOn, setGhostsOn] = useState(true);
+  // Two ways (ADV-6.8): off means you see no ghosts and nobody sees yours. Remembered per device.
+  const [ghostsOn, setGhostsOn] = useState(
+    () => readFlag('iom:ghosts') !== 'off'
+  );
   useEffect(() => {
     h3d?.showGhosts(ghostsOn);
+    writeFlag('iom:ghosts', ghostsOn ? 'on' : 'off');
   }, [h3d, ghostsOn]);
   useEffect(() => {
     if (h3d === null || !app.init.user.loggedIn) return;
+    if (readFlag('iom:ghostNote') === 'seen') return;
+    writeFlag('iom:ghostNote', 'seen');
+    toast(copy.hunt.ghostNote);
+    app.announce(copy.hunt.ghostNote);
+  }, [h3d, app]);
+  useEffect(() => {
+    if (h3d === null || !app.init.user.loggedIn || !ghostsOn) return;
     const me = app.init.user.name;
     return listenGhosts(ghostChannel(app.init.day), (m) => {
       if (m.name !== me) h3d.ghost(m);
     });
-  }, [h3d, app.init]);
+  }, [h3d, app.init, ghostsOn]);
   const lastPing = useRef('');
   useEffect(() => {
-    if (h3d === null || !app.init.user.loggedIn) return;
+    if (h3d === null || !app.init.user.loggedIn || !ghostsOn) return;
     const id = window.setInterval(() => {
       const key = `${at.x},${at.y}`;
       if (key === lastPing.current) return;
@@ -220,7 +247,7 @@ export const Hunt = ({ start, chart }: Props) => {
       void post('/hunt/ghost', { huntId: start.huntId }).catch(() => undefined);
     }, GHOST_EVERY_MS);
     return () => window.clearInterval(id);
-  }, [h3d, app.init, at, start.huntId]);
+  }, [h3d, app.init, at, start.huntId, ghostsOn]);
 
   // The crowd's paths (ADV-6.5): where today's hunters walked, worn into the island.
   useEffect(() => {
