@@ -23,6 +23,8 @@ export const K = {
   seen: (u: string, d: string) => `user:${u}:seen:${d}`,
   streak: (u: string, yyyy: number) => `user:${u}:streak:${yyyy}`,
   hunt: (h: string) => `hunt:${h}`,
+  /** When a player last sent a ghost ping (ADV-6.6); expires after a minute. */
+  ghostRate: (u: string) => `ghost:${u}`,
   boardGoldDay: (d: string) => `board:gold:${d}`,
   boardGoldWeek: (w: string) => `board:gold:${w}`,
   boardCartographers: () => 'board:cartographers',

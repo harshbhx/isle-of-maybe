@@ -81,6 +81,8 @@ export const copy = {
     plaque: 'Buried by u/{name}',
     plaqueCaptain: 'The Old Captain',
     namedBy: 'Named by u/{name}',
+    ghostsOn: 'Others: shown',
+    ghostsOff: 'Others: hidden',
     confirmGiveup: 'Give up and see where the chest was?',
   },
   reveal: {

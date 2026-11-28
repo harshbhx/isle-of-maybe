@@ -53,6 +53,8 @@ import { createBirds } from './world/life.ts';
 import { createMist, type Mist } from './world/mist.ts';
 import { createExplorer, type HatTier, type Pose } from './world/explorer.ts';
 import { createSign } from './world/sign.ts';
+import { createGhosts, type Ghosts } from './world/ghosts.ts';
+import type { GhostMessage } from '../../../shared/ghost.ts';
 import { createQuicksand } from './world/quicksand.ts';
 import {
   createCinematic,
@@ -82,6 +84,10 @@ export type Island3D = {
   pose: (p: Pose | null) => void;
   /** The explorer's position in tile units, while driving. */
   position: () => { x: number; y: number } | null;
+  /** Another hunter, right now (ADV-6.7). */
+  ghost: (m: GhostMessage) => void;
+  /** Show or hide the ghosts (ADV-6.7). */
+  showGhosts: (v: boolean) => void;
   /** Today's crowd wear, 0–3 per tile: trodden paths on the island (ADV-6.5). */
   setWear: (levels: Uint8Array) => void;
   /** The explorer's hat shows the player's flair tier (ADV-6.1). */
@@ -541,6 +547,8 @@ export const createIsland3D = (
   let qsMesh: Object3D | null = null;
   let signObj: Group | null = null;
   let baseColors: Float32Array | null = null;
+  let ghosts: Ghosts | null = null;
+  let ghostsOn = true;
   const dirt = new Color(0x9e7b50);
   const env = new Group();
   scene.add(env);
@@ -1110,6 +1118,7 @@ export const createIsland3D = (
       birds?.tick(t);
       mist?.tick(t);
       quicksandTick(t);
+      ghosts?.tick(performance.now());
       for (const l of landmarks)
         if (l.type === 'campfire')
           l.obj.children.forEach((c) => {
@@ -1231,6 +1240,24 @@ export const createIsland3D = (
       }
     },
     position: () => (drv === null ? null : { x: pos.x, y: pos.y }),
+    ghost: (m) => {
+      if (heights === null) return;
+      if (ghosts === null) {
+        const h = heights;
+        ghosts = createGhosts({
+          heightAt: (x, z) => Math.max(h.at(x, z), seaY() - 0.2),
+          font: "'Bricolage Grotesque', system-ui, sans-serif",
+          reduced: opts.reducedMotion,
+        });
+        ghosts.setVisible(ghostsOn);
+        scene.add(ghosts.group);
+      }
+      ghosts.upsert(m, performance.now());
+    },
+    showGhosts: (v) => {
+      ghostsOn = v;
+      ghosts?.setVisible(v);
+    },
     setWear: (levels) => {
       if (terrain === null || baseColors === null) return;
       const geo = terrain.geometry;

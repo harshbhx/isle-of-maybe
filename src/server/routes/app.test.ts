@@ -16,6 +16,7 @@ const app = async () => {
     now: () => NOW,
     newId: () => `id${++id}`,
     announce: async () => {},
+    ghost: async () => {},
     sharePort: { upload: async () => 'u', comment: async () => 't1_c' },
   });
   return { kv, api };
