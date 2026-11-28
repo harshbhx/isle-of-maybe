@@ -1,8 +1,11 @@
 """Screenshot tools/assets pages (see make-art.ts) into docs/assets/*.png at their exact sizes."""
+import os as _os, sys as _sys
+_sys.path.insert(0, _os.path.dirname(_os.path.dirname(_os.path.abspath(__file__))))
+from chrome_path import chrome  # noqa: E402
 import glob, os, re
 from playwright.sync_api import sync_playwright
 with sync_playwright() as p:
-    b = p.chromium.launch(executable_path="/usr/bin/google-chrome", args=["--no-sandbox"])
+    b = p.chromium.launch(**chrome(), args=["--no-sandbox"])
     for f in sorted(glob.glob("/tmp/iom-art/*.html")):
         name = os.path.basename(f)[:-5]
         m = re.search(r"(\d+)x(\d+)$", name) or re.search(r"(\d+)$", name)

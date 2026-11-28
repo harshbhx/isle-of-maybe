@@ -8,6 +8,9 @@ memory, Ink check, result, share sheet, plus the desktop hunt. Then lays the scr
 1500 × 1000 slides in docs/assets/gallery-*.png. Every screen is the shipped client; nothing is mocked
 except the preview's in-memory store.
 """
+import os as _os, sys as _sys
+_sys.path.insert(0, _os.path.dirname(_os.path.dirname(_os.path.abspath(__file__))))
+from chrome_path import chrome  # noqa: E402
 import base64, json, os, subprocess, sys, time, urllib.request
 from playwright.sync_api import sync_playwright
 
@@ -40,7 +43,7 @@ def capture(init):
     seed, mod = init["island"]["seed"], init["island"]["modifier"]
     r = json.loads(subprocess.check_output(["node", "--experimental-strip-types", "--no-warnings", "tools/assets/captain-route.ts", seed, mod], cwd=ROOT))
     with sync_playwright() as p:
-        b = p.chromium.launch(executable_path="/usr/bin/google-chrome", args=["--no-sandbox", "--use-angle=swiftshader", "--enable-unsafe-swiftshader"])
+        b = p.chromium.launch(**chrome(), args=["--no-sandbox", "--use-angle=swiftshader", "--enable-unsafe-swiftshader"])
         pg = b.new_page(viewport={"width": 390, "height": 512}, device_scale_factor=2)
         pg.goto(BASE + "/splash.html"); pg.wait_for_timeout(1000); pg.screenshot(path=f"{SHOTS}/splash.png"); pg.close()
 
@@ -246,7 +249,7 @@ def make_gifs():
     """900 × 600 GIFs: a caption on the lagoon and the phone frames playing beside it (< 5 MB each)."""
     from PIL import Image
     with sync_playwright() as p:
-        b = p.chromium.launch(executable_path="/usr/bin/google-chrome", args=["--no-sandbox"])
+        b = p.chromium.launch(**chrome(), args=["--no-sandbox"])
         for name, (key, title, lead) in GIFS.items():
             frames = FRAMES[key]
             if not frames:
@@ -278,7 +281,7 @@ def make_gifs():
 
 def compose():
     with sync_playwright() as p:
-        b = p.chromium.launch(executable_path="/usr/bin/google-chrome", args=["--no-sandbox"])
+        b = p.chromium.launch(**chrome(), args=["--no-sandbox"])
         for name, html in slides().items():
             f = f"{SHOTS}/{name}.html"
             open(f, "w").write(html)

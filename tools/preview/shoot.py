@@ -4,13 +4,16 @@
 
 Needs the preview server running (npm run preview:local) and Playwright for Python.
 """
+import os as _os, sys as _sys
+_sys.path.insert(0, _os.path.dirname(_os.path.dirname(_os.path.abspath(__file__))))
+from chrome_path import chrome  # noqa: E402
 import sys, json
 from playwright.sync_api import sync_playwright
 
 page_path, out = sys.argv[1], sys.argv[2]
 steps = sys.argv[3:]
 with sync_playwright() as p:
-    b = p.chromium.launch(executable_path="/usr/bin/google-chrome", args=["--no-sandbox"])
+    b = p.chromium.launch(**chrome(), args=["--no-sandbox"])
     for name, w, h in [("phone", 390, 844), ("desktop", 1440, 900)]:
         ctx = b.new_context(viewport={"width": w, "height": h}, device_scale_factor=1)
         pg = ctx.new_page()

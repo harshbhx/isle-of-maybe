@@ -5,6 +5,9 @@
 Starts the local preview itself (logged in, then logged out), drives Chrome headlessly and hits the
 API directly. Prints a PASS/FAIL table; anything that needs a real phone or Reddit is listed as manual.
 """
+import os as _os, sys as _sys
+_sys.path.insert(0, _os.path.dirname(_os.path.dirname(_os.path.abspath(__file__))))
+from chrome_path import chrome  # noqa: E402
 import json, os, re, subprocess, sys, time, glob, urllib.request
 from playwright.sync_api import sync_playwright
 
@@ -57,7 +60,7 @@ def s2_prevent():
     return "preventDefault" not in js and "<canvas" not in js and "getContext" not in js, "no preventDefault/canvas in the splash entry"
 
 with sync_playwright() as pw:
-    browser = pw.chromium.launch(executable_path="/usr/bin/google-chrome", args=["--no-sandbox"])
+    browser = pw.chromium.launch(**chrome(), args=["--no-sandbox"])
 
     def page(w=390, h=844, reduced=False):
         pg = browser.new_page(viewport={"width": w, "height": h}, reduced_motion="reduce" if reduced else "no-preference")
@@ -249,7 +252,7 @@ with sync_playwright() as pw:
 
         # UI-3.5: a browser without WebGL gets the 2D island, silently, and the hunt still works.
         def j9():
-            nogl = pw.chromium.launch(executable_path="/usr/bin/google-chrome", args=["--no-sandbox", "--disable-3d-apis"])
+            nogl = pw.chromium.launch(**chrome(), args=["--no-sandbox", "--disable-3d-apis"])
             pg = nogl.new_page(viewport={"width": 390, "height": 844}); errs = []
             pg.on("console", lambda m: errs.append(m.text) if m.type in ("error", "warning") else None)
             pg.on("pageerror", lambda e: errs.append(str(e)))
