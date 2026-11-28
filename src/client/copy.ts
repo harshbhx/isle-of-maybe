@@ -133,6 +133,8 @@ export const copy = {
   result: {
     found: 'Found u/{name}’s chest · {steps} {steps:step|steps}',
     missed: 'Missed u/{name}’s chest',
+    foundCaptain: 'Found the Old Captain’s chest · {steps} {steps:step|steps}',
+    missedCaptain: 'Missed the Old Captain’s chest',
     yourChest: 'Your chest: {depth} · Ink: {grade}',
     live: '{n} {n:sailor|sailors} picked up your chart',
     again: 'Hunt another chart ({n} left)',

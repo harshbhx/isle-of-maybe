@@ -101,6 +101,7 @@ Voice: short, salty, kind. Tease the map, never the player. Every string lives i
 |---|---|
 | result.found | Found u/{name}'s chest · {steps} steps |
 | result.missed | Missed u/{name}'s chest |
+| result.foundCaptain / result.missedCaptain | Found the Old Captain's chest · {steps} steps / Missed the Old Captain's chest |
 | result.yourChest | Your chest: {depth} · Ink: {grade} |
 | result.live | {n} sailors picked up your chart |
 | result.again | Hunt another chart ({n} left) |

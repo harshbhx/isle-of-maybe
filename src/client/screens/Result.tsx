@@ -78,12 +78,17 @@ export const Result = () => {
         )}
         {lastHunt !== null && (
           <p>
+            {/* The Old Captain isn't a redditor, so no "u/" (D09: game charts are clearly labelled). */}
             {fmt(
-              lastHunt.reveal.found ? copy.result.found : copy.result.missed,
+              lastHunt.chart.captain
+                ? lastHunt.reveal.found
+                  ? copy.result.foundCaptain
+                  : copy.result.missedCaptain
+                : lastHunt.reveal.found
+                  ? copy.result.found
+                  : copy.result.missed,
               {
-                name: lastHunt.chart.captain
-                  ? copy.pick.captain
-                  : lastHunt.chart.author,
+                name: lastHunt.chart.author,
                 steps: lastHunt.reveal.steps,
               }
             )}
