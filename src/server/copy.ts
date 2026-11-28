@@ -21,6 +21,8 @@ export const serverCopy = {
   toastAlready: (n: number) =>
     `Day ${n} already exists. Filled in anything missing.`,
   toastFailed: 'Could not post today’s island. Check the app logs.',
+  statsTitle: 'Isle of Maybe · last 7 days',
+  statsClose: 'Close',
   reviewEmpty: 'No reported charts to review.',
   reviewTitle: 'Review reported charts',
   reviewDescription:

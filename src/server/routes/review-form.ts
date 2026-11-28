@@ -58,3 +58,18 @@ export const parseReview = (
   if (action !== 'restore' && action !== 'delete') return null;
   return { chartIds, action };
 };
+
+export const STATS_FORM = 'statsForm';
+
+/** Read-only stats for moderators (SHIP-3.1): one line per day in the form description. */
+export const statsFormFor = (lines: readonly string[]): UiResponse => ({
+  showForm: {
+    name: STATS_FORM,
+    form: {
+      title: serverCopy.statsTitle,
+      description: lines.join('\n'),
+      fields: [],
+      acceptLabel: serverCopy.statsClose,
+    },
+  },
+});

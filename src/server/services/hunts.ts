@@ -7,7 +7,7 @@ import type {
   StepsResponse,
 } from '../../shared/api.ts';
 import { chartX } from '../../shared/chart.ts';
-import { revealRadius } from '../../shared/day.ts';
+import { revealRadius, utcDay } from '../../shared/day.ts';
 import {
   digFinds,
   euclid,
@@ -224,6 +224,11 @@ const endHunt = async (
     await zIncrTtl(kv, K.chartsAttempts(hunt.day), chart.id, 1, TTL.chart);
   }
   await hIncrTtl(kv, K.dayCounts(hunt.day), 'hunts', 1, TTL.dayCounts);
+  await kv.zAdd(K.dayPlayers(utcDay(nowMs)), {
+    member: actor.id,
+    score: nowMs,
+  });
+  await kv.expire(K.dayPlayers(utcDay(nowMs)), TTL.players);
   if (found)
     await hIncrTtl(kv, K.dayCounts(hunt.day), 'found', 1, TTL.dayCounts);
 

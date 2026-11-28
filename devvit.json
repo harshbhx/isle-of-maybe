@@ -64,11 +64,19 @@
         "location": "subreddit",
         "forUserType": "moderator",
         "endpoint": "/internal/menu/review"
+      },
+      {
+        "label": "Isle of Maybe: Stats",
+        "description": "Players, charts, find rate and return rates for the last 7 days",
+        "location": "subreddit",
+        "forUserType": "moderator",
+        "endpoint": "/internal/menu/stats"
       }
     ]
   },
   "forms": {
-    "reviewForm": "/internal/forms/review"
+    "reviewForm": "/internal/forms/review",
+    "statsForm": "/internal/forms/stats"
   },
   "scripts": {
     "dev": "vite build --watch",
