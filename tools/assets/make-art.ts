@@ -56,7 +56,18 @@ const banner = (w: number, h: number) =>
   <div class="s" style="font-size:${h * 0.04}px;margin-top:${h * 0.05}px;max-width:${w * 0.42}px;line-height:1.35">A new island every day. Follow a map a stranger drew from memory, then draw one for the next sailor.</div></div>
   <div class="card" style="width:${h * 0.72}px;transform:rotate(-4deg)">${chart}</div></div>`);
 
+// Subreddit header (r/IsleOfMaybe): Reddit puts the community icon and name over the bottom-left,
+// so the wordmark sits right of centre and the left quarter stays plain.
+const subBanner = (w: number, h: number, left = 0.3, title = 0.27, chartH = 0.7) =>
+  page(w, h, `<div style="position:relative;height:${h}px;background:radial-gradient(circle at 70% 50%,#1F4F68,#14202B 70%)">
+  <div style="position:absolute;left:${w * left}px;top:50%;transform:translateY(-50%)">
+  <div class="t" style="font-size:${h * title}px;line-height:1">Isle of Maybe</div>
+  <div class="t g" style="font-size:${h * title * 0.45}px;margin-top:${h * 0.04}px">Bury it. Chart it. Trust a stranger’s map.</div></div>
+  <div class="card" style="position:absolute;right:${w * 0.06}px;top:50%;width:${h * chartH}px;padding:${h * 0.025}px;transform:translateY(-50%) rotate(-5deg)">${chart}</div></div>`);
+
 const files: Record<string, string> = {
+  'subreddit-banner-1920x384': subBanner(1920, 384),
+  'subreddit-banner-mobile-1600x480': subBanner(1600, 480, 0.1, 0.2, 0.55),
   'icon-1024': icon(1024),
   'icon-256': icon(256),
   'featuring-1920x1080': banner(1920, 1080),

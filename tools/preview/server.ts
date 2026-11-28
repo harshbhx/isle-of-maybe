@@ -1,6 +1,7 @@
 // Local preview: the real /api router (createApi) on an in-memory store, plus the built client.
 // For screenshots and quick checks without Reddit. Never deployed.
 //   npm run build && npm run preview:local   →   http://localhost:5180/game.html
+//   PREVIEW_DAY=2026-12-09 npm run preview:local   →   the same, as if it were that UTC day (screenshots)
 import { serve } from '@hono/node-server';
 import { serveStatic } from '@hono/node-server/serve-static';
 import { Hono } from 'hono';
@@ -17,7 +18,14 @@ import { K } from '../../src/server/store/keys.ts';
 import { FakeKv } from '../../src/server/testing/fake-kv.ts';
 
 const kv = new FakeKv();
-const now = Date.now();
+// Optional fake calendar day, so screenshots show launch-week day numbers instead of "Day -6".
+const fakeDay = process.env.PREVIEW_DAY;
+const offset =
+  fakeDay !== undefined && /^\d{4}-\d{2}-\d{2}$/.test(fakeDay)
+    ? Date.parse(`${fakeDay}T00:00:00Z`) + (Date.now() % 86_400_000) - Date.now()
+    : 0;
+const clock = (): number => Date.now() + offset;
+const now = clock();
 const day = utcDay(now);
 const port0 = {
   createPost: async () => 't3_preview',
@@ -148,7 +156,7 @@ app.route(
     kv,
     actor: () => you,
     postDay: async () => day,
-    now: () => Date.now(),
+    now: clock,
     newId: () => `p${++n}`,
     announce: async () => {},
     sharePort: {
