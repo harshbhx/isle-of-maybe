@@ -6,12 +6,15 @@ Harsh's other commitments in this window (plan around them): 404 Hackathon (Sun 
 
 ---
 
+## Status (28 Nov 2026): Phases 1–3 are built
+Engine, server and client are merged on `main` with 137 tests, an automated QA run (`npm run qa`, 14/14) and an accessibility scan with 0 violations. Phase 0 is now about getting the built game onto Reddit; `LAPTOP-PROMPT.md` covers it end to end. Gates G1–G2 are passed by tests; G3 and G4 still need phones, testers and the judge simulations.
+
 ## Phase 0 — setup (one 45-minute slot, before Tue 1 Dec)
 Already done by Claude: repo `harshbhx/isle-of-maybe` scaffolded from the Devvit React template, specs, docs, CI, issue/PR templates, labels, milestones and all task issues (T04, T05).
 1. Register on Devpost for "Reddit's Game of the Day Hackathon" (T01).
 2. Create **r/IsleOfMaybe_dev** (private) and **r/IsleOfMaybe** (public) (T02). Name decision: 10-DECISIONS D01.
 3. On the laptop: clone the repo, Node ≥ 24, `npm install`, `npm run login` (Devvit), then `npm run dev` against r/IsleOfMaybe_dev. See the template post (T03).
-4. **Gate 0:** template post renders in the dev sub on your phone. If not, fix before anything else.
+4. **Gate 0:** today's island post (mod menu → Post today's island) renders in the dev sub on your phone and Set sail opens the game. If not, fix before anything else.
 
 Laptop agent: give it `LAPTOP-PROMPT.md` (one prompt is enough).
 
