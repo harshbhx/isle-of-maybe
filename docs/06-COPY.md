@@ -187,6 +187,7 @@ Voice: short, salty, kind. Tease the map, never the player. Every string lives i
 | share.already | Already shared under today's chart thread. |
 | dispatch.sampleTitle / dispatch.tier / dispatch.tierTop / dispatch.cta | Sample / {tier} · {finds} / {next} finds / {tier} · {finds} finds / Today's island → |
 | boards.trusted / boards.empty / boards.you / boards.cursed / boards.back | Most trusted charts / Nobody here yet. Be the first. / You / Cursed Map of the Day / Back |
+| crew.label / crew.goal / crew.met | Crew goal / Crew goal: {found} of {target} chests found today / Crew goal met! Tomorrow is Lantern night. (DAY-8) |
 | practice.* | Practice Cove / A tiny island and a perfect map. 45 seconds. / Try it / Skip / You can read a map. Now the real island. |
 | common.* | Reading the charts… / Back / Close / Sound / Charted by u/{name} / Charted by u/{name} · Day {n} / Charted by the Old Captain |
 | landmark.* | Palm, Twin palms, Boulder, Skull rock, Hut, Wreck, Well, Statue, Campfire, Cave |

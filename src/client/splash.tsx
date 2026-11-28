@@ -9,6 +9,7 @@ import { IMPLEMENTED_MODIFIERS } from '../shared/day.ts';
 import { generateIsland } from '../shared/island.ts';
 import { liveChannel } from '../shared/live.ts';
 import { ChartView } from './components/ChartView.tsx';
+import { CrewGoal } from './components/CrewGoal.tsx';
 import { CoinIcon, FlameIcon } from './components/ui.tsx';
 import { copy, fmt } from './copy.ts';
 import { get } from './lib/api.ts';
@@ -110,6 +111,13 @@ export const Splash = () => {
                 ) : (
                   <p>{copy.splash.first}</p>
                 ))}
+              {counts !== null && (
+                <CrewGoal
+                  found={counts.found}
+                  target={init.goal}
+                  tone="night"
+                />
+              )}
               {mine !== undefined && (
                 <p className="tabular">
                   {fmt(copy.splash.yourChart, {

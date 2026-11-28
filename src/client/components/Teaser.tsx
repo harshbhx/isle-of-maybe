@@ -1,9 +1,9 @@
 // Tomorrow's coastline teaser (DAY-7.1): shape only, no landmarks, with a countdown to 00:00 UTC
 // shown in the player's local time. The island comes from the same deterministic seed the server
-// will freeze tomorrow, so it is the real shape.
+// will freeze tomorrow (sent by init, so a met crew goal is included), so it is the real shape.
 import { useEffect, useMemo, useState } from 'react';
-import { addDays, modifierFor, msUntilNextDay } from '../../shared/day.ts';
-import { generateIsland, seedFor } from '../../shared/island.ts';
+import { msUntilNextDay, type Modifier } from '../../shared/day.ts';
+import { generateIsland } from '../../shared/island.ts';
 import { copy, fmt } from '../copy.ts';
 import { coastPath } from '../lib/geom.ts';
 
@@ -14,11 +14,16 @@ const hms = (ms: number): string => {
   return `${h}:${String(m).padStart(2, '0')}:${String(s % 60).padStart(2, '0')}`;
 };
 
-export const Teaser = ({ today }: { today: string }) => {
-  const tomorrow = addDays(today, 1);
+export const Teaser = ({
+  seed,
+  modifier,
+}: {
+  seed: string;
+  modifier: Modifier;
+}) => {
   const d = useMemo(
-    () => coastPath(generateIsland(seedFor(tomorrow), modifierFor(tomorrow))),
-    [tomorrow]
+    () => coastPath(generateIsland(seed, modifier)),
+    [seed, modifier]
   );
   const [left, setLeft] = useState(() => msUntilNextDay(Date.now()));
   useEffect(() => {

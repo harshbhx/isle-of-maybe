@@ -187,6 +187,11 @@ export const copy = {
     cursed: 'Cursed Map of the Day',
     back: 'Back',
   },
+  crew: {
+    label: 'Crew goal',
+    goal: 'Crew goal: {found} of {target} chests found today',
+    met: 'Crew goal met! Tomorrow is Lantern night.',
+  },
   practice: {
     title: 'Practice Cove',
     intro: 'A tiny island and a perfect map. 45 seconds.',
