@@ -11,7 +11,8 @@ Scope: safety, moderation, boards, sharing, live activity and flair. Source: PRD
 
 ## COM-2 Sharing
 - **COM-2.1** WHEN a player taps "Share my chart", THE client SHALL show a confirm sheet stating that a comment will be posted from their account, with a preview image and the exact text.
-- **COM-2.2** WHEN the player confirms, THE server SHALL upload the chart image and post it as the user (`runAs: 'USER'`) as a reply to the day's share sticky.
+- **COM-2.2** WHEN the player confirms, THE server SHALL render the chart image itself from the stored chart (never from client-supplied pixels or text), upload it and post it as the user (`runAs: 'USER'`) as a reply to the day's share sticky, at most once per chart unless the earlier comment was deleted.
+- **COM-2.7** THE server SHALL provide the exact image and comment text for the confirm sheet, so the preview always matches what gets posted.
 - **COM-2.3** THE client SHALL never require sharing, commenting or subscribing to continue, and SHALL keep each as a separate button.
 - **COM-2.4** WHEN a player taps "Challenge a friend", THE client SHALL open Reddit's share sheet with share data `{ type: 'challenge', chartId }` (≤ 1,024 characters).
 - **COM-2.5** WHEN a shared comment is deleted, THE server SHALL clear the stored link to it.
