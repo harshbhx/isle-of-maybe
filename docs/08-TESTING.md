@@ -53,11 +53,13 @@ Devices: Android Chrome (Reddit app), iOS Safari (Reddit app), desktop Chrome, d
 5. Bury on a landmark or water → rejected.
 6. Submit 50 stamps via API → rejected.
 7. Hunt own chart via crafted chartId → rejected.
-8. Huge payload (5 MB PNG) to share → rejected before upload (cap 1.5 MB).
+8. ~~Huge payload (5 MB PNG) to share~~ → not possible since #91: the server draws the share image.
 9. Spam API 100 req/s → rate limited, no crash.
 10. Tamper share deep-link data with garbage → ignored safely.
 11. Open in two tabs and hunt in both → server state consistent; hunt count shared.
 12. Double-tap Bury → one chest.
+
+Automated run: `npm run build && npm run qa` (see `docs/16-QA-REPORT.md`).
 
 ## 5. Judge simulation (do it on 7 Dec and 8 Dec)
 A person who has never seen the game opens the demo post link in a private window on a phone and on desktop. Time them. Pass if:

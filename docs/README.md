@@ -46,3 +46,5 @@
 - The game is only as alive as its players. Seeding the demo sub with real testers is a P0 task, not marketing.
 - Art decides a lot of Delightful UX and Polish. Ten good glyphs matter more than ten features.
 - Platform facts were checked against Reddit's docs repo on 28 Nov 2026. Re-check `devvit.json` keys against the live schema when scaffolding.
+| [16-QA-REPORT.md](16-QA-REPORT.md) | Automated QA matrix + break-test map; re-run with `npm run qa` |
+| [15-COMPONENTS.md](15-COMPONENTS.md) | Component kit and wireframe → file map |
