@@ -19,6 +19,7 @@ import {
   TopBar,
 } from './components/ui.tsx';
 import { copy, fmt } from './copy.ts';
+import { IslandDemo } from './island/IslandDemo.tsx';
 
 const island = generateIsland('kit-preview', 'clear');
 const sample: ChartPiece[] = [
@@ -97,6 +98,7 @@ export const Kit = () => (
         {fmt(copy.common.byDay, { name: 'marlin', n: 12 })}
       </p>
     </Card>
+    <IslandDemo island={island} />
     <Card className="p-2">
       <ChartView
         island={island}
