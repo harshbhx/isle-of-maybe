@@ -35,7 +35,8 @@ export const TTL = {
   user: 30 * DAY_S,
   userDay: 8 * DAY_S,
   seen: 2 * DAY_S,
-  streak: 400 * DAY_S,
+  // Refreshed on every play, so an active streak never lapses; idle players are forgotten (COM-1.5).
+  streak: 30 * DAY_S,
   hunt: 2 * DAY_S,
   board: 30 * DAY_S,
   reports: 30 * DAY_S,
