@@ -11,6 +11,7 @@ import type {
   StepsResponse,
   WearResponse,
 } from '../../shared/api.ts';
+import { biomeFor } from '../../shared/biome.ts';
 import { revealRadius } from '../../shared/day.ts';
 import {
   PACE_SLACK_SECONDS,
@@ -517,6 +518,16 @@ export const Hunt = ({ start, chart }: Props) => {
           <span aria-live="polite" />
         </div>
         <div ref={viewRef} className="relative min-h-0 flex-1">
+          {/* Title card: which isle this is today (ADV-10.3). Decorative; the name is in SrTitle. */}
+          <div
+            aria-hidden
+            className="isle-title pointer-events-none absolute inset-x-0 top-[22%] z-10 text-center text-paper [text-shadow:0_2px_12px_rgb(0_0_0/0.55)]"
+          >
+            <p className="font-title text-3xl sm:text-4xl">{island.name}</p>
+            <p className="text-sm tracking-wide">
+              {copy.biome[biomeFor(island.seed)].name}
+            </p>
+          </div>
           <IslandCanvas
             scene={scene}
             zoom={zoom}

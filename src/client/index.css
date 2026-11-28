@@ -282,6 +282,14 @@
   animation: shimmer 2.8s ease-in-out 0.4s infinite;
   pointer-events: none;
 }
+@keyframes isle-title-still {
+  0% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
 @keyframes shimmer {
   0% {
     transform: translateX(-120%);
@@ -335,6 +343,25 @@
     opacity: 0;
   }
 }
+/* The isle title card at the start of a hunt (ADV-10.3): in, hold, out. */
+.isle-title {
+  animation: isle-title 2.8s ease-in-out both;
+}
+@keyframes isle-title {
+  0% {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  18%,
+  72% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+}
 @media (prefers-reduced-motion: reduce) {
   .shimmer-band,
   .spark::after {
@@ -343,5 +370,8 @@
   }
   .spotlight::before {
     transition: none;
+  }
+  .isle-title {
+    animation: isle-title-still 2.8s step-end both;
   }
 }

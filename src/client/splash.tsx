@@ -6,6 +6,7 @@ import './index.css';
 import { StrictMode, useEffect, useMemo, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import type { InitResponse } from '../shared/api.ts';
+import { biomeFor } from '../shared/biome.ts';
 import { dayLabel, IMPLEMENTED_MODIFIERS } from '../shared/day.ts';
 import { LANDMARK_GLYPHS, X_GLYPH } from '../shared/glyphs.ts';
 import { generateIsland } from '../shared/island.ts';
@@ -122,6 +123,9 @@ export const Splash = () => {
         <div className="flex min-h-0 min-w-0 flex-1 flex-col justify-center-safe gap-1 overflow-hidden text-sm">
           {init !== null && (
             <>
+              <p className="text-sand">
+                {copy.biome[biomeFor(init.island.seed)].line}
+              </p>
               {IMPLEMENTED_MODIFIERS.has(init.island.modifier) && (
                 <p className="text-seafoam">{copy.mod[init.island.modifier]}</p>
               )}

@@ -64,6 +64,9 @@ import {
 import { createSea, type Sea } from './world/sea.ts';
 import { createSky, skyLook } from './world/sky.ts';
 import { buildTerrainGeometry } from './world/terrain.ts';
+import { createWeather, type Weather } from './world/weather.ts';
+import { BIOME_LOOKS } from './world/biome.ts';
+import { biomeFor } from '../../../shared/biome.ts';
 
 export type Island3D = {
   update: (
@@ -545,6 +548,7 @@ export const createIsland3D = (
   let tide = 0;
   let sky: { group: Group; tick: (t: number) => void } | null = null;
   let birds: { group: Group; tick: (t: number) => void } | null = null;
+  let weather: Weather | null = null;
   // Adaptive quality (ADV-7.1): measured frame time steps the world down, never back up.
   let level = 0;
   let floraMeshes: InstancedMesh[] = [];
@@ -568,6 +572,7 @@ export const createIsland3D = (
       for (const m of floraMeshes)
         m.count = Math.ceil(m.instanceMatrix.count / 2);
       if (birds !== null) birds.group.visible = false;
+      if (weather !== null) weather.group.visible = false;
     }
     if (level >= 3) renderer.setPixelRatio(1);
   };
@@ -701,8 +706,10 @@ export const createIsland3D = (
     island = next;
     const h = buildHeights(next);
     heights = h;
+    // The day's biome dresses everything below (ADV-10.2).
+    const biome = BIOME_LOOKS[biomeFor(next.seed)];
     // Sky, light and haze (Lantern night is a warm dusk).
-    const look = skyLook(next.modifier === 'lanterns');
+    const look = skyLook(next.modifier === 'lanterns', biome.sky);
     scene.fog = new Fog(look.horizon, 55, 190);
     scene.background = look.horizon;
     hemi.color.copy(look.hemiSky);
@@ -718,18 +725,24 @@ export const createIsland3D = (
       segments: quality === 'high' ? 192 : 110,
       calm: opts.reducedMotion,
       sunDir: look.sunDir,
+      colors: biome.sea,
     });
     sea.setFog(look.horizon, 55, 190);
     sea.setLevel(seaLevelFor(tide));
     env.add(sea.mesh);
     birds =
       quality === 'high' || !opts.reducedMotion
-        ? createBirds(next.seed, quality === 'high' ? 9 : 5)
+        ? createBirds(next.seed, (quality === 'high' ? 9 : 5) + biome.birds)
         : null;
     if (birds !== null && !opts.reducedMotion) env.add(birds.group);
+    weather?.dispose();
+    weather = opts.reducedMotion
+      ? null
+      : createWeather(biome.ambient, next.seed, h, quality === 'high');
+    if (weather !== null) env.add(weather.group);
 
     terrain = new Mesh(
-      buildTerrainGeometry(next, h),
+      buildTerrainGeometry(next, h, biome.ground),
       new MeshLambertMaterial({ vertexColors: true })
     );
     terrain.receiveShadow = true;
@@ -760,7 +773,13 @@ export const createIsland3D = (
         post.position.set(dw.x + sx, deck - 0.5, dw.z + sz);
         world.add(post);
       }
-    const flora = createFlora(next, h, wind, quality === 'high' ? 1 : 0.45);
+    const flora = createFlora(
+      next,
+      h,
+      wind,
+      quality === 'high' ? 1 : 0.45,
+      biome
+    );
     for (const m of flora.meshes) world.add(m);
     floraMeshes = flora.meshes;
     applyLevel();
@@ -1166,6 +1185,7 @@ export const createIsland3D = (
       wind.value = t;
       sky?.tick(t);
       birds?.tick(t);
+      weather?.tick(t, dt);
       mist?.tick(t);
       quicksandTick(t);
       ghosts?.tick(performance.now());
@@ -1392,6 +1412,7 @@ export const createIsland3D = (
     dispose: () => {
       alive = false;
       cancelAnimationFrame(frame);
+      weather?.dispose();
       dispose(scene);
       renderer.dispose();
     },
