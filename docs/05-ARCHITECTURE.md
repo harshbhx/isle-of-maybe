@@ -143,7 +143,7 @@ All `/api/*` routes get the user from Devvit's request context (`context.userId`
 
 | Key | Type | Content | TTL |
 |---|---|---|---|
-| `day:{d}` | hash | `postId, seed, modifier, name, stickyCommentId` | none (tiny) |
+| `day:{d}` | hash | `postId, seed, modifier, name, shareCommentId` | 400 d (no player content; old posts and the Hall need it) |
 | `day:{d}:counts` | hash | `buried, found, hunts` | 40 d |
 | `chart:{c}` | hash | `day, authorId, authorName, pieces(json), chestX, chestY, depth, createdAt, hidden, shareCommentId` | 30 d |
 | `chart:{c}:stats` | hash | `attempts, finds, trueVotes, cursedVotes, reports` | 30 d |
@@ -152,13 +152,21 @@ All `/api/*` routes get the user from Devvit's request context (`context.userId`
 | `charts:{d}:captain` | zset | captain chart ids | 30 d |
 | `user:{u}` | hash | `name, gold, finds, tier, lastDay` | 30 d, refreshed on activity |
 | `user:{u}:day:{d}` | hash | `hunts, buried, chartId, chestX, chestY, usedCharts(json)` | 8 d |
-| `user:{u}:seen:{d}` | string (bitfield) | 1,600 bits revealed-tile mask | 2 d |
+| `user:{u}:seen:{d}` | string (hex bit set) | 1,600 bits revealed-tile mask | 2 d |
+| `user:{u}:hunted` | hash | chartId → `found`/`missed` (rating gate) | 30 d |
 | `user:{u}:streak:{yyyy}` | string (bitfield) | one bit per day of year | 400 d* |
-| `user:{u}:votes` | hash | chartId → vote | 30 d |
+| `chart:{c}:votes` | hash | userId → `true`/`cursed` | 30 d |
+| `chart:{c}:reporters` | hash | userId → 1 | 30 d |
 | `hunt:{id}` | hash | `userId, chartId, day, x, y, steps, shovels, done` | 2 d |
-| `board:gold:{d}` / `board:gold:w{isoWeek}` | zset | userId → gold | 40 d |
-| `board:cartographers` | zset | userId → all-time finds | none; remove on 30-day inactivity job (P2) |
+| `board:gold:{d}` / `board:gold:w{isoWeek}` | zset | userId → gold | 30 d |
+| `board:cartographers` | zset | userId → all-time finds | 30 d, refreshed on every find |
 | `reports:queue` | zset | chartId → time | 30 d |
+| `postday:{postId}` | string | day | 40 d |
+| `sharecomment:{commentId}` | string | chartId | 30 d |
+| `flair:pending` | zset | userId → time | 8 d |
+| `rl:{u}:{sec}` | counter | calls this second | 2 s |
+
+Every write sets a TTL; `cleanup.test.ts` plays a full day and fails if any key has none, or if anything but `day:*`, `day:*:counts`, `postday:*` and streak bits outlives 30 days (COM-1.5).
 
 \* The streak bitfield only holds day bits, no content; still expire it, per the 30-day guidance, if a reviewer asks. Hackathon: keep 400 d.
 
