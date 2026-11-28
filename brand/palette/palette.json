@@ -1,0 +1,86 @@
+{
+  "tokens": {
+    "paper": "#FFF4DC",
+    "paper-2": "#F3E1B8",
+    "ink": "#2B1D12",
+    "ink-soft": "#6A513A",
+    "hibiscus": "#B8233F",
+    "palm": "#1E5B3A",
+    "lagoon": "#0A6468",
+    "lagoon-2": "#08575C",
+    "foam": "#FFF7E8",
+    "seafoam": "#C8EEE7",
+    "sun": "#FFCF6B",
+    "mango": "#FFB21E",
+    "sea": "#1E9A9C",
+    "shallows": "#4CC3B9",
+    "sand": "#F2D99B",
+    "grass": "#6DBE5A",
+    "jungle": "#2E7D3A",
+    "rock": "#8A8178"
+  },
+  "roles": {
+    "paper": "Card and chart background",
+    "paper-2": "Pressed states, chart margins",
+    "ink": "Text on paper",
+    "ink-soft": "Secondary text on paper",
+    "hibiscus": "The X, warnings, the Old Captain's seal",
+    "palm": "True map, success",
+    "lagoon": "App frame",
+    "lagoon-2": "Bars and panels on the frame",
+    "foam": "Text on lagoon",
+    "seafoam": "Secondary text on lagoon",
+    "sun": "Gold, links on lagoon",
+    "mango": "Primary button",
+    "sea": "Open water",
+    "shallows": "Shallows, the logo's ring",
+    "sand": "Beach, the logo's island",
+    "grass": "Meadows",
+    "jungle": "Jungle",
+    "rock": "Cliffs and rocks"
+  },
+  "biomes": {
+    "tropical": [
+      "#F0D9A0",
+      "#6CBF55",
+      "#5FD6C6",
+      "#0B4F63",
+      "#D42A4A"
+    ],
+    "volcanic": [
+      "#45413E",
+      "#6B7F45",
+      "#3AA8A0",
+      "#08364C",
+      "#E8471F"
+    ],
+    "autumn": [
+      "#ECCF9A",
+      "#B29A46",
+      "#6CC3B2",
+      "#0D4560",
+      "#D0602A"
+    ],
+    "mangrove": [
+      "#B5A676",
+      "#6E8A3C",
+      "#79BB95",
+      "#0E463F",
+      "#276838"
+    ],
+    "frost": [
+      "#D2CEC6",
+      "#E9EFF3",
+      "#8ACBD8",
+      "#0C3953",
+      "#2C5A45"
+    ],
+    "coral": [
+      "#FBF1DA",
+      "#78CC58",
+      "#7AEFDF",
+      "#0A5B8C",
+      "#FF7A8A"
+    ]
+  }
+}
