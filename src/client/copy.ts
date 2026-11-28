@@ -81,8 +81,10 @@ export const copy = {
     plaque: 'Buried by u/{name}',
     plaqueCaptain: 'The Old Captain',
     namedBy: 'Named by u/{name}',
-    ghostsOn: 'Others: shown',
-    ghostsOff: 'Others: hidden',
+    ghostsOn: 'Ghosts: on',
+    ghostsOff: 'Ghosts: off',
+    ghostNote:
+      'Other hunters on this island can see you as a ghost with your username. Tap “Ghosts: on” to turn it off both ways.',
     confirmGiveup: 'Give up and see where the chest was?',
   },
   reveal: {
