@@ -4,6 +4,8 @@
 export const K = {
   day: (d: string) => `day:${d}`,
   dayCounts: (d: string) => `day:${d}:counts`,
+  /** Who finished a hunt that day, for return rates (SHIP-3.1). */
+  dayPlayers: (d: string) => `day:${d}:players`,
   postDay: (postId: string) => `postday:${postId}`,
   chart: (c: string) => `chart:${c}`,
   chartStats: (c: string) => `chart:${c}:stats`,

@@ -40,6 +40,7 @@ export const TTL = {
   board: 30 * DAY_S,
   reports: 30 * DAY_S,
   flair: 8 * DAY_S,
+  players: 30 * DAY_S,
   rate: 2,
   hallCache: 600,
   trustedCache: 30,
