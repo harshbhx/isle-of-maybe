@@ -69,6 +69,7 @@ export const Hunt = ({ start, chart }: Props) => {
   const [h3d, setH3d] = useState<Island3D | null>(null);
   const coast = useMemo(() => coastDistance(island), [island]);
   const tideRef = useRef(0);
+  const [tideLv, setTideLv] = useState(0);
   const [left, setLeft] = useState(HUNT_SECONDS);
   const coarse = useMemo(
     () => window.matchMedia?.('(pointer: coarse)').matches ?? false,
@@ -242,7 +243,13 @@ export const Hunt = ({ start, chart }: Props) => {
     const id = window.setInterval(() => {
       if (born.current === 0) return;
       const el = (performance.now() - born.current) / 1000;
-      tideRef.current = tideLevel(el);
+      const lv = tideLevel(el);
+      if (lv > tideRef.current && el < HUNT_SECONDS) {
+        toast(copy.hunt.tideRising);
+        app.announce(copy.hunt.tideRising);
+        setTideLv(lv);
+      }
+      tideRef.current = lv;
       let smooth = 0;
       for (const [f] of TIDE_WAVES)
         smooth += Math.max(0, Math.min(1, (el - f * HUNT_SECONDS) / 3));
@@ -254,7 +261,7 @@ export const Hunt = ({ start, chart }: Props) => {
       }
     }, 200);
     return () => window.clearInterval(id);
-  }, [h3d]);
+  }, [h3d, app]);
 
   const finish = (rev: Reveal, finalHoles: Tile[]): void => {
     app.setLastHunt({ chart, reveal: rev });
@@ -373,8 +380,20 @@ export const Hunt = ({ start, chart }: Props) => {
       link: false,
       highlight: null,
       puffs,
+      hazards: { tide: tideLv, coast, quicksand: hz.quicksand },
     }),
-    [island, seen, walker.pos, prints, holes, input.route, puffs]
+    [
+      island,
+      seen,
+      walker.pos,
+      prints,
+      holes,
+      input.route,
+      puffs,
+      tideLv,
+      coast,
+      hz,
+    ]
   );
   const by = chart.captain
     ? copy.common.captainBy

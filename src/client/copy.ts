@@ -77,6 +77,7 @@ export const copy = {
     stick: 'Move the explorer',
     timeLeft: 'Time before the tide: {t}',
     tideCovered: 'The tide has covered this spot. Get to higher sand.',
+    tideRising: 'The tide is coming in! The low beach is going under.',
     confirmGiveup: 'Give up and see where the chest was?',
   },
   reveal: {
