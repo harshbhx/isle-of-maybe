@@ -117,7 +117,8 @@ with sync_playwright() as pw:
 
         def q5():
             pg = page(); to_pick(pg); btn(pg, "Follow this chart").first.click(); pg.wait_for_timeout(600)
-            for _ in range(3): btn(pg, "Dig", True).click(); pg.wait_for_timeout(800)
+            # In 3D each dig plays a 1.1 s animation first (ADV-5.1).
+            for _ in range(3): btn(pg, "Dig", True).click(); pg.wait_for_timeout(2200)
             t = pg.inner_text("main"); ok = ("paces" in t or "found" in t) and "+0 gold" not in t; pg.close()
             return ok, "three digs end the hunt with a reveal line"
         check("Q5", "Miss all three shovels → reveal with distance", q5)
@@ -213,7 +214,9 @@ with sync_playwright() as pw:
         def j2():
             pg = page(); to_pick(pg); btn(pg, "Follow this chart").first.click(); pg.wait_for_timeout(700)
             before = pg.locator("button:has-text('✦')").count()
-            pg.keyboard.press("ArrowUp"); pg.keyboard.press("ArrowUp"); pg.keyboard.press("Enter"); pg.wait_for_timeout(900)
+            # 2D steps per key press; 3D walks while a key is held (ADV-3.1). Both are covered.
+            pg.keyboard.press("ArrowUp"); pg.keyboard.press("ArrowUp"); pg.keyboard.press("Enter")
+            pg.keyboard.down("ArrowUp"); pg.wait_for_timeout(900); pg.keyboard.up("ArrowUp"); pg.wait_for_timeout(900)
             after = pg.locator("button:has-text('✦')").count()
             t = pg.inner_text("main"); pg.close()
             return before == 1 and after == 1 and "shovels" in t, f"hints on screen before/after walking: {before}/{after}"

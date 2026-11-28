@@ -22,6 +22,8 @@ type Props = {
   className?: string;
   /** Straight-down 2D view, for overlays that must line up with the grid (the Ink check). */
   flat?: boolean;
+  /** The 3D renderer once it's running (null again if it goes away or falls back to 2D). */
+  onHandle?: (h: Island3D | null) => void;
 };
 
 // Once WebGL fails in this page, stay on 2D (UI-3.5): no flicker between renderers.
@@ -66,6 +68,7 @@ const Canvas3D = ({
   label,
   className = '',
   onFail,
+  onHandle,
 }: Props & { onFail: () => void }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const handle = useRef<Island3D | null>(null);
@@ -89,6 +92,7 @@ const Canvas3D = ({
           handle.current = h;
           const l = latest.current;
           h.update(l.scene, l.zoom, l.focus);
+          onHandle?.(h);
         } catch {
           onFail();
         }
@@ -99,6 +103,7 @@ const Canvas3D = ({
       live = false;
       handle.current?.dispose();
       handle.current = null;
+      onHandle?.(null);
     };
     // The renderer lives as long as the canvas; scene changes go through update() above.
     // eslint-disable-next-line react-hooks/exhaustive-deps

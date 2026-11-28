@@ -1,7 +1,7 @@
 // One-time hints (UI-4.3): each shows once per browser, at the moment it applies.
 import { useCallback, useState } from 'react';
 
-export type HintKey = 'pick' | 'hunt' | 'dig' | 'bury' | 'chart';
+export type HintKey = 'pick' | 'hunt' | 'roam' | 'dig' | 'bury' | 'chart';
 const KEY = 'iom:hints';
 
 const read = (): Set<string> => {
