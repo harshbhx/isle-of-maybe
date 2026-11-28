@@ -46,5 +46,5 @@ Scope: look, feel, structure and quality of every screen. Source: `docs/03-DESIG
 - **UI-8.3** THE client SHALL produce zero console errors or warnings.
 
 ## UI-9 First-time experience (from `docs/14-INSPIRATION.md` I3)
-- **UI-9.1** WHEN a player opens the game for the first time, THE client SHALL offer Practice Cove: a fixed tiny island with a perfect Old Captain chart and the three hunt hints, skippable, taking under 45 seconds.
+- **UI-9.1** WHEN a player opens the game for the first time, THE client SHALL offer Practice Cove: a fixed tiny island with a perfect Old Captain chart. It is skippable. In 3D it is the coached run in ADV-9.1 (under 60 seconds).
 - **UI-9.2** THE client SHALL remember completion server-side so it isn't shown again.
