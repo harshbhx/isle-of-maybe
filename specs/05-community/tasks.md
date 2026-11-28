@@ -9,3 +9,4 @@
 - [x] T52 Share confirm sheet, chart image and challenge link — COM-2.1, COM-2.3, COM-2.4
 - [x] T53 Leaderboards and Hall of Charts screens — COM-3.2, COM-4.1, COM-4.4
 - [x] T69 Spoiler-free result line for shares — COM-2.6
+- [ ] T83 Join the crew link on the result card — COM-2.8, COM-2.3

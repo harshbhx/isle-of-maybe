@@ -18,6 +18,8 @@ Scope: one island a day, posting, modifiers, streaks, Dispatch, and the communit
 - **DAY-3.1** THE client SHALL show on the inline splash: day number, island name, modifier line, today's buried/found counts, the player's streak, and one "Set sail" button.
 - **DAY-3.2** WHERE the player has a chart from an earlier day, THE splash SHALL show its finds so far.
 - **DAY-3.3** WHEN the post isn't today's island, THE splash SHALL show a link to today's post.
+- **DAY-3.4** THE splash SHALL always show a one-line description of the game (`splash.pitch`) and the day's calendar date, and SHALL make today's coastline (shape only, no landmarks) its largest element, at every inline size from 320 px tall without scrolling.
+- **DAY-3.5** WHERE the inline post is at least 440 px tall, THE splash SHALL show a three-step strip (follow a stranger's map · dig for their chest · bury yours and chart it) using the landmark glyph set.
 
 ## DAY-4 Streaks
 - **DAY-4.1** WHEN a player finishes a hunt, THE server SHALL set that UTC day's bit in the player's yearly streak bitfield.

@@ -7,6 +7,8 @@ Voice: short, salty, kind. Tease the map, never the player. Every string lives i
 |---|---|
 | splash.title | Isle of Maybe |
 | splash.day | Day {n} · {island} |
+| splash.pitch | Follow a stranger's map to buried gold. Then bury yours. |
+| splash.how | Follow a stranger's map / Dig for their chest / Bury yours, chart it |
 | splash.counts | {buried} chests buried · {found} found |
 | splash.yourChart | Your chart from Day {n}: {finds} found |
 | splash.first | Be the first to bury a chest today. |
@@ -105,7 +107,8 @@ Voice: short, salty, kind. Tease the map, never the player. Every string lives i
 | result.share | Share my chart |
 | result.challenge | Challenge a friend |
 | result.boards | Leaderboards |
-| result.join | Join the crew |
+| result.join | Join the crew → |
+| result.joinLine | A new island lands every day. |
 | result.done | That's today's sailing. New island at {time} your time. |
 
 ## Share
