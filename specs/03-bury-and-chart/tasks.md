@@ -5,3 +5,4 @@
 - [ ] T49 Chart editor: stamps, path, X, select, move, delete, undo, budget — CHART-2.1, CHART-2.2, CHART-2.3, CHART-2.4, CHART-2.5, CHART-2.6
 - [ ] T50 Ink check overlay and grade — CHART-3.4
 - [ ] T68 Margin note: one optional phrase from a fixed list — CHART-2.7
+- [ ] T24b Server-side bury gate: finished hunt first — CHART-1.7 (#95)
