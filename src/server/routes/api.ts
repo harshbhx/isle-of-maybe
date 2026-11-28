@@ -44,13 +44,21 @@ api.get('/charts/pick', (c) =>
   handle(c, async () => pickCharts(kv, currentActor(), await postDay()))
 );
 
-/** Rate-limit, then parse the JSON body of a POST. */
+/** Every /api call counts toward the caller's 10-per-second limit, reads included (HUNT-6.1). */
+api.use('*', async (c, next) => {
+  try {
+    await rateLimit(kv, currentActor(), Date.now());
+  } catch (e) {
+    return handle(c, () => Promise.reject(e));
+  }
+  await next();
+  return undefined;
+});
+
+/** Parse the JSON body of a POST. */
 const guarded = async (
   body: Promise<unknown>
-): Promise<Record<string, unknown>> => {
-  await rateLimit(kv, currentActor(), Date.now());
-  return reqBody(await body.catch(() => null));
-};
+): Promise<Record<string, unknown>> => reqBody(await body.catch(() => null));
 
 api.post('/hunt/start', (c) =>
   handle(c, async () => {
