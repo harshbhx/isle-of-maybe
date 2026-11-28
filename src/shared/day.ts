@@ -83,3 +83,18 @@ export const nextModifier = (
   foundToday: number,
   goalToday: number
 ): Modifier => (foundToday >= goalToday ? 'lanterns' : modifierFor(tomorrow));
+
+// The rules require English, so the calendar label has one fixed format (DAY-3.4).
+const DAY_LABEL = new Intl.DateTimeFormat('en-GB', {
+  weekday: 'short',
+  day: 'numeric',
+  month: 'short',
+  timeZone: 'UTC',
+});
+
+/** "Wed 9 Dec" for a `YYYY-MM-DD` UTC day; empty for anything else. */
+export const dayLabel = (day: string): string => {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(day)) return '';
+  const ms = Date.parse(`${day}T00:00:00Z`);
+  return Number.isNaN(ms) ? '' : DAY_LABEL.format(ms).replace(',', '');
+};
