@@ -14,15 +14,16 @@ import type { Tile } from '../../shared/types.ts';
 import { useApp } from '../app-context.ts';
 import { ChartView } from '../components/ChartView.tsx';
 import { Hint } from '../components/Hint.tsx';
-import { Button, Sheet, ShovelIcon } from '../components/ui.tsx';
+import { Button, Sheet, ShovelIcon, SrTitle } from '../components/ui.tsx';
 import { copy, fmt } from '../copy.ts';
 import { IslandCanvas } from '../island/IslandCanvas.tsx';
 import type { Footprint } from '../island/draw.ts';
 import { useKeys, useRoute } from '../island/input.ts';
-import { useWalker } from '../island/walker.ts';
+import { reducedMotion, useWalker } from '../island/walker.ts';
 import { ApiFailure, post } from '../lib/api.ts';
 import { emptyMask, reveal } from '../lib/fog.ts';
 import { toast } from '../lib/platform.ts';
+import { play } from '../lib/sound.ts';
 
 type Props = { start: HuntStartResponse; chart: ChartPublic; slot: PickSlot };
 
@@ -42,6 +43,7 @@ export const Hunt = ({ start, chart }: Props) => {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [walked, setWalked] = useState(false);
+  const [puffs, setPuffs] = useState<{ at: Tile; t: number }[]>([]);
   const walker = useWalker(start.at);
 
   // Steps the server hasn't confirmed yet, flushed in order.
@@ -104,6 +106,9 @@ export const Hunt = ({ start, chart }: Props) => {
     setError(null);
     try {
       await flush();
+      play('dig');
+      if (!reducedMotion())
+        setPuffs((p) => [...p.slice(-3), { at, t: performance.now() }]);
       const res = await post<DigResponse>('/hunt/dig', {
         huntId: start.huntId,
         at,
@@ -181,8 +186,9 @@ export const Hunt = ({ start, chart }: Props) => {
       markers: [],
       link: false,
       highlight: null,
+      puffs,
     }),
-    [island, seen, walker.pos, prints, holes, input.route]
+    [island, seen, walker.pos, prints, holes, input.route, puffs]
   );
   const by = chart.captain
     ? copy.common.captainBy
@@ -190,9 +196,11 @@ export const Hunt = ({ start, chart }: Props) => {
 
   return (
     <div className="flex h-full flex-col">
+      <SrTitle>{island.name}</SrTitle>
       <div className="flex items-center gap-3 px-3 py-1 text-sm">
         <span
           className="inline-flex gap-0.5"
+          role="img"
           aria-label={fmt(copy.hunt.shovels, { n: shovels })}
         >
           {Array.from({ length: start.shovels }, (_, i) => (

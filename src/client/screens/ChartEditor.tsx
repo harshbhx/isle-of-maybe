@@ -20,6 +20,7 @@ import { useKeys } from '../island/input.ts';
 import { ApiFailure, post } from '../lib/api.ts';
 import * as ed from '../lib/editor.ts';
 import { px } from '../lib/geom.ts';
+import { play } from '../lib/sound.ts';
 import { InkCheck } from './InkCheck.tsx';
 
 type Action =
@@ -93,6 +94,7 @@ export const ChartEditor = ({ at, depth }: { at: Tile; depth: Depth }) => {
       return;
     }
     dispatch({ k: 'place', tool, at: t });
+    play('quill');
   };
   const onMove = (e: PointerEvent<SVGSVGElement>): void => {
     if (drag.current === null) return;
