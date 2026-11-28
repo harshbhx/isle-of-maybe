@@ -14,19 +14,22 @@ const fakePort = (): DailyPort & {
   stickies: string[];
   failSticky: boolean;
 } => {
+  const posts: string[] = [];
+  const stickies: string[] = [];
   const port = {
-    posts: [] as string[],
-    stickies: [] as string[],
+    posts,
+    stickies,
     failSticky: false,
     createPost: async (title: string) => {
-      port.posts.push(title);
-      return `t3_post${port.posts.length}`;
+      posts.push(title);
+      return `t3_post${posts.length}`;
     },
     stickyComment: async (postId: string) => {
       if (port.failSticky) throw new Error('reddit down');
-      port.stickies.push(postId);
-      return `t1_c${port.stickies.length}`;
+      stickies.push(postId);
+      return `t1_c${stickies.length}`;
     },
+    setFlairs: async () => {},
   };
   return port;
 };

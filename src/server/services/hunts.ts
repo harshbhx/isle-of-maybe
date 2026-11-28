@@ -16,7 +16,12 @@ import {
   shortestSteps,
   walkable,
 } from '../../shared/path.ts';
-import { finderGold, salvage, trustScore } from '../../shared/scoring.ts';
+import {
+  finderGold,
+  salvage,
+  tierFor,
+  trustScore,
+} from '../../shared/scoring.ts';
 import type { Island, Tile } from '../../shared/types.ts';
 import { ApiError } from '../store/errors.ts';
 import { K } from '../store/keys.ts';
@@ -31,6 +36,7 @@ import {
 } from './charts.ts';
 import { requireDay } from './island.ts';
 import { addSeen } from './seen.ts';
+import { queueFlair } from './flair.ts';
 import { markStreak } from './streak.ts';
 import { weekKey } from './weeks.ts';
 
@@ -233,7 +239,15 @@ const endHunt = async (
   }
   if (found && !chart.captain) {
     const pay = salvage(chart.depth);
-    await hIncrTtl(kv, K.user(chart.authorId), 'finds', 1, TTL.user);
+    const finds = await hIncrTtl(
+      kv,
+      K.user(chart.authorId),
+      'finds',
+      1,
+      TTL.user
+    );
+    if (tierFor(finds) !== tierFor(finds - 1))
+      await queueFlair(kv, chart.authorId, nowMs);
     await hIncrTtl(kv, K.user(chart.authorId), 'gold', pay, TTL.user);
     await zIncrTtl(kv, K.boardCartographers(), chart.authorId, 1, TTL.board);
   }
