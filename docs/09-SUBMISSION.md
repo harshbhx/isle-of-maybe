@@ -33,6 +33,7 @@ Treasure maps are the oldest user-generated content: one person draws, another t
 - Good maps rise (players rate them True or Cursed) and their makers earn Cartographer tiers. You can share your chart as a comment and challenge friends with a link.
 - Each weekday has a twist (Twins, Low tide, Thick jungle, Sea fog, Lantern night). A daily **crew goal** turns tomorrow into Lantern night when the community finds enough chests, and the top reply under the day's sticky **names tomorrow's island**.
 - A 45-second Practice Cove teaches the hunt on a perfect map; the Hall of Charts keeps the best maps of past days.
+- The post itself says what the game is ("Follow a stranger's map to buried gold. Then bury yours.") over today's coastline. On a wide screen the map sits beside the island, so you read and walk at the same time. The result card ends with one optional invitation to join the crew.
 
 **How we built it**
 Devvit Web: React client, Canvas 2D island, SVG chart editor; Hono server; Redis for everything; the scheduler posts a new island at 00:00 UTC with a sticky comment for chart shares. The island is generated from a daily seed by shared TypeScript that runs on both client and server, so the server re-checks every step and dig: the chest's location never reaches your device until the hunt ends. Charts are structured data, not freehand images, which keeps them safe to show to strangers and lets the game grade them. Even the share image is drawn on the server (a small PNG encoder in plain TypeScript), so nobody can post an arbitrary picture through the app. We red-teamed our own server with break tests (parallel requests, crafted steps, scraping) and fixed five bugs before launch; an automated QA run and an accessibility scan (0 violations, fully keyboard-playable) gate every upload.
@@ -85,7 +86,7 @@ Fonts: IM Fell English SC and Atkinson Hyperlegible (SIL Open Font License). Ins
 ```
 
 ## 4. Demo post set-up (8 Dec)
-1. Make sure today's island post exists and has activity (charts, finds) from testers.
+1. Make sure today's island post exists and has activity (charts, finds) from testers: at least 5 player charts every day from 7 to 16 Dec, so Pick shows Trusted and Fresh charts, not only the Old Captain (`docs/17-JUDGE-REDTEAM.md` J6). Link judges to **today's** post.
 2. Pin a short "How to play" post in the sub (text only) and the community rules: be kind, no spoilers in titles.
 3. Subreddit description: "Daily treasure-map game. Bury it, chart it, trust a stranger's map."
 4. Check member count < 200.

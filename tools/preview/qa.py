@@ -189,6 +189,43 @@ with sync_playwright() as pw:
         check("Q2", "Logged out: hunt captain charts, bury asks to log in", q2)
     finally:
         srv.terminate(); srv.wait()
+    # Judge red team checks (docs/17-JUDGE-REDTEAM.md), on a fresh logged-in day.
+    srv = server()
+    try:
+        def j1():
+            out = []
+            for w, h, strip in [(390, 320, False), (390, 512, True), (740, 320, False)]:
+                pg = page(w, h); pg.goto(BASE + "/splash.html"); pg.wait_for_timeout(900)
+                pitch = pg.get_by_text("Follow a stranger’s map to buried gold")
+                box = pitch.bounding_box() if pitch.count() else None
+                seen = box is not None and box["y"] + box["height"] <= h
+                how = pg.locator("ol").first
+                shown = how.count() > 0 and how.is_visible()
+                out.append(seen and shown == strip and not pg.logs); pg.close()
+            return all(out), "pitch visible at 390×320, 390×512, 740×320; how-it-works strip only when ≥ 440 px tall"
+        check("J1", "Splash says what the game is at every post size", j1)
+
+        def j2():
+            pg = page(); to_pick(pg); btn(pg, "Follow this chart").first.click(); pg.wait_for_timeout(700)
+            before = pg.locator("button:has-text('✦')").count()
+            pg.keyboard.press("ArrowUp"); pg.keyboard.press("ArrowUp"); pg.keyboard.press("Enter"); pg.wait_for_timeout(900)
+            after = pg.locator("button:has-text('✦')").count()
+            t = pg.inner_text("main"); pg.close()
+            return before == 1 and after == 1 and "shovels" in t, f"hints on screen before/after walking: {before}/{after}"
+        check("J2", "Hunt shows one hint at a time", j2)
+
+        def j4():
+            pg = page(1280, 800); to_pick(pg); btn(pg, "Follow this chart").first.click(); pg.wait_for_timeout(700)
+            panel = pg.locator("aside").first
+            wide = panel.count() > 0 and panel.is_visible() and panel.bounding_box()["width"] >= 300
+            # The thumbnail button is labelled exactly "Chart" (hunt.chartOpen).
+            thumbs = pg.get_by_role("button", name="Chart", exact=True)
+            thumb_visible = thumbs.count() > 0 and thumbs.first.is_visible()
+            logs = list(pg.logs); ok = wide and not thumb_visible and not logs; pg.close()
+            return ok, "1280×800: chart panel beside the island, thumbnail hidden" + (f"; console {logs[:2]}" if logs else "") + ("" if wide else "; no panel")
+        check("J4", "Wide screens show the chart beside the island", j4)
+    finally:
+        srv.terminate(); srv.wait()
     browser.close()
 
 manual = [
@@ -203,6 +240,8 @@ manual = [
     ("Q20/Q21", "Daily job twice → one post; day rollover during a hunt"),
     ("Q22", "Console clean in Android/iOS Reddit apps, Firefox, Safari"),
     ("§5", "Judge simulation on 7 and 8 Dec (two people, phone + desktop)"),
+    ("J5", "Result card: Join the crew opens the subreddit (Reddit only: needs the post's subreddit name)"),
+    ("J6", "Every judging day: ≥ 5 tester charts on today's island; Pick shows Trusted and Fresh"),
 ]
 out = sys.argv[1] if len(sys.argv) > 1 else None
 lines = ["| ID | Check | Result | Notes |", "|---|---|---|---|"] + [f"| {a} | {b} | {c} | {d} |" for a, b, c, d in rows]

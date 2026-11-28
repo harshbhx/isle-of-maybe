@@ -65,8 +65,12 @@ Scores out of 10, before → after this pass.
 
 | PR | Change |
 |---|---|
-| Spec change (this doc) | Requirements DAY-3.4, DAY-3.5, UI-3.3, UI-3.4, UI-4.4, COM-2.8; tasks T80–T83; wireframes W1, W4, W9; copy |
-| T80 | Splash: pitch, date, coastline hero, how-it-works strip |
-| T81 | Hunt: one hint at a time, camera pans past the edge |
-| T82 | Hunt on wide screens: chart beside the island |
-| T83 | Result: Join the crew |
+| #133 | Spec change: this doc; DAY-3.4, DAY-3.5, UI-3.3, UI-3.4, UI-4.4, COM-2.8; tasks T80–T83; wireframes W1, W4, W9; copy |
+| #134 (T80) | Splash: pitch line, today's date, coastline hero (square at every post size), how-it-works strip on tall posts; short posts drop lines instead of clipping |
+| #135 (T81) | Hunt: one hint at a time; camera pans a quarter-screen past the coast; fog fades into open sea |
+| #136 (T82) | Hunt from 1024 px wide: chart full size beside the island, always open |
+| #137 (T83) | Result: "A new island lands every day. Join the crew →" opens the subreddit |
+| #139 | Bug found in the same pass: "1 steps", "1 shovels left", "1 paces". Templates now pick the word by count |
+| this PR | `npm run qa` adds J1, J2, J4 (17/17); axe re-run on the new splash and wide hunt (0 violations); screenshots, QA report, laptop prompt and Devpost draft updated |
+
+Before → after, as a judge first sees it (390 × 512 splash, 390 × 844 hunt, 1280 × 800 hunt): `docs/img/screens/01-splash.png`, `05-hunt.png`, `12-hunt-wide.png`.
