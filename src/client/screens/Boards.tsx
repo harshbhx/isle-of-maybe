@@ -11,7 +11,13 @@ import type {
 import { generateIsland } from '../../shared/island.ts';
 import { useApp } from '../app-context.ts';
 import { ChartView } from '../components/ChartView.tsx';
-import { Button, ErrorState, Loading, Tabs } from '../components/ui.tsx';
+import {
+  Button,
+  ErrorState,
+  Loading,
+  SrTitle,
+  Tabs,
+} from '../components/ui.tsx';
 import { copy, fmt } from '../copy.ts';
 import { get } from '../lib/api.ts';
 
@@ -151,6 +157,7 @@ export const Boards = () => {
   const [tab, setTab] = useState<Tab>('goldDay');
   return (
     <div className="mx-auto flex w-full max-w-[520px] flex-col gap-3 p-3">
+      <SrTitle>{copy.result.boards}</SrTitle>
       <Tabs tabs={TABS} value={tab} onChange={setTab} />
       {tab === 'hall' ? <Hall /> : <Board key={tab} kind={tab} />}
       <Button

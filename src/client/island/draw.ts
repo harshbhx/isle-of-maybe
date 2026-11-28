@@ -40,6 +40,10 @@ export type Scene = {
   link: boolean;
   /** Tiles that may be tapped (bury); others are dimmed. */
   highlight: Uint8Array | null;
+  /** Sand puffs from digs, with the time they started (docs/03-DESIGN.md §8). */
+  puffs?: readonly { at: Tile; t: number }[];
+  /** When the reveal's X-to-chest line started drawing itself; it takes 500 ms. */
+  linkFrom?: number;
   now: number;
 };
 
@@ -361,12 +365,21 @@ export const drawScene = (
     (m) => m.kind === 'chest' || m.kind === 'chestOpen'
   );
   if (s.link && x !== undefined && chest !== undefined) {
+    const k =
+      s.linkFrom === undefined
+        ? 1
+        : Math.min(1, Math.max(0, (s.now - s.linkFrom) / 500));
+    const ax = X(x.at.x + 0.5);
+    const ay = Y(x.at.y + 0.5);
     ctx.strokeStyle = COL.ink;
     ctx.lineWidth = Math.max(2, t * 0.1);
     ctx.setLineDash([t * 0.25, t * 0.2]);
     ctx.beginPath();
-    ctx.moveTo(X(x.at.x + 0.5), Y(x.at.y + 0.5));
-    ctx.lineTo(X(chest.at.x + 0.5), Y(chest.at.y + 0.5));
+    ctx.moveTo(ax, ay);
+    ctx.lineTo(
+      ax + (X(chest.at.x + 0.5) - ax) * k,
+      ay + (Y(chest.at.y + 0.5) - ay) * k
+    );
     ctx.stroke();
     ctx.setLineDash([]);
   }
@@ -381,6 +394,25 @@ export const drawScene = (
       ctx.strokeRect(X(m.at.x) + 1, Y(m.at.y) + 1, t - 2, t - 2);
       drawChest(ctx, cx, cy, t, false);
     } else drawChest(ctx, cx, cy, t, m.kind === 'chestOpen');
+  }
+
+  // Sand puffs: six grains thrown out and fading over 300 ms.
+  for (const p of s.puffs ?? []) {
+    const age = (s.now - p.t) / 300;
+    if (age < 0 || age >= 1) continue;
+    ctx.fillStyle = `rgba(233,210,154,${1 - age})`;
+    for (let i = 0; i < 6; i++) {
+      const a = (i / 6) * Math.PI * 2 + 0.4;
+      ctx.beginPath();
+      ctx.arc(
+        X(p.at.x + 0.5) + Math.cos(a) * t * 0.55 * age,
+        Y(p.at.y + 0.5) + Math.sin(a) * t * 0.4 * age - t * 0.2 * age,
+        t * 0.08,
+        0,
+        Math.PI * 2
+      );
+      ctx.fill();
+    }
   }
 
   if (s.sailor !== null)

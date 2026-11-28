@@ -6,6 +6,7 @@ import type {
   PickResponse,
   PickSlot,
 } from '../../shared/api.ts';
+import { IMPLEMENTED_MODIFIERS } from '../../shared/day.ts';
 import { useApp } from '../app-context.ts';
 import { ChartView } from '../components/ChartView.tsx';
 import { Hint } from '../components/Hint.tsx';
@@ -148,13 +149,17 @@ export const Pick = () => {
     );
   }
   // Logged-out players only ever get Old Captain charts, so "be the first" would be untrue for them.
-  const onlyCaptain = app.init.user.loggedIn && data.charts.every((c) => c.slot === 'captain');
+  const onlyCaptain =
+    app.init.user.loggedIn && data.charts.every((c) => c.slot === 'captain');
   return (
     <div className="flex flex-col gap-3 py-3">
       <div className="px-4">
         <Title>{copy.pick.title}</Title>
       </div>
       <div className="flex flex-col gap-2 px-4">
+        {IMPLEMENTED_MODIFIERS.has(app.init.island.modifier) && (
+          <Banner>{copy.mod[app.init.island.modifier]}</Banner>
+        )}
         {onlyCaptain && <Banner>{copy.pick.empty}</Banner>}
         <Hint k="pick" />
       </div>

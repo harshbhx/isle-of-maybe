@@ -5,6 +5,7 @@ import './index.css';
 import { StrictMode, useEffect, useMemo, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import type { InitResponse } from '../shared/api.ts';
+import { IMPLEMENTED_MODIFIERS } from '../shared/day.ts';
 import { generateIsland } from '../shared/island.ts';
 import { liveChannel } from '../shared/live.ts';
 import { ChartView } from './components/ChartView.tsx';
@@ -69,12 +70,14 @@ export const Splash = () => {
         {init?.user.loggedIn === true && (
           <p className="ml-auto flex shrink-0 gap-3 text-sm tabular">
             <span
+              role="img"
               className="inline-flex items-center gap-1"
               aria-label={fmt(copy.splash.streak, { n: init.user.streak })}
             >
               <FlameIcon /> {init.user.streak}
             </span>
             <span
+              role="img"
               className="inline-flex items-center gap-1 text-gold"
               aria-label={fmt(copy.splash.gold, { n: init.user.gold })}
             >
@@ -89,9 +92,11 @@ export const Splash = () => {
             <p className="text-muted-night">{copy.splash.tagline}</p>
           ) : (
             <>
-              <p className="text-muted-night">
-                {copy.mod[init.island.modifier]}
-              </p>
+              {IMPLEMENTED_MODIFIERS.has(init.island.modifier) && (
+                <p className="text-muted-night">
+                  {copy.mod[init.island.modifier]}
+                </p>
+              )}
               {counts !== null &&
                 (counts.buried > 0 ? (
                   <p className="tabular" aria-live="polite">

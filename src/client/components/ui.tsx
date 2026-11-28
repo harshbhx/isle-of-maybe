@@ -58,6 +58,11 @@ export const Card = ({
   </section>
 );
 
+/** Visually hidden, for screens whose heading is a picture (canvas, tabs). */
+export const SrTitle = ({ children }: { children: ReactNode }) => (
+  <h1 className="sr-only">{children}</h1>
+);
+
 export const Title = ({
   children,
   className = '',
@@ -103,6 +108,7 @@ export const DepthDots = ({
   return (
     <span
       className="inline-flex items-center gap-1"
+      role="img"
       aria-label={copy.common.depth[depth]}
     >
       {[0, 1, 2].map((i) => (
@@ -238,12 +244,14 @@ export const TopBar = ({
   <header className="flex min-h-12 items-center gap-3 px-3 text-sm">
     <span className="font-display truncate text-[18px]">{dayLabel}</span>
     <span
+      role="img"
       className="ml-auto inline-flex items-center gap-1 tabular"
       aria-label={fmt(copy.splash.streak, { n: streak })}
     >
       <FlameIcon /> {streak}
     </span>
     <span
+      role="img"
       className="inline-flex items-center gap-1 text-gold tabular"
       aria-label={fmt(copy.splash.gold, { n: gold.toLocaleString() })}
     >

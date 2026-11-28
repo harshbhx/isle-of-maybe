@@ -5,7 +5,7 @@ import type { ChartSubmitResponse } from '../../shared/api.ts';
 import type { ChartPiece, Tile } from '../../shared/types.ts';
 import { useApp } from '../app-context.ts';
 import { Pieces } from '../components/ChartView.tsx';
-import { Button, Card } from '../components/ui.tsx';
+import { Button, Card, SrTitle } from '../components/ui.tsx';
 import { copy, fmt } from '../copy.ts';
 import { IslandCanvas } from '../island/IslandCanvas.tsx';
 import { CHART_PX } from '../lib/geom.ts';
@@ -53,6 +53,7 @@ export const InkCheck = ({
   const d = Math.round(result.ink.xError);
   return (
     <div className="mx-auto flex w-full max-w-[560px] flex-col gap-3 p-3">
+      <SrTitle>{copy.chart.title}</SrTitle>
       <div className="relative aspect-square w-full overflow-hidden rounded-[6px]">
         <IslandCanvas
           scene={scene}
