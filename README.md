@@ -27,7 +27,8 @@ You can hunt up to 3 charts a day and bury 1 chest. Good charts rise; great char
 
 ## For moderators
 - Install the app in your subreddit. A new island post appears every day at 00:00 UTC with a sticky comment for chart shares.
-- Mod menu: **Post today's island** (if a post is missing), **Review reported charts** (restore or delete), **Re-run daily job**.
+- Mod menu: **Post today's island** (if a post is missing), **Review reported charts** (restore or delete), **Stats** (players, charts, find rate, return rates for the last 7 days), **Re-run daily job**.
+- App setting: **Crew goal** (finds per day that earn the next day a Lantern night; default 50).
 - Players can report charts. A chart with 3 reports is hidden until a moderator reviews it.
 - Charts are made only from a fixed set of symbols (no text, no freehand drawing) and always show their author.
 - Sharing a chart as a comment is optional and always asks first. All player content expires after 30 days.

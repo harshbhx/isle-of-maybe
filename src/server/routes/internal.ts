@@ -5,10 +5,12 @@ import type { TriggerResponse, UiResponse } from '@devvit/web/shared';
 import { serverCopy } from '../copy.ts';
 import { redditPort } from '../jobs/reddit-port.ts';
 import { runDaily } from '../services/daily.ts';
+import { utcDay } from '../../shared/day.ts';
 import { onCommentDeleted, onPostDeleted } from '../services/cleanup.ts';
 import { applyReview, reviewQueue } from '../services/reports.ts';
 import { isRecord } from '../store/guards.ts';
-import { parseReview, reviewFormFor } from './review-form.ts';
+import { parseReview, reviewFormFor, statsFormFor } from './review-form.ts';
+import { recentStats, statsLines } from '../services/stats.ts';
 
 export const internal = new Hono();
 
@@ -138,3 +140,16 @@ internal.post('/triggers/comment-delete', async (c) => {
     );
   }
 });
+
+/** Moderator menu: daily players, charts, hunts, find rate and return rates (SHIP-3.1). */
+internal.post('/menu/stats', async (c) => {
+  try {
+    const lines = statsLines(await recentStats(redis, utcDay(Date.now())));
+    return c.json<UiResponse>(statsFormFor(lines), 200);
+  } catch (e) {
+    console.error(`stats menu failed: ${String(e)}`);
+    return c.json<UiResponse>({ showToast: serverCopy.toastFailed }, 200);
+  }
+});
+
+internal.post('/forms/stats', (c) => c.json<UiResponse>({}, 200));
