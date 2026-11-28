@@ -6,6 +6,6 @@
 - [x] T13 Depth classes and scoring formulas — ENG-4.1, ENG-4.2, ENG-4.3, ENG-4.4, ENG-4.5
 - [x] T14 Chart validation and Ink check — ENG-5.1, ENG-5.2
 - [x] T15 Old Captain chests and charts — ENG-6.1, ENG-6.2
-- [ ] T16 Atlas dev tool for 30 upcoming islands — ENG-7.1
+- [x] T16 Atlas dev tool for 30 upcoming islands — ENG-7.1
 - [ ] T17 Review the Atlas and add seed overrides (Harsh) — ENG-2.8
 - [x] T15b Old Captain path ends at the X, never on the chest (bug #79) — ENG-6.3
