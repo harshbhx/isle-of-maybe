@@ -1,5 +1,6 @@
 // W2 · Dispatch (DAY-5): the first screen of a new day when your charts have news, or a sample card
 // once for first-timers. Live counters, tier progress, then on to today's island.
+import { DeleteChart } from '../components/DeleteChart.tsx';
 import { useMemo } from 'react';
 import type { DispatchChart } from '../../shared/api.ts';
 import { COMPASS_GLYPH, LANDMARK_GLYPHS } from '../../shared/glyphs.ts';
@@ -52,6 +53,7 @@ const Item = ({ c }: { c: DispatchChart }) => {
             <CoinIcon /> {fmt(copy.dispatch.salvage, { gold: c.salvage })}
           </p>
         )}
+        <DeleteChart chartId={c.chartId} className="self-start px-0" />
       </div>
     </li>
   );

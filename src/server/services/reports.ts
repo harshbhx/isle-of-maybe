@@ -91,6 +91,26 @@ export const deleteChart = async (kv: Kv, chartId: string): Promise<void> => {
   await kv.zRem(K.reportsQueue(), [chartId]);
 };
 
+/**
+ * The author removes their own chart (COM-1.6; Devvit Rules: users can remove their own content).
+ * Everything that points at it goes, and the author's day record forgets it; the chest stays buried
+ * so a deletion can't be used to bury again the same day.
+ */
+export const deleteOwnChart = async (
+  kv: Kv,
+  actor: Actor,
+  chartId: string
+): Promise<{ deleted: true }> => {
+  const chart = await readChart(kv, chartId);
+  if (chart === null || chart.captain)
+    throw new ApiError('not_found', 'no such chart');
+  if (!actor.loggedIn || chart.authorId !== actor.id)
+    throw new ApiError('forbidden', 'you can only delete your own chart');
+  await deleteChart(kv, chartId);
+  await kv.hDel(K.userDay(actor.id, chart.day), ['chartId']);
+  return { deleted: true };
+};
+
 export type ReviewAction = 'restore' | 'delete';
 
 export const applyReview = async (
