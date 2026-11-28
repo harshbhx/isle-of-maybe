@@ -1,6 +1,7 @@
 // Request and response types shared by the client and the /api routes (docs/05-ARCHITECTURE.md §4).
 import type { Modifier } from './day.ts';
 import type { Grade, InkCheck } from './chart.ts';
+import type { NoteId } from './notes.ts';
 import type { Tier, TierProgress } from './scoring.ts';
 import type { ChartPiece, Depth, Tile } from './types.ts';
 
@@ -18,6 +19,8 @@ export type ChartPublic = {
   finds: number;
   trueVotes: number;
   cursedVotes: number;
+  /** One phrase from the fixed list, or none (CHART-2.7). */
+  note: NoteId | null;
 };
 
 export type PickSlot = 'challenge' | 'trusted' | 'fresh' | 'captain';
@@ -122,7 +125,7 @@ export type SeenResponse = { mask: string };
 export type BuryRequest = { at: Tile };
 export type BuryResponse = { at: Tile; depth: Depth };
 
-export type ChartSubmitRequest = { pieces: ChartPiece[] };
+export type ChartSubmitRequest = { pieces: ChartPiece[]; note?: NoteId };
 export type ChartSubmitResponse = { chartId: string; ink: InkCheck };
 
 export type Vote = 'true' | 'cursed';

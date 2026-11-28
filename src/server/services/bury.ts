@@ -9,6 +9,7 @@ import { inkCheck, validateChart } from '../../shared/chart.ts';
 import { utcDay } from '../../shared/day.ts';
 import { depthClass } from '../../shared/depth.ts';
 import { walkable } from '../../shared/path.ts';
+import type { NoteId } from '../../shared/notes.ts';
 import { trustScore } from '../../shared/scoring.ts';
 import { idx, type ChartPiece, type Tile } from '../../shared/types.ts';
 import { ApiError } from '../store/errors.ts';
@@ -83,7 +84,8 @@ export const submitChart = async (
   day: string,
   pieces: ChartPiece[],
   chartId: string,
-  nowMs: number
+  nowMs: number,
+  note: NoteId | null = null
 ): Promise<ChartSubmitResponse> => {
   requireLogin(actor);
   requireToday(day, nowMs);
@@ -113,6 +115,7 @@ export const submitChart = async (
       createdAt: String(nowMs),
       hidden: '0',
       captain: '0',
+      ...(note === null ? {} : { note }),
     },
     TTL.chart
   );

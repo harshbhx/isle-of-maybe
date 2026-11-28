@@ -29,6 +29,7 @@ import {
   reqTile,
   reqTiles,
   reqVote,
+  optNote,
 } from '../store/guards.ts';
 import type { Kv } from '../store/kv.ts';
 import { rateLimit } from './http-limits.ts';
@@ -184,16 +185,18 @@ export const createApi = (d: ApiDeps): Hono => {
     })
   );
   api.post('/chart', (c) =>
-    handle(c, async () =>
-      submitChart(
+    handle(c, async () => {
+      const b = await body(c);
+      return submitChart(
         kv,
         d.actor(),
         await d.postDay(),
-        reqPieces(await body(c), 'pieces', MAX_PIECES),
+        reqPieces(b, 'pieces', MAX_PIECES),
         d.newId(),
-        d.now()
-      )
-    )
+        d.now(),
+        optNote(b, 'note')
+      );
+    })
   );
 
   api.get('/boards/:kind', (c) =>

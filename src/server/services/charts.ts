@@ -2,6 +2,7 @@
 // stored chart into its public form, so chest coordinates cannot leak from here (HUNT-1.5).
 import type { ChartPublic, PickResponse, PickSlot } from '../../shared/api.ts';
 import type { ChartPiece, Depth } from '../../shared/types.ts';
+import { asNoteId, type NoteId } from '../../shared/notes.ts';
 import { K } from '../store/keys.ts';
 import type { Kv } from '../store/kv.ts';
 import type { Actor } from './actor.ts';
@@ -18,6 +19,7 @@ export type StoredChart = {
   depth: Depth;
   hidden: boolean;
   captain: boolean;
+  note: NoteId | null;
 };
 
 const DEPTHS: readonly Depth[] = ['shallow', 'buried', 'deep'];
@@ -49,6 +51,7 @@ export const readChart = async (
     depth: DEPTHS.find((d) => d === h.depth) ?? 'shallow',
     hidden: h.hidden === '1',
     captain: h.captain === '1',
+    note: asNoteId(h.note),
   };
 };
 
@@ -89,6 +92,7 @@ export const toPublic = async (
     finds: s.finds,
     trueVotes: s.trueVotes,
     cursedVotes: s.cursedVotes,
+    note: c.note,
   };
 };
 

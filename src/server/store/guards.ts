@@ -11,6 +11,7 @@ import {
   type BoardKind,
   type Vote,
 } from '../../shared/api.ts';
+import { asNoteId, type NoteId } from '../../shared/notes.ts';
 import { ApiError } from './errors.ts';
 
 export const isRecord = (v: unknown): v is Record<string, unknown> =>
@@ -129,4 +130,17 @@ export const asBoardKind = (v: string | undefined): BoardKind => {
   const k = BOARD_KINDS.find((x) => x === v);
   if (k === undefined) throw new ApiError('bad_request', 'unknown board');
   return k;
+};
+
+/** An optional margin note: absent, or one id from the fixed list (CHART-2.7). */
+export const optNote = (
+  body: Record<string, unknown>,
+  key: string
+): NoteId | null => {
+  const v = body[key];
+  if (v === undefined || v === null) return null;
+  const n = asNoteId(v);
+  if (n === null)
+    throw new ApiError('bad_request', 'notes come from the fixed list only');
+  return n;
 };
