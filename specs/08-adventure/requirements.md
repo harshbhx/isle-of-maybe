@@ -43,6 +43,7 @@ Scope: the 28 Nov rebuild Harsh asked for after playing the game. "Too simple, r
 - **ADV-6.4** WHEN a hunt ends, THE server SHALL add 1 to that day's wear count for each distinct tile the hunt stepped on (TTL like the day's counts). It SHALL serve the day's wear as levels 0–3, rebuilt at most once a minute. A tile shows wear only after 3 or more hunts crossed it, and the server never sends who walked where.
 - **ADV-6.5** THE 3D client SHALL blend worn tiles from grass or sand towards a trodden dirt path by wear level, so the day's crowd shows on the island.
 - **ADV-6.6** WHILE a logged-in player is hunting, THE client MAY send its tile at most once every 2 s while moving. THE server SHALL rate-limit this, attach the player's name and broadcast it on the day's realtime channel. The server never stores these positions.
+- **ADV-6.8** THE ghost toggle SHALL work both ways: while it is off, the client neither shows ghosts nor sends pings. The first 3D hunt SHALL say once, in one line, that other hunters can see you as a ghost and how to turn it off.
 - **ADV-6.7** THE 3D client SHALL draw up to 8 other hunters as faint lantern-lit ghosts with their u/name, gliding between updates and fading out after 10 s without one. Under reduced motion they appear without gliding. The player SHALL be able to hide them.
 
 ## ADV-7 Performance (Harsh: "make sure performance stays")
