@@ -20,9 +20,11 @@
   "permissions": {
     "redis": true,
     "reddit": {
-      "enable": true
+      "enable": true,
+      "asUser": ["SUBMIT_COMMENT"]
     },
-    "realtime": true
+    "realtime": true,
+    "media": true
   },
   "scheduler": {
     "tasks": {

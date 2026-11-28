@@ -147,3 +147,7 @@ export type HallDay = {
   cursed: ChartPublic | null;
 };
 export type HallResponse = { days: HallDay[] };
+
+/** Exactly what "Share my chart" will post (COM-2.7). `image` is a PNG data URL. */
+export type SharePreview = { image: string; text: string; shared: boolean };
+export type ShareResponse = { commentId: string };

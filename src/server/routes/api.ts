@@ -6,6 +6,7 @@ import { buryChest, seenFor, submitChart } from '../services/bury.ts';
 import { pickCharts } from '../services/charts.ts';
 import { rateChart } from '../services/rating.ts';
 import { reportChart } from '../services/reports.ts';
+import { postShare, sharePreview } from '../services/share.ts';
 import {
   applySteps,
   dig,
@@ -26,6 +27,7 @@ import {
 } from '../store/guards.ts';
 import { currentActor, handle, kv, postDay, rateLimit } from './http.ts';
 import { announce } from './live.ts';
+import { sharePort } from './share-port.ts';
 
 /** 6 stamps + 1 path + 1 X fit well inside this; validateChart enforces the real budget. */
 const MAX_PIECES = 16;
@@ -170,3 +172,14 @@ api.get('/boards/:kind', (c) =>
 );
 
 api.get('/hall', (c) => handle(c, async () => hall(kv, utcDay(Date.now()))));
+
+api.get('/share', (c) =>
+  handle(c, async () => sharePreview(kv, currentActor(), await postDay()))
+);
+
+api.post('/share', (c) =>
+  handle(c, async () => {
+    await guarded(c.req.json());
+    return postShare(kv, currentActor(), await postDay(), sharePort);
+  })
+);
