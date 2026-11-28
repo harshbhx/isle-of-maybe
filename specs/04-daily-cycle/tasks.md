@@ -7,5 +7,5 @@
 - [x] T58 Weekday modifiers: Clear skies, Twins, Sea fog — DAY-2.1, DAY-2.2
 - [ ] T59 Remaining modifiers: Low tide, Thick jungle, Lantern night, Storm — DAY-2.1
 - [ ] T60 Community names tomorrow's island from the top reply — DAY-6.1, DAY-6.2
-- [ ] T61 Tomorrow's coastline teaser with countdown — DAY-7.1
+- [x] T61 Tomorrow's coastline teaser with countdown — DAY-7.1
 - [ ] T62 Crew goal progress and Lantern night reward — DAY-8.1, DAY-8.2
