@@ -70,6 +70,7 @@ export const Hunt = ({ start, chart }: Props) => {
   const walker = useWalker(start.at);
   // The 3D renderer, once running: the explorer then moves freely (ADV-3).
   const [h3d, setH3d] = useState<Island3D | null>(null);
+  const viewRef = useRef<HTMLDivElement>(null);
   const coast = useMemo(() => coastDistance(island), [island]);
   const tideRef = useRef(0);
   const [tideLv, setTideLv] = useState(0);
@@ -468,7 +469,7 @@ export const Hunt = ({ start, chart }: Props) => {
           </span>
           <span aria-live="polite" />
         </div>
-        <div className="relative min-h-0 flex-1">
+        <div ref={viewRef} className="relative min-h-0 flex-1">
           <IslandCanvas
             scene={scene}
             zoom={zoom}
@@ -486,7 +487,14 @@ export const Hunt = ({ start, chart }: Props) => {
           {h3d !== null && coarse && (
             <Joystick
               label={copy.hunt.stick}
+              showHint={!walked}
               onMove={(x, y) => h3d.input(x, y, false)}
+              onTap={(cx, cy) => {
+                const r = viewRef.current?.getBoundingClientRect();
+                if (r === undefined) return;
+                const t = h3d.tileAt(cx - r.left, cy - r.top);
+                if (t !== null) h3d.goTo(t);
+              }}
             />
           )}
           <button
