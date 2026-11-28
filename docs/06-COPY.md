@@ -161,3 +161,30 @@ Voice: short, salty, kind. Tease the map, never the player. Every string lives i
 | reviewRestored / reviewDeleted | Restored {n} chart(s). / Deleted {n} chart(s). |
 | reviewNone | Pick at least one chart. |
 
+
+## Client extras (labels the wireframes imply; same voice)
+| Key | Text |
+|---|---|
+| splash.tagline | Bury it. Chart it. Trust a stranger's map. |
+| splash.streak / splash.gold | {n}-day streak / {n} gold (screen-reader labels) |
+| pick.fresh0 | New · nobody has tried it yet |
+| pick.none | You've hunted every chart you can today. |
+| pick.prev / pick.next | Previous chart / Next chart |
+| hunt.chartClose | Hide chart |
+| hunt.zoomIn / hunt.zoomOut | Zoom in / Zoom out |
+| hunt.walking | Walking… |
+| hunt.confirmGiveup | Give up and see where the chest was? |
+| reveal.rated | Thanks for rating. |
+| reveal.buryCta / reveal.again / reveal.results | Bury your chest / Hunt another chart / See results |
+| reveal.chartX / reveal.chest | Chart's X / Chest (map legend) |
+| bury.loginCta / bury.browse / bury.pickTile | Log in / Just browse / Tap a tile you've walked near. |
+| chart.undo / chart.clear / chart.remove / chart.stamps | Undo / Clear / Remove / Stamps |
+| ink.continue | Continue |
+| result.streak / result.total / result.noChest | Streak {n} / {n} gold total / No chest buried yet. |
+| share.already | Already shared under today's chart thread. |
+| dispatch.sampleTitle / dispatch.tier / dispatch.tierTop / dispatch.cta | Sample / {tier} · {finds} / {next} finds / {tier} · {finds} finds / Today's island → |
+| boards.trusted / boards.empty / boards.you / boards.cursed / boards.back | Most trusted charts / Nobody here yet. Be the first. / You / Cursed Map of the Day / Back |
+| practice.* | Practice Cove / A tiny island and a perfect map. 45 seconds. / Try it / Skip / You can read a map. Now the real island. |
+| common.* | Reading the charts… / Back / Close / Sound / Charted by u/{name} / Charted by u/{name} · Day {n} / Charted by the Old Captain |
+| landmark.* | Palm, Twin palms, Boulder, Skull rock, Hut, Wreck, Well, Statue, Campfire, Cave |
+| err.retry | Try again |
