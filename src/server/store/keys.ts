@@ -4,6 +4,9 @@
 export const K = {
   day: (d: string) => `day:${d}`,
   dayCounts: (d: string) => `day:${d}:counts`,
+  /** Hunts that crossed each tile today (ADV-6.4); aggregate only. */
+  wear: (d: string) => `day:${d}:wear`,
+  wearCache: (d: string) => `day:${d}:wearlv`,
   /** Who finished a hunt that day, for return rates (SHIP-3.1). */
   dayPlayers: (d: string) => `players:${d}`,
   postDay: (postId: string) => `postday:${postId}`,

@@ -59,6 +59,9 @@ import { addSeen } from './seen.ts';
 import { queueFlair } from './flair.ts';
 import { markStreak } from './streak.ts';
 import { weekKey } from './weeks.ts';
+import { recordTrail } from './wear.ts';
+import { markSeen, seenFromHex, seenToHex } from '../../shared/seen.ts';
+import { idx } from '../../shared/types.ts';
 
 export const SHOVELS = 3;
 export const MAX_STEPS_PER_CALL = 200;
@@ -77,6 +80,8 @@ type Hunt = {
   start: number | null;
   /** Summed minimum seconds of the accepted steps (ADV-2.3). */
   minT: number;
+  /** Tiles this hunt stepped on, as a seen-style hex mask (ADV-6.4). */
+  trail: string | undefined;
 };
 
 const num = (v: string | undefined): number =>
@@ -99,6 +104,7 @@ const loadHunt = async (kv: Kv, actor: Actor, id: string): Promise<Hunt> => {
     done: h.done === '1',
     start: h.start === undefined ? null : num(h.start),
     minT: num(h.minT),
+    trail: h.trail,
   };
 };
 
@@ -235,6 +241,9 @@ export const applySteps = async (
     }
     prev = s;
   }
+  const trail = seenFromHex(hunt.trail);
+  markSeen(trail, idx(hunt.at.x, hunt.at.y));
+  for (const st of fresh) markSeen(trail, idx(st.x, st.y));
   if (
     clocked &&
     nowMs !== undefined &&
@@ -253,6 +262,7 @@ export const applySteps = async (
       steps: String(hunt.steps + fresh.length),
       index: String(hunt.index + fresh.length),
       minT: String(minT),
+      trail: seenToHex(trail),
     },
     TTL.hunt
   );
@@ -288,6 +298,10 @@ const endHunt = async (
         shortestSteps(island, chart.chest)
       )
     : 0;
+
+  // The crowd's paths (ADV-6.4): this hunt's tiles, counted once each.
+  if (hunt.trail !== undefined)
+    await recordTrail(kv, hunt.day, seenFromHex(hunt.trail));
 
   // Chart stats and rankings (HUNT-4.4, HUNT-4.5).
   await hIncrTtl(kv, K.chartStats(chart.id), 'attempts', 1, TTL.chart);

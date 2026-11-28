@@ -9,7 +9,7 @@
 - [ ] T96 (#168) QA, screenshots, GIFs, featuring video and docs for the adventure
 - [x] T97 (#175) Fonts: Fraunces and Bricolage Grotesque, IM Fell on the chart only — ADV-8.1, ADV-7.2
 - [x] T98 (#176) Flair hats, chest plaques and the named-by dock sign — ADV-6.1 – ADV-6.3
-- [ ] T99 (#177) Crowd-worn paths — ADV-6.4, ADV-6.5
+- [x] T99 (#177) Crowd-worn paths — ADV-6.4, ADV-6.5
 - [ ] T100 (#178) Live ghost explorers — ADV-6.6, ADV-6.7
 - [ ] T101 (#179) Adaptive quality and the bundle budget — ADV-7.1, ADV-7.2
 - [ ] T102 (#187) Floating joystick (shared by the hunt and Practice Cove) — ADV-3.1
