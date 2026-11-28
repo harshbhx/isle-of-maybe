@@ -35,4 +35,4 @@
 | D31 | Reddit-only features: flair hats, engraved chest plaques, a named-by dock sign, crowd-worn paths and live ghost explorers. *Harsh, 28 Nov.* | Message in a bottle (later) | They make the island visibly the subreddit's: who you are (flair), who hid it (u/name), who named it, where everyone walked, who's out there now |
 | D32 | Worn paths are aggregate only: counted once per hunt per tile, shown after 3+ hunts, rebuilt at most once a minute. Ghost positions are broadcast, never stored. | Per-player trails; storing positions | Privacy and Redis cost; the crowd is the clue, not any one person |
 | D33 | Classic version kept: branch `classic-beta` (tile-by-tile, before the rebuild) is preserved as v0.9 beta; `main` becomes v1.0. *Harsh, 28 Nov: "don't delete the last version".* | Overwriting history | Lets us compare and roll back |
-
+| D34 | Daily biomes (Tropical, Volcanic, Autumn, Mangrove, Frost, Coral) are derived from the seed and change only how the island looks, plus one ambient touch. *Harsh, 29 Nov: "full uniqueness".* | New terrain shapes in `island.ts` | Every day reads as new from the feed without touching rules or posted days (rule 9) |

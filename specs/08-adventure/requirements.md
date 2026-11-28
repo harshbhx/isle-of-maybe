@@ -61,3 +61,8 @@ Scope: the 28 Nov rebuild Harsh asked for after playing the game. "Too simple, r
 - **ADV-9.5** THE client SHALL use small, dependency-free motion components where they help reading: gold that counts up, a shimmer on the found line, a soft spotlight on the chart you're about to pick, and a spark burst on key taps. All animate only `transform` and `opacity` and stay still under reduced motion (UI-5.1).
 - **ADV-9.6** THE splash SHALL show key art rendered from the game itself (the explorer finding a chest) behind a lagoon wash that keeps every text pair at 4.5:1 or better. It is one bundled WebP under 40 KB, and the splash entry still has no canvas (UI-1.2).
 
+## ADV-10 Every island looks different (Harsh, 29 Nov: "full uniqueness"; Hearthvale: "each village looks different")
+- **ADV-10.1** THE engine SHALL give each day a biome from its seed: Tropical, Volcanic, Autumn, Mangrove, Frost or Coral. It is pure and deterministic, and doesn't change `island.ts` output or any rule (rule 9).
+- **ADV-10.2** THE 3D client SHALL dress the island for its biome: ground and sand colours, plant colours and kinds (palms, broadleaf, pines), sea and sky colours, and one ambient touch each (volcanic smoke, autumn leaves, frost snowfall, mangrove mist, coral birds, tropical clouds). The ambient touch is still under reduced motion, or absent.
+- **ADV-10.3** THE splash and the hunt header SHALL name the biome in one short line (for example "A volcanic isle"), so each day's post reads as new from the feed.
+
