@@ -25,6 +25,7 @@ import {
   reqVote,
 } from '../store/guards.ts';
 import { currentActor, handle, kv, postDay, rateLimit } from './http.ts';
+import { announce } from './live.ts';
 
 /** 6 stamps + 1 path + 1 X fit well inside this; validateChart enforces the real budget. */
 const MAX_PIECES = 16;
@@ -78,13 +79,15 @@ api.post('/hunt/steps', (c) =>
 api.post('/hunt/dig', (c) =>
   handle(c, async () => {
     const b = await guarded(c.req.json());
-    return dig(
+    const r = await dig(
       kv,
       currentActor(),
       reqString(b, 'huntId'),
       reqTile(b, 'at'),
       Date.now()
     );
+    if (r.found) await announce(await postDay(), 'found');
+    return r;
   })
 );
 
@@ -133,13 +136,16 @@ api.get('/seen', (c) =>
 api.post('/bury', (c) =>
   handle(c, async () => {
     const b = await guarded(c.req.json());
-    return buryChest(
+    const day = await postDay();
+    const r = await buryChest(
       kv,
       currentActor(),
-      await postDay(),
+      day,
       reqTile(b, 'at'),
       Date.now()
     );
+    await announce(day, 'buried');
+    return r;
   })
 );
 
