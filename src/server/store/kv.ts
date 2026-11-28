@@ -41,6 +41,8 @@ export const TTL = {
   reports: 30 * DAY_S,
   flair: 8 * DAY_S,
   rate: 2,
+  hallCache: 600,
+  trustedCache: 30,
 } as const;
 
 /** hSet + expire in one call, so no hash is ever written without a TTL. */

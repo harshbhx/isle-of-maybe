@@ -29,6 +29,7 @@ export const onPostDeleted = async (
     K.chartsAttempts(day),
     K.chartsCaptain(day),
     K.dayCounts(day),
+    K.trustedCache(day),
     K.day(day),
     K.postDay(postId)
   );
