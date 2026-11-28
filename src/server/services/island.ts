@@ -13,6 +13,8 @@ export type DayRecord = {
   modifier: Modifier;
   name: string;
   shareCommentId: string;
+  /** Who named this island from the comments, or '' (DAY-6.2). */
+  namedBy: string;
 };
 
 const MODIFIERS: readonly Modifier[] = [
@@ -41,6 +43,7 @@ export const readDay = async (
     modifier: asModifier(h.modifier),
     name: h.name ?? '',
     shareCommentId: h.shareCommentId ?? '',
+    namedBy: h.namedBy ?? '',
   };
 };
 

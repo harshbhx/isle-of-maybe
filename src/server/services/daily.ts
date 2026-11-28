@@ -3,6 +3,7 @@
 import { captainChart, captainChests } from '../../shared/captain.ts';
 import {
   dayNumber,
+  addDays,
   modifierFor,
   utcDay,
   type Modifier,
@@ -12,6 +13,7 @@ import { rngFor } from '../../shared/rng.ts';
 import { serverCopy } from '../copy.ts';
 import { K } from '../store/keys.ts';
 import { TTL, hSetOnce, hSetTtl, type Kv } from '../store/kv.ts';
+import { pickName, type NameReply } from '../../shared/naming.ts';
 import { applyFlairs, type SetFlairs } from './flair.ts';
 import { islandOf, readDay } from './island.ts';
 
@@ -23,6 +25,8 @@ export type DailyPort = {
   ) => Promise<string>;
   stickyComment: (postId: string, text: string) => Promise<string>;
   setFlairs: SetFlairs;
+  /** Direct replies to a comment (DAY-6.2). */
+  replies: (commentId: string) => Promise<NameReply[]>;
 };
 
 export type DailyResult = {
@@ -97,6 +101,22 @@ export const runDaily = async (
   return r;
 };
 
+/** Yesterday's top usable reply under the sticky names today's island (DAY-6.2). Best effort. */
+const communityName = async (
+  kv: Kv,
+  port: DailyPort,
+  yesterday: string
+): Promise<{ name: string; by: string } | null> => {
+  const prev = await readDay(kv, yesterday);
+  if (prev === null || prev.shareCommentId === '') return null;
+  try {
+    return pickName(await port.replies(prev.shareCommentId));
+  } catch (e) {
+    console.error(`naming replies: ${String(e)}`);
+    return null;
+  }
+};
+
 const postIsland = async (
   kv: Kv,
   port: DailyPort,
@@ -127,14 +147,16 @@ const postIsland = async (
   const modifier = modifierFor(day);
   const existingSeed = await kv.hGet(K.day(day), 'seed');
   const island = generateIsland(existingSeed ?? seedFor(day), modifier);
+  const named = await communityName(kv, port, addDays(day, -1));
+  const name = named?.name ?? island.name;
   await hSetTtl(
     kv,
     K.day(day),
-    { seed: island.seed, modifier, name: island.name },
+    { seed: island.seed, modifier, name, namedBy: named?.by ?? '' },
     TTL.day
   );
 
-  const postId = await port.createPost(serverCopy.postTitle(n, island.name), {
+  const postId = await port.createPost(serverCopy.postTitle(n, name), {
     day,
     seed: island.seed,
     modifier,
