@@ -74,7 +74,7 @@ const PickCard = ({
       />
       <p className="text-sm text-ink-soft">{by}</p>
       {chart.note !== null && (
-        <p className="font-display text-[17px] italic text-ink">
+        <p className="font-chart text-[17px] italic text-ink">
           “{copy.notes[chart.note]}”
         </p>
       )}

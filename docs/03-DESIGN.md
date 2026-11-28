@@ -41,8 +41,9 @@ What it must not look like (Reddit's "AI slop" warning): purple gradients, glass
 Rules: text only uses the pairs above. Island colours never carry meaning alone (landmarks differ by **shape**, red team: colour blindness). No navy, no purple, no glow gradients: the frame is a flat lagoon colour with, at most, a faint wave-line texture.
 
 ## 4. Type
-- **Display:** *IM Fell English SC* (SIL OFL), for island names, screen titles, the Dispatch heading. Never below 20 px.
-- **Body/UI:** *Atkinson Hyperlegible* (SIL OFL), 16 px base, 14 px minimum, numbers tabular.
+- **Display:** *Fraunces* 700 (900 for the splash title), SIL OFL, for island names, screen titles, the Dispatch heading and big moments. Never below 18 px (D30).
+- **Body/UI:** *Bricolage Grotesque* 400/600/800, SIL OFL, for the HUD, buttons and text. 16 px base, 14 px minimum, numbers tabular.
+- **On paper only:** *IM Fell English SC* (SIL OFL) for the chart, its margin note and the Ink check stamp, where an antique face is in character.
 - Bundle both as WOFF2 in the client; no external font requests (the webview only allows its own domain).
 - Scale: 14 / 16 / 20 / 26 / 34.
 
