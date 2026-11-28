@@ -4,6 +4,8 @@ import { validateChart } from '../../shared/chart.ts';
 import { generateIsland } from '../../shared/island.ts';
 import { K } from '../store/keys.ts';
 import { FakeKv } from '../testing/fake-kv.ts';
+import { DAY, alice } from '../testing/fixtures.ts';
+import { initFor } from './init.ts';
 import { captainChartId, runDaily, type DailyPort } from './daily.ts';
 import { readDay } from './island.ts';
 
@@ -30,6 +32,7 @@ const fakePort = (): DailyPort & {
       return `t1_c${stickies.length}`;
     },
     setFlairs: async () => {},
+    replies: async () => [],
   };
   return port;
 };
@@ -109,4 +112,42 @@ test('CHART-4.1 the daily job leaves no player-data key without a TTL', async ()
     kv.keysWithoutTtl((k) => /^day:\d{4}-\d{2}-\d{2}$/.test(k)),
     []
   );
+});
+
+test("DAY-6.2 yesterday's top usable reply names today's island, with credit", async () => {
+  const kv = new FakeKv();
+  const day1 = fakePort();
+  await runDaily(kv, day1, NOW - 86_400_000);
+  const asked: string[] = [];
+  const day2 = {
+    ...fakePort(),
+    replies: async (id: string) => {
+      asked.push(id);
+      return [
+        { author: 'troll', body: 'Shit Rock', score: 90, removed: false },
+        { author: 'gull', body: 'gull  hollow', score: 30, removed: false },
+      ];
+    },
+  };
+  await runDaily(kv, day2, NOW);
+  assert.deepEqual(asked, ['t1_c1']);
+  assert.equal(day2.posts[0], 'Isle of Maybe · Day 3 — Gull Hollow');
+  const init = await initFor(kv, alice, DAY, NOW);
+  assert.equal(init.island.name, 'Gull Hollow');
+  assert.equal(init.island.namedBy, 'gull');
+});
+
+test('DAY-6.2 with no usable reply (or a failing call) the generated name stays', async () => {
+  const kv = new FakeKv();
+  await runDaily(kv, fakePort(), NOW - 86_400_000);
+  const port = {
+    ...fakePort(),
+    replies: async () => {
+      throw new Error('reddit down');
+    },
+  };
+  await runDaily(kv, port, NOW);
+  const init = await initFor(kv, alice, DAY, NOW);
+  assert.equal(init.island.namedBy, null);
+  assert.ok(init.island.name.length > 0);
 });

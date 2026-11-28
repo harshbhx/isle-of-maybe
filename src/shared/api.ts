@@ -64,7 +64,13 @@ export type InitResponse = {
   isToday: boolean;
   /** Today's island post, when this post is an older day (DAY-3.3). */
   todayPost: { postId: string; dayNumber: number } | null;
-  island: { seed: string; modifier: Modifier; name: string };
+  /** `namedBy`: the redditor whose reply named this island, if any (DAY-6.2). */
+  island: {
+    seed: string;
+    modifier: Modifier;
+    name: string;
+    namedBy: string | null;
+  };
   counts: { buried: number; found: number; hunts: number };
   user: UserState;
   dispatch: Dispatch;

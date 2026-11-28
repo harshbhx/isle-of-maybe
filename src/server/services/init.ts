@@ -101,7 +101,12 @@ export const initFor = async (
     today,
     isToday: day === today,
     todayPost: day === today ? null : await todayPost(kv, today),
-    island: { seed: rec.seed, modifier: rec.modifier, name: island.name },
+    island: {
+      seed: rec.seed,
+      modifier: rec.modifier,
+      name: rec.name !== '' ? rec.name : island.name,
+      namedBy: rec.namedBy !== '' ? rec.namedBy : null,
+    },
     counts: {
       buried: num(counts.buried),
       found: num(counts.found),

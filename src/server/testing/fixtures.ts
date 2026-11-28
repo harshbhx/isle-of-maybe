@@ -17,6 +17,7 @@ export const nullPort: DailyPort = {
   createPost: async () => 't3_day',
   stickyComment: async () => 't1_sticky',
   setFlairs: async () => {},
+  replies: async () => [],
 };
 
 export const postDay = async (kv: FakeKv, now = NOW): Promise<void> => {

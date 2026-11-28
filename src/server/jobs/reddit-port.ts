@@ -1,7 +1,7 @@
 // Devvit implementation of the daily job's Reddit calls: create the island post, sticky the thread,
 // set tier flair.
 import { context, reddit } from '@devvit/web/server';
-import { isT3 } from '@devvit/web/shared';
+import { isT1, isT3 } from '@devvit/web/shared';
 import type { DailyPort } from '../services/daily.ts';
 
 export const redditPort: DailyPort = {
@@ -23,6 +23,19 @@ export const redditPort: DailyPort = {
     });
     await comment.distinguish(true);
     return comment.id;
+  },
+  replies: async (commentId) => {
+    if (!isT1(commentId)) return [];
+    const comment = await reddit.getCommentById(commentId);
+    const list = await comment.replies.all();
+    return list
+      .slice(0, 500)
+      .map((r) => ({
+        author: r.authorName,
+        body: r.body,
+        score: r.score,
+        removed: r.removed,
+      }));
   },
   setFlairs: async (rows) => {
     await reddit.setUserFlairBatch(context.subredditName, rows);

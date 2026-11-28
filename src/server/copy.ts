@@ -4,7 +4,7 @@ export const serverCopy = {
   postTitle: (n: number, island: string) =>
     `Isle of Maybe · Day ${n} — ${island}`,
   shareSticky: (n: number) =>
-    `🗺️ Chart shares for Day ${n} go here. Share yours from inside the game: it replies to this comment from your account.`,
+    `🗺️ Chart shares for Day ${n} go here. Share yours from inside the game: it replies to this comment from your account.\n\n🏝️ Name tomorrow's island: reply here with a name (3 to 24 letters). The top-voted reply at 00:00 UTC wins.`,
   captainName: 'Old Captain',
   /** share.comment in docs/06-COPY.md */
   shareComment: (depth: 'shallow' | 'buried' | 'deep', island: string) =>

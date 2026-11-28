@@ -23,6 +23,7 @@ const port0 = {
   createPost: async () => 't3_preview',
   stickyComment: async () => 't1_sticky',
   setFlairs: async () => {},
+  replies: async () => [],
 };
 
 // Yesterday's island with a chart by "you", so the Dispatch and the Hall have something to show.
@@ -33,14 +34,12 @@ await runDaily(kv, port0, yNow);
   const { island: yIsland } = await requireDay(kv, yesterday);
   const chest = yIsland.landmarks[0]?.at ?? yIsland.dock;
   const pieces: ChartPiece[] = [
-    ...yIsland.landmarks
-      .slice(1, 4)
-      .map((l): ChartPiece => ({
-        k: 'stamp',
-        t: l.type,
-        x: l.at.x,
-        y: l.at.y + 1,
-      })),
+    ...yIsland.landmarks.slice(1, 4).map((l): ChartPiece => ({
+      k: 'stamp',
+      t: l.type,
+      x: l.at.x,
+      y: l.at.y + 1,
+    })),
     { k: 'x', x: chest.x + 1, y: chest.y },
   ];
   await kv.hSet(K.chart('yours-y'), {
@@ -87,14 +86,12 @@ for (const [i, name] of sailors.entries()) {
   }
   const off = (): number => Math.round((rnd() - 0.5) * 4);
   const pieces: ChartPiece[] = [
-    ...island.landmarks
-      .slice(0, 3 + i)
-      .map((l): ChartPiece => ({
-        k: 'stamp',
-        t: l.type,
-        x: l.at.x + off(),
-        y: l.at.y + off(),
-      })),
+    ...island.landmarks.slice(0, 3 + i).map((l): ChartPiece => ({
+      k: 'stamp',
+      t: l.type,
+      x: l.at.x + off(),
+      y: l.at.y + off(),
+    })),
     { k: 'path', pts: [island.dock, { x: island.dock.x, y: chest.y }, chest] },
     { k: 'x', x: chest.x + off(), y: chest.y + off() },
   ];

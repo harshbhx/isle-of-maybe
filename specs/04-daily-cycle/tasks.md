@@ -6,6 +6,6 @@
 - [x] T51 Result card and Dispatch screens, including the sample Dispatch — DAY-5.1, DAY-5.2
 - [x] T58 Weekday modifiers: Clear skies, Twins, Sea fog — DAY-2.1, DAY-2.2
 - [x] T59 Remaining modifiers: Low tide, Thick jungle, Lantern night, Storm — DAY-2.1
-- [ ] T60 Community names tomorrow's island from the top reply — DAY-6.1, DAY-6.2
+- [x] T60 Community names tomorrow's island from the top reply — DAY-6.1, DAY-6.2
 - [x] T61 Tomorrow's coastline teaser with countdown — DAY-7.1
 - [ ] T62 Crew goal progress and Lantern night reward — DAY-8.1, DAY-8.2

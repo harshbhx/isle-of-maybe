@@ -64,6 +64,11 @@ export const Splash = () => {
                 n: init.dayNumber,
                 island: init.island.name,
               })}
+              {init.island.namedBy !== null && (
+                <span className="block font-body text-xs text-muted-night">
+                  {fmt(copy.splash.namedBy, { name: init.island.namedBy })}
+                </span>
+              )}
             </p>
           )}
         </div>
