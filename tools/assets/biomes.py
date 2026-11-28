@@ -17,7 +17,7 @@ ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)
 # First launch day of each biome (src/shared/biome.test.ts checks the fortnight has all six).
 DAYS = {"tropical": "2026-12-05", "coral": "2026-12-06", "autumn": "2026-12-07",
         "mangrove": "2026-12-08", "frost": "2026-12-10", "volcanic": "2026-12-11"}
-ZOOM = os.environ.get("ZOOM", "0.75")
+ZOOM = os.environ.get("ZOOM", "0.26")
 subprocess.run(["npx", "vite", "build", "--config", "tools/assets/biomes/vite.config.mjs"], cwd=ROOT, check=True)
 handler = functools.partial(http.server.SimpleHTTPRequestHandler, directory="/tmp/iom-biomes")
 srv = http.server.ThreadingHTTPServer(("127.0.0.1", 5192), handler)

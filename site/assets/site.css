@@ -1,0 +1,689 @@
+/* Isle of Maybe website (SHIP-9). The game's two materials: lagoon water for the frame, sun-bleached
+   paper and ink for what you read. Fonts are bundled; nothing loads from anywhere else. */
+
+@font-face {
+  font-family: 'Fraunces';
+  font-weight: 700;
+  font-display: swap;
+  src: url('fonts/fraunces-700.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Fraunces';
+  font-weight: 900;
+  font-display: swap;
+  src: url('fonts/fraunces-900.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Bricolage Grotesque';
+  font-weight: 400;
+  font-display: swap;
+  src: url('fonts/bricolage-400.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Bricolage Grotesque';
+  font-weight: 600;
+  font-display: swap;
+  src: url('fonts/bricolage-600.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Bricolage Grotesque';
+  font-weight: 800;
+  font-display: swap;
+  src: url('fonts/bricolage-800.woff2') format('woff2');
+}
+
+:root {
+  --paper: #fff4dc;
+  --paper-2: #f3e1b8;
+  --ink: #2b1d12;
+  --ink-soft: #6a513a;
+  --hibiscus: #b8233f;
+  --palm: #1e5b3a;
+  --lagoon: #0a6468;
+  --lagoon-2: #08575c;
+  --lagoon-3: #06474b;
+  --foam: #fff7e8;
+  --seafoam: #c8eee7;
+  --sun: #ffcf6b;
+  --mango: #ffb21e;
+  --shallows: #4cc3b9;
+  --sand: #f2d99b;
+  --display: 'Fraunces', Georgia, serif;
+  --body: 'Bricolage Grotesque', system-ui, sans-serif;
+  --wrap: 72rem;
+  --gutter: clamp(1.25rem, 4vw, 2.5rem);
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+html {
+  -webkit-text-size-adjust: 100%;
+}
+body {
+  margin: 0;
+  background: var(--lagoon);
+  color: var(--foam);
+  font: 400 1.0625rem/1.6 var(--body);
+}
+img,
+video,
+svg {
+  display: block;
+  max-width: 100%;
+}
+a {
+  color: inherit;
+  text-underline-offset: 0.2em;
+  text-decoration-thickness: 1px;
+}
+a:hover {
+  text-decoration-thickness: 2px;
+}
+:focus-visible {
+  outline: 3px solid var(--sun);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+.paper :focus-visible {
+  outline-color: var(--hibiscus);
+}
+h1,
+h2,
+h3 {
+  font-family: var(--display);
+  font-weight: 900;
+  letter-spacing: -0.02em;
+  line-height: 1.02;
+  margin: 0;
+  text-wrap: balance;
+}
+h2 {
+  font-size: clamp(2rem, 4.4vw, 3.25rem);
+}
+h3 {
+  font-weight: 700;
+  font-size: 1.375rem;
+  letter-spacing: -0.01em;
+  line-height: 1.2;
+}
+p {
+  margin: 0;
+  text-wrap: pretty;
+}
+.wrap {
+  width: min(100% - 2 * var(--gutter), var(--wrap));
+  margin-inline: auto;
+}
+.skip {
+  position: absolute;
+  left: -999px;
+  top: 0.5rem;
+  background: var(--mango);
+  color: var(--ink);
+  padding: 0.6rem 1rem;
+  border-radius: 999px;
+  font-weight: 800;
+  z-index: 10;
+}
+.skip:focus {
+  left: 0.5rem;
+}
+
+/* Buttons: one mango action per view, everything else quiet. */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: 3rem;
+  padding: 0.75rem 1.4rem;
+  border-radius: 999px;
+  background: var(--mango);
+  color: var(--ink);
+  font-weight: 800;
+  text-decoration: none;
+  box-shadow: 0 3px 0 #c98400;
+  transition: transform 120ms ease-out;
+}
+.btn:hover {
+  transform: translateY(-1px);
+}
+.btn:active {
+  transform: translateY(2px);
+  box-shadow: 0 1px 0 #c98400;
+}
+.btn-quiet {
+  font-weight: 600;
+  min-height: 3rem;
+  display: inline-flex;
+  align-items: center;
+}
+
+/* Header */
+.top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding-block: 1.1rem;
+}
+.top .brand img {
+  height: 2.4rem;
+  width: auto;
+}
+.nav {
+  display: flex;
+  align-items: center;
+  gap: clamp(0.75rem, 2.4vw, 1.75rem);
+  font-weight: 600;
+  font-size: 0.98rem;
+}
+.nav a:not(.btn) {
+  text-decoration: none;
+  color: var(--seafoam);
+  padding-block: 0.6rem;
+}
+.nav a:not(.btn):hover,
+.nav a[aria-current='page'] {
+  color: var(--foam);
+  text-decoration: underline;
+}
+.nav .btn {
+  min-height: 2.6rem;
+  padding: 0.5rem 1.1rem;
+}
+@media (max-width: 40rem) {
+  .nav .hide-sm {
+    display: none;
+  }
+}
+.nav a {
+  white-space: nowrap;
+}
+@media (max-width: 30rem) {
+  .nav .hide-xs {
+    display: none;
+  }
+  .top .brand img {
+    height: 2rem;
+  }
+}
+
+/* Hero: the promise on the left, today's real island on the right. */
+.hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
+  gap: clamp(2rem, 5vw, 4.5rem);
+  align-items: center;
+  padding-block: clamp(2.5rem, 7vw, 6rem) clamp(3.5rem, 8vw, 7rem);
+}
+.hero h1 {
+  font-size: clamp(3rem, 8.4vw, 6.4rem);
+  color: var(--foam);
+}
+.hero .lede {
+  margin-top: 1.5rem;
+  max-width: 34rem;
+  font-size: clamp(1.1rem, 1.8vw, 1.3rem);
+  color: var(--seafoam);
+}
+.hero .actions {
+  margin-top: 2.2rem;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1rem 1.6rem;
+}
+.hero .actions .btn-quiet {
+  color: var(--foam);
+}
+@media (max-width: 52rem) {
+  .hero {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Today's chart: parchment, tilted like a map laid on a table. */
+.chart {
+  background: var(--paper);
+  color: var(--ink);
+  border-radius: 6px;
+  padding: 1.1rem 1.1rem 1rem;
+  transform: rotate(-2deg);
+  box-shadow:
+    0 1px 0 var(--paper-2),
+    0 24px 50px -18px rgb(0 0 0 / 0.55);
+  max-width: 26rem;
+  justify-self: center;
+  width: 100%;
+}
+.chart svg {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 1;
+  background:
+    repeating-linear-gradient(
+      45deg,
+      transparent 0 9px,
+      rgb(140 197 188 / 0.35) 9px 10px
+    ),
+    #e9f5f0;
+  border: 1.5px solid var(--ink-soft);
+  border-radius: 3px;
+}
+.chart .coast {
+  fill: var(--sand);
+  stroke: var(--ink);
+  stroke-width: 2.6;
+  stroke-linejoin: round;
+}
+.chart .ring {
+  fill: none;
+  stroke: var(--shallows);
+  stroke-width: 12;
+  stroke-linejoin: round;
+  opacity: 0.55;
+}
+.chart .dock {
+  fill: var(--hibiscus);
+}
+.chart figcaption {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 0.25rem 1rem;
+  margin-top: 0.8rem;
+  font-size: 0.95rem;
+}
+.chart figcaption strong {
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: 1.15rem;
+}
+.chart [data-when] {
+  color: var(--ink-soft);
+  font-variant-numeric: tabular-nums;
+}
+.chart .note {
+  margin-top: 0.35rem;
+  font-size: 0.85rem;
+  color: var(--ink-soft);
+}
+/* The one orchestrated moment: the coastline inks itself in when the page opens. */
+@media (prefers-reduced-motion: no-preference) {
+  [data-today][data-ready='true'] .coast {
+    stroke-dasharray: 3000;
+    stroke-dashoffset: 3000;
+    animation: ink 2.4s ease-out 0.2s forwards;
+  }
+  [data-today][data-ready='true'] .ring {
+    opacity: 0;
+    animation: wash 1s ease-out 1.8s forwards;
+  }
+}
+@keyframes ink {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+@keyframes wash {
+  to {
+    opacity: 0.55;
+  }
+}
+
+/* Paper sections: everything you read sits on paper, like the game's cards. */
+.paper {
+  background: var(--paper);
+  color: var(--ink);
+}
+.paper a {
+  color: var(--ink);
+}
+/* The torn top of a sheet of paper laid on the lagoon. */
+.edge {
+  height: 18px;
+  margin-top: -1px;
+  background: var(--lagoon) url('img/edge.svg') center bottom / 100% 100%
+    no-repeat;
+}
+.section {
+  padding-block: clamp(3.5rem, 8vw, 6.5rem);
+}
+.section-head {
+  max-width: 40rem;
+}
+.section-head p {
+  margin-top: 1rem;
+  font-size: 1.15rem;
+  color: var(--ink-soft);
+}
+.lagoon .section-head p {
+  color: var(--seafoam);
+}
+
+/* The day, in order: a real sequence, so it is numbered. */
+.day {
+  list-style: none;
+  padding: 0;
+  margin: clamp(2.5rem, 5vw, 4rem) 0 0;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: clamp(1.25rem, 2.6vw, 2.25rem);
+  counter-reset: step;
+}
+.day li {
+  counter-increment: step;
+  display: flex;
+  flex-direction: column;
+}
+.day li::before {
+  content: counter(step);
+  display: block;
+  font-family: var(--display);
+  font-weight: 900;
+  font-size: 2.6rem;
+  line-height: 1;
+  color: var(--hibiscus);
+  margin-bottom: 0.6rem;
+}
+.day h3 {
+  margin-bottom: 0.45rem;
+}
+.day p {
+  color: var(--ink-soft);
+  margin-bottom: 1.1rem;
+}
+.day .phone {
+  margin-top: auto;
+  border-radius: 22px;
+  border: 6px solid var(--ink);
+  overflow: hidden;
+  background: var(--lagoon);
+  aspect-ratio: 276 / 568;
+}
+.day .phone video,
+.day .phone img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+@media (max-width: 60rem) {
+  .day {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (max-width: 30rem) {
+  .day {
+    grid-template-columns: 1fr;
+  }
+  .day .phone {
+    max-width: 17rem;
+  }
+}
+
+/* The find: one wide clip of the real game. */
+.find {
+  display: grid;
+  grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr);
+  gap: clamp(1.5rem, 4vw, 3.5rem);
+  align-items: center;
+}
+.find .clip {
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 30px 60px -30px rgb(0 0 0 / 0.7);
+  aspect-ratio: 3 / 2;
+  background: var(--lagoon-3);
+}
+.find .clip video,
+.find .clip img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.find p {
+  margin-top: 1rem;
+  color: var(--seafoam);
+  font-size: 1.1rem;
+}
+@media (max-width: 52rem) {
+  .find {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Six biomes. */
+.biomes {
+  margin-top: clamp(2rem, 4vw, 3rem);
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
+}
+.biomes figure {
+  margin: 0;
+}
+.biomes img {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 3 / 2;
+  object-fit: cover;
+  border-radius: 8px;
+}
+.biomes figcaption {
+  margin-top: 0.55rem;
+  font-size: 0.98rem;
+  color: var(--seafoam);
+}
+.biomes figcaption b {
+  color: var(--foam);
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: 1.1rem;
+  margin-right: 0.35rem;
+}
+@media (max-width: 48rem) {
+  .biomes {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* Fair by design: three plain statements, not cards. */
+.facts {
+  margin-top: clamp(2rem, 4vw, 3rem);
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: clamp(1.5rem, 4vw, 3rem);
+}
+.facts h3 {
+  margin-bottom: 0.5rem;
+}
+.facts p {
+  color: var(--ink-soft);
+}
+@media (max-width: 48rem) {
+  .facts {
+    grid-template-columns: 1fr;
+  }
+}
+.closer {
+  margin-top: clamp(3rem, 6vw, 4.5rem);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.25rem 2rem;
+  padding: clamp(1.5rem, 4vw, 2.5rem);
+  border: 2px solid var(--ink);
+  border-radius: 10px;
+  background: var(--paper-2);
+}
+.closer p {
+  font-family: var(--display);
+  font-weight: 900;
+  font-size: clamp(1.5rem, 3vw, 2.2rem);
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+  max-width: 30rem;
+}
+
+/* Long-form pages: How to play, Press, Privacy, Terms. */
+.doc {
+  padding-block: clamp(2.5rem, 6vw, 4.5rem) clamp(3.5rem, 8vw, 6rem);
+}
+.doc .wrap {
+  max-width: 46rem;
+}
+.doc h1 {
+  font-size: clamp(2.4rem, 6vw, 4rem);
+  margin-bottom: 1.25rem;
+}
+.doc h2 {
+  font-size: clamp(1.6rem, 3vw, 2.1rem);
+  margin: 2.8rem 0 0.9rem;
+}
+.doc h3 {
+  margin: 1.8rem 0 0.5rem;
+}
+.doc p,
+.doc ul,
+.doc ol,
+.doc table {
+  margin: 0 0 1rem;
+}
+.doc ul,
+.doc ol {
+  padding-left: 1.35rem;
+}
+.doc li {
+  margin-bottom: 0.45rem;
+}
+.doc li::marker {
+  color: var(--hibiscus);
+  font-weight: 800;
+}
+.doc .lead {
+  font-size: 1.2rem;
+  color: var(--ink-soft);
+}
+.table {
+  overflow-x: auto;
+  margin: 0 0 1.2rem;
+  border: 1.5px solid var(--paper-2);
+  border-radius: 8px;
+}
+.doc table {
+  border-collapse: collapse;
+  width: 100%;
+  font-size: 0.95rem;
+  margin: 0;
+}
+.doc th,
+.doc td {
+  text-align: left;
+  vertical-align: top;
+  padding: 0.65rem 0.8rem;
+  border-bottom: 1px solid var(--paper-2);
+}
+.doc th {
+  background: var(--paper-2);
+  font-weight: 800;
+}
+.doc tr:last-child td {
+  border-bottom: 0;
+}
+.doc code,
+.doc kbd {
+  font:
+    600 0.88em/1 ui-monospace,
+    monospace;
+  background: var(--paper-2);
+  border-radius: 4px;
+  padding: 0.12em 0.35em;
+}
+.doc kbd {
+  border: 1px solid #d8c08e;
+  border-bottom-width: 2px;
+}
+.press-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(13rem, 1fr));
+  gap: 1rem;
+  margin: 1rem 0 2rem;
+}
+.press-grid a {
+  display: block;
+  text-decoration: none;
+  border: 1.5px solid var(--paper-2);
+  border-radius: 10px;
+  padding: 0.9rem;
+  background: #fffaf0;
+}
+.press-grid a:hover {
+  border-color: var(--ink-soft);
+}
+.press-grid img {
+  height: 6rem;
+  width: 100%;
+  object-fit: contain;
+  margin-bottom: 0.7rem;
+}
+.press-grid .dark img {
+  background: var(--lagoon);
+  border-radius: 6px;
+}
+.press-grid span {
+  display: block;
+  font-weight: 800;
+}
+.press-grid small {
+  color: var(--ink-soft);
+}
+
+/* Footer */
+.foot {
+  background: var(--lagoon-3);
+  color: var(--seafoam);
+  padding-block: 2.5rem 3rem;
+  font-size: 0.95rem;
+}
+.foot .wrap {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 1.5rem 3rem;
+}
+.foot img {
+  height: 2rem;
+  width: auto;
+  margin-bottom: 0.8rem;
+}
+.foot p {
+  max-width: 26rem;
+}
+.foot ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(2, auto);
+  gap: 0.35rem 2rem;
+  align-content: start;
+}
+.foot a {
+  color: var(--foam);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    transition: none !important;
+    animation: none !important;
+  }
+}
+.after-find {
+  margin-top: clamp(4rem, 9vw, 7rem);
+}

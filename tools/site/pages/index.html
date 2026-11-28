@@ -1,0 +1,108 @@
+---
+path: /
+title: Isle of Maybe: trust a stranger's map
+description: A daily treasure-map game inside Reddit posts. Follow a map another player drew from memory, find their gold before the tide comes in, then bury yours.
+---
+<section class="wrap hero">
+  <div>
+    <h1>Trust a stranger's map.</h1>
+    <p class="lede">A new 3D island every day, the same for everyone. Follow a map another player drew from memory, find their chest before the tide comes in, then bury yours and draw the way for the next sailor.</p>
+    <div class="actions">
+      <a class="btn" href="https://www.reddit.com/r/IsleOfMaybe/">Play on r/IsleOfMaybe</a>
+      <a class="btn-quiet" href="/how-to-play">How to play</a>
+    </div>
+  </div>
+  <figure class="chart" data-today>
+    <svg viewBox="0 0 400 400" role="img" aria-labelledby="today-title">
+      <title id="today-title">The coastline of today's island</title>
+      <path class="ring" data-coast-ring></path>
+      <path class="coast" data-coast></path>
+      <circle class="dock" data-dock r="6" cx="-20" cy="-20"></circle>
+    </svg>
+    <figcaption>
+      <strong data-title>Today's island</strong>
+      <span data-when></span>
+    </figcaption>
+    <p class="note">Today's real coastline, drawn in your browser. Landmarks are left off, so it won't help you cheat.</p>
+  </figure>
+</section>
+
+<div class="paper">
+  <div class="edge" aria-hidden="true"></div>
+  <section class="wrap section" aria-labelledby="day-h">
+    <div class="section-head">
+      <h2 id="day-h">One island. One day. Every map drawn from memory.</h2>
+      <p>A round takes about three minutes. Nobody sees the chest until they've found it, and nobody draws a map with the island in front of them.</p>
+    </div>
+    <ol class="day">
+      <li>
+        <h3>Pick a stranger's chart</h3>
+        <p>Trusted, Fresh, or the Old Captain's. Each is stamps, a dotted path and one X, drawn by another redditor after their own hunt.</p>
+        <div class="phone"><img src="/assets/img/pick.webp" alt="The chart picker on a phone: Trusted, Fresh and the Old Captain's charts" width="320" height="693" loading="lazy"></div>
+      </li>
+      <li>
+        <h3>Beat the tide</h3>
+        <p>Walk and run the island with a thumb-stick or WASD. The sea floods the low beach in three waves. Quicksand waits. You have three shovels.</p>
+        <div class="phone"><video data-play muted loop playsinline controls preload="none" poster="/assets/img/hunt-poster.webp" aria-label="A hunt on a phone: walking from the dock as the tide timer runs"><source src="/assets/video/hunt.mp4" type="video/mp4"></video></div>
+      </li>
+      <li>
+        <h3>Bury yours</h3>
+        <p>Pick a spot you've walked near. Far from landmarks is Deep, and pays three times as much to you and to whoever finds it.</p>
+        <div class="phone"><img src="/assets/img/bury.webp" alt="Burying a chest on a phone, with its depth shown" width="320" height="693" loading="lazy"></div>
+      </li>
+      <li>
+        <h3>Chart it from memory</h3>
+        <p>Stamp what you remember, draw the path, mark the X. Tomorrow your Dispatch says how many sailors your map led to gold.</p>
+        <div class="phone"><video data-play muted loop playsinline controls preload="none" poster="/assets/img/chart-poster.webp" aria-label="Drawing a chart on a phone: stamps, a path and an X"><source src="/assets/video/chart.mp4" type="video/mp4"></video></div>
+      </li>
+    </ol>
+  </section>
+</div>
+
+<section class="lagoon section" aria-labelledby="find-h">
+  <div class="wrap find">
+    <div class="clip"><video data-play muted loop playsinline controls preload="none" poster="/assets/img/find-poster.webp" aria-label="The explorer cheers as a found chest bursts open, coins flying, with the burier's name on its plaque"><source src="/assets/video/find.mp4" type="video/mp4"></video></div>
+    <div>
+      <h2 id="find-h">Dig where the X says.</h2>
+      <p>Find it and the chest bursts open with its burier's name on the plaque. Miss, and you see exactly where it was against the map you trusted. Then you rate it: True map, or Cursed.</p>
+    </div>
+  </div>
+  <div class="wrap after-find">
+    <div class="section-head">
+      <h2 id="biomes-h">Six kinds of island.</h2>
+      <p>Each day's island is cut from the same seed for everyone, and dressed as one of six biomes. On weekdays the weather changes the rules too: twin landmarks, sea fog, a bigger island at low tide.</p>
+    </div>
+    <div class="biomes">
+{{biomes}}
+    </div>
+  </div>
+</section>
+
+<div class="paper">
+  <div class="edge" aria-hidden="true"></div>
+  <section class="wrap section" aria-labelledby="fair-h">
+    <div class="section-head">
+      <h2 id="fair-h">Fair by design.</h2>
+      <p>It's a game about trust, so it has to be honest underneath.</p>
+    </div>
+    <div class="facts">
+      <div>
+        <h3>The server decides</h3>
+        <p>Every step and every dig is checked on the server. The chest's position never reaches your phone until your hunt is over.</p>
+      </div>
+      <div>
+        <h3>Maps, not messages</h3>
+        <p>Charts are fixed stamps, a snapped path and one X. There's no free text or drawing anywhere, and every chart shows who made it.</p>
+      </div>
+      <div>
+        <h3>Nothing follows you</h3>
+        <p>No ads, analytics or trackers, in the game or on this site. Game data expires within 30 days, and you can delete your chart any time. <a href="/privacy">Privacy policy</a>.</p>
+      </div>
+    </div>
+    <div class="closer">
+      <p>Today's island is waiting. Someone has already drawn you a map.</p>
+      <a class="btn" href="https://www.reddit.com/r/IsleOfMaybe/">Play on r/IsleOfMaybe</a>
+    </div>
+  </section>
+</div>
+<script src="/assets/today.js" defer></script>

@@ -19,4 +19,4 @@
 - [x] T87 New-identity banners, Devpost GIFs and gallery, judge re-score and hand-off (laptop prompt, Chrome runbook) — SHIP-1.3, SHIP-4.2, SHIP-5.1, SHIP-5.2
 - [x] T108 (#206) Privacy policy, terms and support — SHIP-7.1 – SHIP-7.3
 - [x] T110 (#216) Brand kit in brand/ — SHIP-8.1, SHIP-8.2
-- [ ] T111 (#217) Website for Cloudflare — SHIP-9.1 – SHIP-9.4
+- [x] T111 (#217) Website for Cloudflare — SHIP-9.1 – SHIP-9.4
