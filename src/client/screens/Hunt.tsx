@@ -22,6 +22,7 @@ import { useKeys, useRoute } from '../island/input.ts';
 import { reducedMotion, useWalker } from '../island/walker.ts';
 import { ApiFailure, post } from '../lib/api.ts';
 import { emptyMask, reveal } from '../lib/fog.ts';
+import { markHintSeen } from '../lib/hints.ts';
 import { toast } from '../lib/platform.ts';
 import { play } from '../lib/sound.ts';
 
@@ -74,6 +75,7 @@ export const Hunt = ({ start, chart }: Props) => {
 
   const go = useCallback(
     (route: Tile[]) => {
+      if (!walked) markHintSeen('hunt');
       setWalked(true);
       void walker.walk(route, at, (t) => {
         pending.current.push(t);
@@ -83,7 +85,7 @@ export const Hunt = ({ start, chart }: Props) => {
         setAt(t);
       });
     },
-    [walker, at, r]
+    [walker, at, r, walked]
   );
   const input = useRoute(island.terrain, at, walker.busy || busy, go);
 
@@ -235,8 +237,8 @@ export const Hunt = ({ start, chart }: Props) => {
           />
         </button>
         <div className="absolute left-2 right-28 top-2 flex flex-col gap-2 sm:right-36">
-          <Hint k="hunt" />
-          {walked && <Hint k="dig" />}
+          {/* One hint at a time (UI-4.4): walking retires the walk hint, then digging is next. */}
+          {walked ? <Hint k="dig" /> : <Hint k="hunt" />}
           {error !== null && (
             <button
               type="button"
