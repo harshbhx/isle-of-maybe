@@ -1,7 +1,9 @@
 # 03 — Design
 
 ## 1. Identity in one line
-**A nervous cartographer's notebook at sea.** Ink on parchment for everything you *read* (charts, cards, results); a small, flat, colourful island for everything you *walk on*. Two materials, never mixed up.
+**A sunlit island, and a paper map you drew from memory.** The island you *walk on* is a small, chunky 3D world under a bright tropical sky: turquoise water, warm sand, deep palms, and low cloud that lifts as you explore. Everything you *read* (charts, cards, results) is flat ink on sun-bleached paper. The world is 3D and the map is paper; the gap between the two is the game. Two materials, never mixed up.
+
+**Logo:** an island seen from above, with a dotted path that curls into a question mark; the X is the question mark's dot. *Maybe* is the path. Used for the app icon, the subreddit icon and the splash mark (`src/client/components/Logo.tsx`, `tools/assets`).
 
 What it must not look like (Reddit's "AI slop" warning): purple gradients, glassmorphism, generic emoji-heavy cards, stock fantasy art, centred hero text with a glow. If a screen could belong to any app, redo it.
 
@@ -9,31 +11,34 @@ What it must not look like (Reddit's "AI slop" warning): purple gradients, glass
 1. **The chart is the hero.** Every screen either shows a chart, uses one, or talks about one.
 2. **Learn by doing.** No rules page. Three one-line hints, each shown once, at the moment it matters.
 3. **Funny when wrong.** Failure states (missed chest, cursed map) get the best animations and lines.
-4. **One primary action per screen.** Gold button. Everything else is quiet ink.
+4. **One primary action per screen.** Mango button. Everything else is quiet ink.
 5. **Thumb-first.** Primary actions in the bottom third on phones; 48 px minimum targets.
 
-## 3. Colour tokens (contrast-checked, WCAG ratio in brackets)
+## 3. Colour tokens: Tropical day (contrast-checked, WCAG ratio in brackets)
 
 ```css
 :root {
-  /* paper & ink (UI, charts) */
-  --parchment: #F3E6C8;      /* card + chart background */
-  --parchment-dark: #E4D2A8; /* pressed, borders, chart margins */
-  --ink: #2B2118;            /* text on parchment (12.7:1) */
-  --ink-soft: #5C4A36;       /* secondary text on parchment (6.8:1) */
-  --seal: #9E2A22;           /* Old Captain seal, cursed, report (6.0:1 on parchment) */
-  --compass: #2F6B4F;        /* true map, success (5.1:1 on parchment) */
-  /* night sea (app frame) */
-  --night: #14202B;          /* frame background */
-  --on-night: #F3E6C8;       /* text on night (13.3:1) */
-  --muted-night: #A9B4BF;    /* secondary on night (7.8:1) */
-  --gold: #E8B341;           /* primary button bg; gold counters on night (8.6:1); button text = --night (8.6:1) */
-  /* island (canvas only) */
-  --sea: #2E6F8E; --sea-deep: #1F4F68; --sand: #E9D29A; --grass: #8DB86B;
-  --rock: #7A7166; --jungle: #4E7A43; --pond: #5A9BB5; --fog: rgba(20,32,43,0.92);
+  /* paper & ink (UI cards, charts) */
+  --paper: #FFF4DC;      /* card + chart background, sun-bleached */
+  --paper-2: #F3E1B8;    /* pressed, borders, chart margins */
+  --ink: #2B1D12;        /* text on paper (14.9:1) */
+  --ink-soft: #6A513A;   /* secondary text on paper (6.7:1; 5.7:1 on paper-2) */
+  --hibiscus: #B8233F;   /* the X, Old Captain seal, cursed, report (5.7:1 on paper) */
+  --palm: #1E5B3A;       /* true map, success (7.4:1 on paper) */
+  /* lagoon (app frame) */
+  --lagoon: #0A6468;     /* frame background */
+  --lagoon-2: #08575C;   /* bars and panels on the frame */
+  --foam: #FFF7E8;       /* text on lagoon (6.5:1) */
+  --seafoam: #C8EEE7;    /* secondary text on lagoon (5.6:1) */
+  --sun: #FFCF6B;        /* gold counters and links on lagoon (4.7:1) */
+  --mango: #FFB21E;      /* primary button background; button text = --ink (9.0:1) */
+  /* island (3D and the 2D fallback only) */
+  --sea-deep: #0A6468; --sea: #1E9A9C; --shallows: #4CC3B9; --sand: #F2D99B; --sand-wet: #D9B872;
+  --grass: #6DBE5A; --grass-2: #5FAF4E; --jungle: #2E7D3A; --rock: #8A8178; --pond: #6FD3E0;
+  --cloud: #F4FBF8;      /* low cloud over unseen tiles (replaces dark fog) */
 }
 ```
-Rules: text only uses the pairs above. Island colours never carry meaning alone (landmarks differ by **shape**, red team: colour blindness).
+Rules: text only uses the pairs above. Island colours never carry meaning alone (landmarks differ by **shape**, red team: colour blindness). No navy, no purple, no glow gradients: the frame is a flat lagoon colour with, at most, a faint wave-line texture.
 
 ## 4. Type
 - **Display:** *IM Fell English SC* (SIL OFL), for island names, screen titles, the Dispatch heading. Never below 20 px.
@@ -42,7 +47,7 @@ Rules: text only uses the pairs above. Island colours never carry meaning alone 
 - Scale: 14 / 16 / 20 / 26 / 34.
 
 ## 5. Layout
-- **Frame:** night sea background, a parchment card stack in the middle; max content width 520 px on desktop, centred; island canvas can go wider (up to 720 px).
+- **Frame:** lagoon background, a paper card stack in the middle; max content width 520 px on desktop, centred; island canvas can go wider (up to 720 px).
 - **Phone (360–430 px):** top bar (day + gold + streak), content, bottom action bar (primary button + 1–2 ink buttons).
 - **Inline splash:** fixed "regular" height; nothing scrolls; nothing captures gestures.
 - Spacing scale 4/8/12/16/24/32. Corner radius 6 px on cards (parchment is cut, not pill-shaped). Torn-edge effect via an SVG mask on card tops (one shared asset).
@@ -80,7 +85,8 @@ Other ink assets: X mark (two brush strokes), dotted path dash pattern `4 4`, co
 - Missed: chart X and chest appear, ink line draws itself (500 ms), sailor shrug.
 - Island fade before charting: 600 ms to parchment.
 - Ink check overlay: your chart over the true island, 3 s, then the grade stamp thuds in (scale 1.3→1, 180 ms).
-- Only `transform` and `opacity`. `prefers-reduced-motion`: replace movement with 150 ms fades; walking jumps tile-to-tile.
+- 3D island: water swells slowly; clouds over unseen tiles drift and thin out as the sailor uncovers them; the camera eases after the sailor (250 ms). A dug hole kicks up a sand puff; a found chest rises out of the sand with its lid open.
+- Only `transform` and `opacity` in the DOM; the 3D scene animates inside its WebGL canvas. `prefers-reduced-motion`: replace movement with 150 ms fades; walking jumps tile-to-tile; water and clouds hold still; the camera cuts instead of easing.
 
 ## 9. Sound (P1, all generated with WebAudio, no files)
 Dig thunk, coin chink, quill scratch on placing a stamp. Off until the player taps the speaker icon (remembered in `localStorage`). The game is complete with sound off.

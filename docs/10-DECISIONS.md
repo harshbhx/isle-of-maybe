@@ -13,7 +13,7 @@
 | D09 | Old Captain charts, labelled | Fake player charts / bots posing as players | Cold start without lying |
 | D10 | Instant Ink check + next-day Dispatch | Only next-day result | Judges see the loop in one visit (A1) |
 | D11 | Day = UTC; daily post at 00:00 UTC (05:30 IST) | Local days | One island for everyone |
-| D12 | React + Canvas 2D island + SVG chart editor | Phaser, three.js, Unity | Smaller bundle, crisp ink look, easy hit-testing; template exists |
+| D12 | React + three.js 3D island (WebGL, lazy-loaded in the game entry only) with the Canvas 2D renderer kept as a fallback + SVG chart editor. *Amended 28 Nov by Harsh: was Canvas 2D only.* | Phaser, Unity, a full game engine; keeping the island flat | A real 3D island next to a flat paper map is the game's idea made visible, and it lifts Delightful UX; three.js is a renderer, not an engine, Devvit Web supports it, and the splash stays tiny |
 | D13 | Tap-to-move with route preview, 4-directional | Joystick, free movement | Phones, pathfinding is trivial, server validation is simple |
 | D14 | Inline = splash only; game = expanded; `_direct_launch` → game | Playable inline | Scroll-trap rule (C-3) |
 | D15 | Share = optional comment **as the user**, reply to the day's sticky comment, after a confirm sheet | Auto-posting results, required sharing | User-action rules (C-2) |
@@ -25,3 +25,5 @@
 | D21 | Optional 60-second video: make it (P1) | Skip | Not required, but cheap insurance if judges skim |
 | D22 | Git: logical commits, verified, issue → PR → squash merge, branch deleted, author Harsh, no AI co-author lines, no Dependabot | One-file commits | Harsh's project rules |
 | D23 | Credit the inspiration (small itch.io map games) in the README | Hide it | Honest; strengthens "we made it Reddit-native" story |
+| D24 | Tropical day palette: lagoon frame, sun-bleached paper, mango buttons, hibiscus X, palm green, low white cloud instead of dark fog (`docs/03-DESIGN.md` §3). *Chosen by Harsh, 28 Nov.* | Night sea + gold (read as generic), Old sea chart, Dusk harbour | Bright, daytime and unlike the dark-mode default; every text pair still ≥ 4.5:1 |
+| D25 | Logo: island from above, dotted path curled into a question mark, the X is its dot | Wordmark only, a compass rose, a skull | *Maybe* drawn as the path itself; reads at 64 px; no pirate clichés |
