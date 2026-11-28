@@ -1,4 +1,8 @@
 node_modules
 .DS_Store
 dist
-.envatlas.html
+.env
+atlas.html
+__pycache__/
+*.pyc
+package-lock.json
