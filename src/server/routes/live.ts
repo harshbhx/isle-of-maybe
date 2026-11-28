@@ -2,8 +2,17 @@
 import { realtime } from '@devvit/web/server';
 import type { LiveKind } from '../../shared/live.ts';
 import { liveChannel } from '../../shared/live.ts';
+import { ghostChannel, type GhostMessage } from '../../shared/ghost.ts';
 import { liveMessage } from '../services/live.ts';
 import { kv } from './http.ts';
+
+export const ghost = async (day: string, m: GhostMessage): Promise<void> => {
+  try {
+    await realtime.send(ghostChannel(day), m);
+  } catch (e) {
+    console.error(`ghost: ${String(e)}`);
+  }
+};
 
 export const announce = async (day: string, kind: LiveKind): Promise<void> => {
   try {

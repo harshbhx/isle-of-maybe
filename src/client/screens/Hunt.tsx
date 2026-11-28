@@ -39,9 +39,10 @@ import { useDriveKeys, useKeys, useRoute } from '../island/input.ts';
 import { reducedMotion, useWalker } from '../island/walker.ts';
 import { ApiFailure, get, post } from '../lib/api.ts';
 import { decodeWear } from '../../shared/wear.ts';
+import { GHOST_EVERY_MS, ghostChannel } from '../../shared/ghost.ts';
 import { emptyMask, reveal } from '../lib/fog.ts';
 import { markHintSeen } from '../lib/hints.ts';
-import { toast } from '../lib/platform.ts';
+import { listenGhosts, toast } from '../lib/platform.ts';
 import { play } from '../lib/sound.ts';
 
 type Props = { start: HuntStartResponse; chart: ChartPublic; slot: PickSlot };
@@ -195,6 +196,30 @@ export const Hunt = ({ start, chart }: Props) => {
     // Driving starts once per renderer; `at` is only its starting tile.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [h3d]);
+
+  // Ghosts (ADV-6.6, ADV-6.7): others on this island now, and our own ping while we move.
+  const [ghostsOn, setGhostsOn] = useState(true);
+  useEffect(() => {
+    h3d?.showGhosts(ghostsOn);
+  }, [h3d, ghostsOn]);
+  useEffect(() => {
+    if (h3d === null || !app.init.user.loggedIn) return;
+    const me = app.init.user.name;
+    return listenGhosts(ghostChannel(app.init.day), (m) => {
+      if (m.name !== me) h3d.ghost(m);
+    });
+  }, [h3d, app.init]);
+  const lastPing = useRef('');
+  useEffect(() => {
+    if (h3d === null || !app.init.user.loggedIn) return;
+    const id = window.setInterval(() => {
+      const key = `${at.x},${at.y}`;
+      if (key === lastPing.current) return;
+      lastPing.current = key;
+      void post('/hunt/ghost', { huntId: start.huntId }).catch(() => undefined);
+    }, GHOST_EVERY_MS);
+    return () => window.clearInterval(id);
+  }, [h3d, app.init, at, start.huntId]);
 
   // The crowd's paths (ADV-6.5): where today's hunters walked, worn into the island.
   useEffect(() => {
@@ -444,6 +469,16 @@ export const Hunt = ({ start, chart }: Props) => {
           <span className="tabular text-seafoam">
             {fmt(copy.hunt.steps, { n: steps })}
           </span>
+          {h3d !== null && app.init.user.loggedIn && (
+            <button
+              type="button"
+              aria-pressed={ghostsOn}
+              onClick={() => setGhostsOn((v) => !v)}
+              className="ml-auto min-h-8 rounded-full border border-seafoam/50 px-2.5 text-xs text-seafoam"
+            >
+              {ghostsOn ? copy.hunt.ghostsOn : copy.hunt.ghostsOff}
+            </button>
+          )}
           <span
             className={`ml-auto tabular font-semibold ${left <= 30 ? 'rounded bg-hibiscus px-1.5 text-paper' : 'text-sun'}`}
             role="timer"

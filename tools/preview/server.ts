@@ -178,6 +178,7 @@ app.route(
     now: clock,
     newId: () => `p${++n}`,
     announce: async () => {},
+    ghost: async () => {},
     sharePort: {
       upload: async () => 'https://example.invalid/chart.png',
       comment: async () => 't1_preview',

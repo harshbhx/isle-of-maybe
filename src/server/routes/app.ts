@@ -34,6 +34,8 @@ import {
 } from '../store/guards.ts';
 import type { Kv } from '../store/kv.ts';
 import { rateLimit } from './http-limits.ts';
+import type { GhostMessage } from '../../shared/ghost.ts';
+import { ghostPing } from '../services/ghost.ts';
 
 export type ApiDeps = {
   kv: Kv;
@@ -42,6 +44,8 @@ export type ApiDeps = {
   now: () => number;
   newId: () => string;
   announce: (day: string, kind: LiveKind) => Promise<void>;
+  /** Broadcast a ghost on the day's ghost channel (ADV-6.6). Best effort. */
+  ghost: (day: string, m: GhostMessage) => Promise<void>;
   sharePort: SharePort;
 };
 
@@ -134,6 +138,18 @@ export const createApi = (d: ApiDeps): Hono => {
       );
       if (r.found) await d.announce(await d.postDay(), 'found');
       return r;
+    })
+  );
+  api.post('/hunt/ghost', (c) =>
+    handle(c, async () => {
+      const m = await ghostPing(
+        kv,
+        d.actor(),
+        reqString(await body(c), 'huntId'),
+        d.now()
+      );
+      if (m !== null) await d.ghost(await d.postDay(), m);
+      return { sent: m !== null };
     })
   );
   api.post('/hunt/giveup', (c) =>

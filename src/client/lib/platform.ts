@@ -11,6 +11,7 @@ import {
   showShareSheet,
   showToast,
 } from '@devvit/web/client';
+import type { GhostMessage } from '../../shared/ghost.ts';
 import type { LiveMessage } from '../../shared/live.ts';
 
 export const openGame = (e: MouseEvent): void => {
@@ -83,6 +84,36 @@ export const isInline = (): boolean => {
     return getWebViewMode() === 'inline';
   } catch {
     return false;
+  }
+};
+
+/** Other hunters on today's island (ADV-6.7); returns a disconnect function. */
+export const listenGhosts = (
+  channel: string,
+  onMessage: (m: GhostMessage) => void
+): (() => void) => {
+  try {
+    const conn = connectRealtime<GhostMessage>({
+      channel,
+      onMessage: (m) => {
+        // Only well-formed pings from our server reach the island.
+        if (
+          typeof m?.name === 'string' &&
+          Number.isInteger(m.x) &&
+          Number.isInteger(m.y)
+        )
+          onMessage(m);
+      },
+    });
+    return () => {
+      try {
+        void conn.disconnect();
+      } catch {
+        // Already closed.
+      }
+    };
+  } catch {
+    return () => undefined;
   }
 };
 
