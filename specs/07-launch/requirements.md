@@ -24,6 +24,11 @@ Scope: everything needed to submit, be judged and be featurable. Source: Devpost
 - **SHIP-5.1** THE team SHALL prepare in-app catalog assets: app icon, featuring image, tile image, featuring description, tile tagline, category (Puzzle).
 - **SHIP-5.2** THE same art SHALL be exported for the Devpost gallery and Harsh's presentation.
 
+## SHIP-7 Policies and support (Devvit Rules)
+- **SHIP-7.1** THE repo SHALL publish a privacy policy (`PRIVACY.md`) that completely and accurately describes what the app stores, why, for how long, who can see it (including ghost names and positions, worn-path counts and shares), how to remove your content, and how to get help. It SHALL NOT point to Reddit's own policies in its place.
+- **SHIP-7.2** THE repo SHALL publish terms of use (`TERMS.md`): who may play (13+), fair play, user content and reports, the moderators' role, no warranty, changes, and contact.
+- **SHIP-7.3** THE README and the app page SHALL link both documents and say how to get support: modmail to r/IsleOfMaybe or a GitHub issue. Neither is linked from inside the game, so players aren't sent off Reddit.
+
 ## SHIP-6 Optional extras
 - **SHIP-6.1** (P1) A public video under 60 seconds recorded on a phone.
 - **SHIP-6.2** (P1) The developer satisfaction survey completed.

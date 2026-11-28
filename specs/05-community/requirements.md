@@ -8,6 +8,7 @@ Scope: safety, moderation, boards, sharing, live activity and flair. Source: PRD
 - **COM-1.3** WHERE a moderator opens "Review reported charts", THE moderator tools SHALL list hidden charts (author, day, report count) and let the moderator restore or delete each.
 - **COM-1.4** WHEN a day's post is deleted, THE server SHALL delete that day's charts, stats and indexes.
 - **COM-1.5** THE server SHALL expire all player-created data within 30 days.
+- **COM-1.6** WHEN the author of a chart chooses "Delete my chart" and confirms on a sheet, THE server SHALL delete that chart and its stats, votes, reports and indexes, and remove it from the author's day record. This works only for the author's own chart. The chest is not buried again that day. THE client SHALL offer it on the result card and on the author's Dispatch entries (Devvit Rules: users can remove their own content).
 
 ## COM-2 Sharing
 - **COM-2.1** WHEN a player taps "Share my chart", THE client SHALL show a confirm sheet stating that a comment will be posted from their account, with a preview image and the exact text.
