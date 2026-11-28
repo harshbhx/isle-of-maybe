@@ -1,4 +1,4 @@
-/* Design tokens (docs/03-DESIGN.md §3–5) and the two bundled fonts. No external requests. */
+/* Design tokens (docs/03-DESIGN.md §3–5) and the bundled fonts (D30, ADV-8.1). No external requests. */
 @import 'tailwindcss';
 
 @font-face {
@@ -10,19 +10,43 @@
     format('woff2');
 }
 @font-face {
-  font-family: 'Atkinson Hyperlegible';
-  font-style: normal;
-  font-weight: 400;
-  font-display: swap;
-  src: url('../../node_modules/@fontsource/atkinson-hyperlegible/files/atkinson-hyperlegible-latin-400-normal.woff2')
-    format('woff2');
-}
-@font-face {
-  font-family: 'Atkinson Hyperlegible';
+  font-family: 'Fraunces';
   font-style: normal;
   font-weight: 700;
   font-display: swap;
-  src: url('../../node_modules/@fontsource/atkinson-hyperlegible/files/atkinson-hyperlegible-latin-700-normal.woff2')
+  src: url('../../node_modules/@fontsource/fraunces/files/fraunces-latin-700-normal.woff2')
+    format('woff2');
+}
+@font-face {
+  font-family: 'Fraunces';
+  font-style: normal;
+  font-weight: 900;
+  font-display: swap;
+  src: url('../../node_modules/@fontsource/fraunces/files/fraunces-latin-900-normal.woff2')
+    format('woff2');
+}
+@font-face {
+  font-family: 'Bricolage Grotesque';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('../../node_modules/@fontsource/bricolage-grotesque/files/bricolage-grotesque-latin-400-normal.woff2')
+    format('woff2');
+}
+@font-face {
+  font-family: 'Bricolage Grotesque';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url('../../node_modules/@fontsource/bricolage-grotesque/files/bricolage-grotesque-latin-600-normal.woff2')
+    format('woff2');
+}
+@font-face {
+  font-family: 'Bricolage Grotesque';
+  font-style: normal;
+  font-weight: 800;
+  font-display: swap;
+  src: url('../../node_modules/@fontsource/bricolage-grotesque/files/bricolage-grotesque-latin-800-normal.woff2')
     format('woff2');
 }
 
@@ -47,8 +71,10 @@
   --color-grass: #6dbe5a;
   --color-rock: #8a8178;
   --color-jungle: #2e7d3a;
-  --font-display: 'IM Fell English SC', Georgia, serif;
-  --font-body: 'Atkinson Hyperlegible', system-ui, sans-serif;
+  --font-display: 'Fraunces', Georgia, serif;
+  --font-body: 'Bricolage Grotesque', system-ui, sans-serif;
+  /* The antique face lives on paper only: the chart, its notes and the Ink check stamp. */
+  --font-chart: 'IM Fell English SC', Georgia, serif;
   --radius-card: 6px;
 }
 
@@ -199,3 +225,15 @@
     display: none;
   }
 }
+
+/* Fraunces at 700 reads as a confident title; a hair of negative tracking keeps it tight. */
+.font-display {
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+.font-title {
+  font-family: var(--font-display);
+  font-weight: 900;
+  letter-spacing: -0.02em;
+}
+

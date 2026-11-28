@@ -73,7 +73,7 @@ export const InkCheck = ({
         {graded && (
           <div className="absolute inset-0 flex items-center justify-center">
             <div
-              className={`anim-thud border-4 px-6 py-2 font-display text-[40px] uppercase tracking-wider ${grade === 'cursed' ? 'border-hibiscus text-hibiscus' : 'border-ink text-ink'} bg-paper/90`}
+              className={`anim-thud border-4 px-6 py-2 font-chart text-[40px] uppercase tracking-wider ${grade === 'cursed' ? 'border-hibiscus text-hibiscus' : 'border-ink text-ink'} bg-paper/90`}
             >
               {copy.ink[grade]}
             </div>

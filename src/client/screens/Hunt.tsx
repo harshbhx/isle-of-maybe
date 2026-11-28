@@ -429,7 +429,7 @@ export const Hunt = ({ start, chart }: Props) => {
       <span className="text-sm text-ink-soft">
         {by}
         {chart.note !== null && (
-          <em className="block font-display text-[16px] text-ink">
+          <em className="block font-chart text-[16px] text-ink">
             “{copy.notes[chart.note]}”
           </em>
         )}

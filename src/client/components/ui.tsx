@@ -243,7 +243,7 @@ export const TopBar = ({
   right?: ReactNode;
 }) => (
   <header className="flex min-h-12 items-center gap-3 px-3 text-sm">
-    <span className="font-display truncate text-[18px]">{dayLabel}</span>
+    <span className="font-display truncate text-[16px] sm:text-[18px]">{dayLabel}</span>
     <span
       role="img"
       className="ml-auto inline-flex items-center gap-1 tabular"

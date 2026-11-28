@@ -60,7 +60,7 @@ export const Splash = () => {
     <main className="flex h-full flex-col gap-2 overflow-hidden bg-lagoon px-4 py-3 text-foam">
       <header className="flex items-start gap-2">
         <div className="min-w-0">
-          <h1 className="font-display flex items-center gap-2 text-[26px] leading-none">
+          <h1 className="font-title flex items-center gap-2 text-[28px] leading-none">
             <Logo size={30} />
             {copy.splash.title}
           </h1>
