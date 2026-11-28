@@ -14,6 +14,7 @@ export type LastHunt = { chart: ChartPublic; reveal: Reveal };
 export type MyChest = { depth: Depth; grade: Grade | null };
 
 export type Screen =
+  | { k: 'practice' }
   | { k: 'dispatch' }
   | { k: 'pick' }
   | { k: 'hunt'; start: HuntStartResponse; chart: ChartPublic; slot: PickSlot }

@@ -15,7 +15,7 @@ import {
   MAX_STEPS_PER_CALL,
   startHunt,
 } from '../services/hunts.ts';
-import { initFor } from '../services/init.ts';
+import { initFor, markPracticed } from '../services/init.ts';
 import { rateChart } from '../services/rating.ts';
 import { reportChart } from '../services/reports.ts';
 import { postShare, sharePreview, type SharePort } from '../services/share.ts';
@@ -162,6 +162,13 @@ export const createApi = (d: ApiDeps): Hono => {
         d.now()
       )
     )
+  );
+
+  api.post('/practice/done', (c) =>
+    handle(c, async () => {
+      await body(c);
+      return markPracticed(kv, d.actor());
+    })
   );
 
   api.get('/seen', (c) =>

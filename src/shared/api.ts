@@ -36,6 +36,8 @@ export type UserState = {
   tier: Tier;
   /** Consecutive days with a finished hunt, ending today or yesterday (DAY-4.2). */
   streak: number;
+  /** Finished or skipped Practice Cove (UI-9.2). */
+  practiced: boolean;
   /** Your own chest on this island. Only its author ever gets its position (CHART-4.1). */
   chest: MyChestState | null;
 };
