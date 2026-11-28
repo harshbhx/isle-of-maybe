@@ -6,6 +6,7 @@ import {
   X_GLYPH,
   type Glyph,
 } from '../../shared/glyphs.ts';
+import { LANTERN_RANGE } from '../../shared/day.ts';
 import { hash32 } from '../../shared/rng.ts';
 import {
   GRASS,
@@ -325,12 +326,32 @@ export const drawScene = (
         cell(x, y);
       }
     }
-    // Lantern night: landmarks glow through the fog.
-    if (island.modifier === 'lanterns') {
-      ctx.save();
-      ctx.globalAlpha = 0.85;
-      drawLandmarks(true);
-      ctx.restore();
+    // Lantern night: landmarks within 6 tiles of the sailor glow through the fog.
+    if (island.modifier === 'lanterns' && s.sailor !== null) {
+      for (const l of island.landmarks) {
+        if (seenAt(s, idx(l.at.x, l.at.y))) continue;
+        if (
+          Math.hypot(l.at.x - s.sailor.x, l.at.y - s.sailor.y) > LANTERN_RANGE
+        )
+          continue;
+        const cx = X(l.at.x + 0.5);
+        const cy = Y(l.at.y + 0.5);
+        const glow = ctx.createRadialGradient(cx, cy, 0, cx, cy, t * 1.4);
+        glow.addColorStop(0, 'rgba(232,179,65,0.55)');
+        glow.addColorStop(1, 'rgba(232,179,65,0)');
+        ctx.fillStyle = glow;
+        ctx.fillRect(cx - t * 1.4, cy - t * 1.4, t * 2.8, t * 2.8);
+        drawGlyph(
+          ctx,
+          LANDMARK_GLYPHS[l.type],
+          cx,
+          cy,
+          t * 1.25,
+          COL.gold,
+          undefined,
+          1.8
+        );
+      }
     }
   }
 

@@ -53,6 +53,7 @@ export const IMPLEMENTED_MODIFIERS: ReadonlySet<Modifier> = new Set<Modifier>([
   'clear',
   'twins',
   'lowtide',
+  'lanterns',
   'jungle',
   'fog',
 ]);
@@ -61,6 +62,9 @@ export const modifierFor = (day: string): Modifier => {
   const m = scheduledModifier(day);
   return IMPLEMENTED_MODIFIERS.has(m) ? m : 'clear';
 };
+
+/** Lantern night: landmarks this close to the sailor glow through the fog (PRD §modifiers). */
+export const LANTERN_RANGE = 6;
 
 /** Fog reveal radius in tiles (ENG-3.3). */
 export const revealRadius = (m: Modifier): number =>
