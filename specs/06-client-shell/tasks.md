@@ -13,5 +13,5 @@
 - [x] T65 Accessibility and console-clean audit — UI-6.1, UI-6.2, UI-8.3
 - [x] T81 Hunt: one hint at a time, camera pans past the island's edge — UI-3.3, UI-4.4
 - [x] T82 Hunt on wide screens: chart beside the island — UI-3.4
-- [ ] T85 Tropical day palette and the logo across the client, share image and catalog art — UI-2.1, UI-2.5
+- [x] T85 Tropical day palette and the logo across the client, share image and catalog art — UI-2.1, UI-2.5
 - [ ] T86 3D island renderer with three.js and the 2D fallback — UI-3.1, UI-3.5, UI-3.6, UI-5.1, UI-7.1

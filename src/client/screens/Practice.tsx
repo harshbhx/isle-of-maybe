@@ -216,7 +216,7 @@ export const Practice = ({ onDone }: { onDone: () => void }) => {
           </Button>
         ) : (
           <>
-            <Button kind="quiet" className="text-on-night" onClick={finish}>
+            <Button kind="quiet" className="text-foam" onClick={finish}>
               {copy.practice.skip}
             </Button>
             <Button

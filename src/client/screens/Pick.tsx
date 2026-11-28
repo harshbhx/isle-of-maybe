@@ -57,7 +57,7 @@ const PickCard = ({
     >
       <header className="flex items-center justify-between">
         <span
-          className={`font-display text-[20px] ${slot === 'captain' ? 'text-seal' : ''}`}
+          className={`font-display text-[20px] ${slot === 'captain' ? 'text-hibiscus' : ''}`}
         >
           {slot === 'challenge'
             ? fmt(copy.pick.challenged, { name: chart.author })
@@ -193,7 +193,7 @@ export const Pick = () => {
         {data.charts.map((c, i) => (
           <span
             key={c.chart.id}
-            className={`h-2 w-2 rounded-full ${i === index ? 'bg-gold' : 'bg-muted-night/40'}`}
+            className={`h-2 w-2 rounded-full ${i === index ? 'bg-mango' : 'bg-seafoam/40'}`}
           />
         ))}
       </div>

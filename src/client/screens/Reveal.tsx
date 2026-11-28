@@ -112,15 +112,17 @@ export const Reveal = ({
     <div className="mx-auto flex h-full w-full max-w-[720px] flex-col gap-3 p-3">
       <div className="relative aspect-square max-h-[52vh] w-full overflow-hidden rounded-[6px]">
         <IslandCanvas scene={scene} zoom={0} focus={null} label={headline} />
-        <div className="absolute bottom-2 left-2 flex gap-3 rounded-[4px] bg-night/80 px-2 py-1 text-xs">
+        <div className="absolute bottom-2 left-2 flex gap-3 rounded-[4px] bg-lagoon/80 px-2 py-1 text-xs">
           {reveal.chartX !== null && (
-            <span className="text-[#e7a29b]">✕ {copy.reveal.chartX}</span>
+            <span className="text-[#FF9DB0]">✕ {copy.reveal.chartX}</span>
           )}
-          <span className="text-gold">■ {copy.reveal.chest}</span>
+          <span className="text-sun">■ {copy.reveal.chest}</span>
         </div>
       </div>
       <Card className="anim-rise flex flex-col gap-3">
-        <Title className={reveal.found ? '' : 'text-seal'}>{headline}</Title>
+        <Title className={reveal.found ? '' : 'text-hibiscus'}>
+          {headline}
+        </Title>
         {reveal.found &&
           Array.from({ length: 8 }, (_, i) => (
             <span

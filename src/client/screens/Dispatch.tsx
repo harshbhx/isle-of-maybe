@@ -16,7 +16,7 @@ const Item = ({ c }: { c: DispatchChart }) => {
     [c.island.seed, c.island.modifier]
   );
   return (
-    <li className="grid grid-cols-[96px_1fr] gap-3 border-t border-parchment-dark pt-3 first:border-t-0 first:pt-0">
+    <li className="grid grid-cols-[96px_1fr] gap-3 border-t border-paper-2 pt-3 first:border-t-0 first:pt-0">
       <ChartView
         island={island}
         pieces={c.pieces}
@@ -40,7 +40,7 @@ const Item = ({ c }: { c: DispatchChart }) => {
           </span>
           <span
             role="img"
-            className="inline-flex items-center gap-1 text-seal"
+            className="inline-flex items-center gap-1 text-hibiscus"
             aria-label={`${c.cursedVotes} ${copy.reveal.cursed}`}
           >
             <Glyph glyph={LANDMARK_GLYPHS.skullRock} size={16} />{' '}
@@ -75,7 +75,7 @@ export const Dispatch = ({
       <Card torn className="anim-rise flex flex-col gap-3">
         <Title>{copy.dispatch.title}</Title>
         {sample ? (
-          <div className="rounded-[4px] border-2 border-dashed border-parchment-dark p-3 text-ink-soft">
+          <div className="rounded-[4px] border-2 border-dashed border-paper-2 p-3 text-ink-soft">
             <p className="mb-1 text-xs uppercase tracking-wider">
               {copy.dispatch.sampleTitle}
             </p>
@@ -94,7 +94,7 @@ export const Dispatch = ({
         )}
         <div>
           <div
-            className="h-2.5 w-full overflow-hidden rounded-full bg-parchment-dark"
+            className="h-2.5 w-full overflow-hidden rounded-full bg-paper-2"
             role="progressbar"
             aria-valuenow={pct}
             aria-valuemin={0}
@@ -102,7 +102,7 @@ export const Dispatch = ({
             aria-label={copy.tier[tier.tier]}
           >
             <div
-              className="h-full origin-left bg-compass"
+              className="h-full origin-left bg-palm"
               style={{ transform: `scaleX(${pct / 100})` }}
             />
           </div>

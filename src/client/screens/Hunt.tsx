@@ -228,7 +228,7 @@ export const Hunt = ({ start, chart }: Props) => {
               <ShovelIcon key={i} used={i >= shovels} />
             ))}
           </span>
-          <span className="tabular text-muted-night">
+          <span className="tabular text-seafoam">
             {fmt(copy.hunt.steps, { n: steps })}
           </span>
           <span className="ml-auto" aria-live="polite" />
@@ -267,16 +267,16 @@ export const Hunt = ({ start, chart }: Props) => {
                     () => undefined
                   )
                 }
-                className="rounded-[6px] bg-night-2 px-3 py-2 text-left text-sm"
+                className="rounded-[6px] bg-lagoon-2 px-3 py-2 text-left text-sm"
                 role="alert"
               >
                 {error}{' '}
-                <span className="text-gold underline">{copy.err.retry}</span>
+                <span className="text-sun underline">{copy.err.retry}</span>
               </button>
             )}
           </div>
           {chartOpen && (
-            <div className="absolute inset-0 z-10 flex flex-col items-center justify-center bg-night/40 p-3 anim-fade lg:hidden">
+            <div className="absolute inset-0 z-10 flex flex-col items-center justify-center bg-lagoon/40 p-3 anim-fade lg:hidden">
               <div className="parchment w-full max-w-[460px] p-2 opacity-[0.92]">
                 <ChartView
                   island={island}
@@ -298,7 +298,7 @@ export const Hunt = ({ start, chart }: Props) => {
         <div className="flex items-center gap-2 px-3 py-3">
           <Button
             kind="quiet"
-            className="text-on-night"
+            className="text-foam"
             onClick={() => setConfirmQuit(true)}
             disabled={busy}
           >
@@ -307,7 +307,7 @@ export const Hunt = ({ start, chart }: Props) => {
           <div className="ml-auto flex gap-1">
             <Button
               kind="ink"
-              className="w-12 border-muted-night/50 px-0 text-on-night"
+              className="w-12 border-seafoam/50 px-0 text-foam"
               label={copy.hunt.zoomOut}
               onClick={() => setZoom((z) => Math.max(0, z - 0.5))}
             >
@@ -315,7 +315,7 @@ export const Hunt = ({ start, chart }: Props) => {
             </Button>
             <Button
               kind="ink"
-              className="w-12 border-muted-night/50 px-0 text-on-night"
+              className="w-12 border-seafoam/50 px-0 text-foam"
               label={copy.hunt.zoomIn}
               onClick={() => setZoom((z) => Math.min(2, z + 0.5))}
             >

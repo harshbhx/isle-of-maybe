@@ -12,6 +12,7 @@ import { liveChannel } from '../shared/live.ts';
 import { ChartView } from './components/ChartView.tsx';
 import { CrewGoal } from './components/CrewGoal.tsx';
 import { Glyph } from './components/Glyph.tsx';
+import { Logo } from './components/Logo.tsx';
 import { CoinIcon, FlameIcon, ShovelIcon } from './components/ui.tsx';
 import { copy, fmt } from './copy.ts';
 import { get } from './lib/api.ts';
@@ -56,14 +57,15 @@ export const Splash = () => {
   );
   const date = day === undefined ? '' : dayLabel(day);
   return (
-    <main className="flex h-full flex-col gap-2 overflow-hidden bg-night px-4 py-3 text-on-night">
+    <main className="flex h-full flex-col gap-2 overflow-hidden bg-lagoon px-4 py-3 text-foam">
       <header className="flex items-start gap-2">
         <div className="min-w-0">
-          <h1 className="font-display text-[26px] leading-none">
+          <h1 className="font-display flex items-center gap-2 text-[26px] leading-none">
+            <Logo size={30} />
             {copy.splash.title}
           </h1>
           {init !== null && (
-            <p className="font-display mt-1 truncate text-[20px] leading-tight text-gold">
+            <p className="font-display mt-1 truncate text-[20px] leading-tight text-sun">
               {fmt(copy.splash.day, {
                 n: init.dayNumber,
                 island: init.island.name,
@@ -71,7 +73,7 @@ export const Splash = () => {
             </p>
           )}
           {init !== null && (
-            <p className="truncate text-xs text-muted-night">
+            <p className="truncate text-xs text-seafoam">
               {date}
               {init.island.namedBy !== null &&
                 ` · ${fmt(copy.splash.namedBy, { name: init.island.namedBy })}`}
@@ -89,7 +91,7 @@ export const Splash = () => {
             </span>
             <span
               role="img"
-              className="inline-flex items-center gap-1 text-gold"
+              className="inline-flex items-center gap-1 text-sun"
               aria-label={fmt(copy.splash.gold, { n: init.user.gold })}
             >
               <CoinIcon /> {init.user.gold.toLocaleString()}
@@ -114,9 +116,7 @@ export const Splash = () => {
           {init !== null && (
             <>
               {IMPLEMENTED_MODIFIERS.has(init.island.modifier) && (
-                <p className="text-muted-night">
-                  {copy.mod[init.island.modifier]}
-                </p>
+                <p className="text-seafoam">{copy.mod[init.island.modifier]}</p>
               )}
               {counts !== null &&
                 (counts.buried > 0 ? (
@@ -145,7 +145,7 @@ export const Splash = () => {
               {init.todayPost !== null && (
                 <button
                   type="button"
-                  className="min-h-11 text-left text-gold underline underline-offset-4"
+                  className="min-h-11 text-left text-sun underline underline-offset-4"
                   onClick={() =>
                     init.todayPost &&
                     go(
@@ -164,15 +164,15 @@ export const Splash = () => {
         </div>
       </div>
       {/* The loop in three steps, only when the post is tall enough to keep it calm (DAY-3.5). */}
-      <ol className="hidden items-center justify-between gap-1 text-xs text-muted-night [@media(min-height:440px)]:flex">
+      <ol className="hidden items-center justify-between gap-1 text-xs text-seafoam [@media(min-height:440px)]:flex">
         {copy.splash.how.map((step, i) => (
           <li key={step} className="flex min-w-0 items-center gap-1.5">
             {i > 0 && (
-              <span aria-hidden className="text-gold">
+              <span aria-hidden className="text-sun">
                 ›
               </span>
             )}
-            <span aria-hidden className="shrink-0 text-gold">
+            <span aria-hidden className="shrink-0 text-sun">
               {i === 0 ? (
                 <Glyph glyph={LANDMARK_GLYPHS.palm} size={18} />
               ) : i === 1 ? (
@@ -187,7 +187,7 @@ export const Splash = () => {
       </ol>
       <button
         type="button"
-        className="min-h-12 w-full shrink-0 rounded-[6px] bg-gold font-bold text-night shadow-[0_3px_0_#a37a22] active:translate-y-[2px]"
+        className="min-h-12 w-full shrink-0 rounded-[6px] bg-mango font-bold text-ink shadow-[0_3px_0_#C98400] active:translate-y-[2px]"
         onClick={(e) => openGame(e.nativeEvent)}
       >
         {copy.splash.cta}

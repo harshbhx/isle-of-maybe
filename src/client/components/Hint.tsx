@@ -18,7 +18,7 @@ export const Hint = ({
       onClick={h.done}
       className={`anim-rise parchment min-h-11 w-full rounded-[6px] px-4 py-2 text-left text-sm text-ink ${className}`}
     >
-      <span aria-hidden className="mr-2 font-display text-seal">
+      <span aria-hidden className="mr-2 font-display text-hibiscus">
         ✦
       </span>
       {copy.hint[k]}

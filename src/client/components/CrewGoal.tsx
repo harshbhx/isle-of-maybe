@@ -18,7 +18,7 @@ export const CrewGoal = ({
   return (
     <div className="flex flex-col gap-1">
       <div
-        className={`h-2 w-full overflow-hidden rounded-full ${tone === 'night' ? 'bg-night-2' : 'bg-parchment-dark'}`}
+        className={`h-2 w-full overflow-hidden rounded-full ${tone === 'night' ? 'bg-lagoon-2' : 'bg-paper-2'}`}
         role="progressbar"
         aria-valuemin={0}
         aria-valuemax={target}
@@ -27,12 +27,12 @@ export const CrewGoal = ({
         aria-label={copy.crew.label}
       >
         <div
-          className="h-full origin-left bg-gold transition-transform"
+          className="h-full origin-left bg-mango transition-transform"
           style={{ transform: `scaleX(${k})` }}
         />
       </div>
       <p
-        className={`text-xs tabular [@media(max-height:360px)]:hidden ${tone === 'night' ? 'text-muted-night' : 'text-ink-soft'}`}
+        className={`text-xs tabular [@media(max-height:360px)]:hidden ${tone === 'night' ? 'text-seafoam' : 'text-ink-soft'}`}
       >
         {line}
       </p>

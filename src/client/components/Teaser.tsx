@@ -36,7 +36,7 @@ export const Teaser = ({
   return (
     <div className="flex items-center gap-3">
       <svg viewBox="0 0 400 400" className="h-16 w-16 shrink-0" aria-hidden>
-        <path d={d} fill="#14202B" fillRule="evenodd" opacity="0.85" />
+        <path d={d} fill="#2B1D12" fillRule="evenodd" opacity="0.85" />
       </svg>
       <p className="text-sm">
         <span className="font-display block text-[18px]">

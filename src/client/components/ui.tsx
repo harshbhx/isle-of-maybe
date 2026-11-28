@@ -16,10 +16,11 @@ type ButtonProps = {
 };
 
 const KIND: Record<NonNullable<ButtonProps['kind']>, string> = {
-  gold: 'bg-gold text-night font-bold shadow-[0_3px_0_#a37a22] active:translate-y-[2px] active:shadow-[0_1px_0_#a37a22]',
+  gold: 'bg-mango text-ink font-bold shadow-[0_3px_0_#C98400] active:translate-y-[2px] active:shadow-[0_1px_0_#C98400]',
   ink: 'bg-transparent text-ink border-2 border-ink/70 hover:bg-ink/5',
   quiet: 'bg-transparent text-current underline-offset-4 hover:underline',
-  danger: 'bg-transparent text-seal border-2 border-seal/70 hover:bg-seal/5',
+  danger:
+    'bg-transparent text-hibiscus border-2 border-hibiscus/70 hover:bg-hibiscus/5',
 };
 
 export const Button = ({
@@ -84,7 +85,7 @@ export const Banner = ({
   tone?: 'night' | 'parchment';
   onClick?: () => void;
 }) => {
-  const cls = `w-full rounded-[6px] px-4 py-3 text-left text-sm ${tone === 'night' ? 'bg-night-2 text-on-night border border-muted-night/30' : 'parchment'}`;
+  const cls = `w-full rounded-[6px] px-4 py-3 text-left text-sm ${tone === 'night' ? 'bg-lagoon-2 text-foam border border-seafoam/30' : 'parchment'}`;
   return onClick === undefined ? (
     <div className={cls} role="status">
       {children}
@@ -129,7 +130,7 @@ export const DepthDots = ({
 
 export const Loading = () => (
   <div
-    className="flex h-full min-h-48 items-center justify-center text-muted-night"
+    className="flex h-full min-h-48 items-center justify-center text-seafoam"
     role="status"
   >
     <span className="anim-fade">{copy.common.loading}</span>
@@ -147,7 +148,7 @@ export const ErrorState = ({
     className="flex flex-col items-center gap-3 p-6 text-center"
     role="alert"
   >
-    <p className="text-on-night">{message}</p>
+    <p className="text-foam">{message}</p>
     {onRetry && (
       <Button kind="gold" onClick={onRetry}>
         {copy.err.retry}
@@ -184,7 +185,7 @@ export const Sheet = ({
       <button
         type="button"
         aria-label={copy.common.close}
-        className="absolute inset-0 bg-night/70 anim-fade"
+        className="absolute inset-0 bg-lagoon/70 anim-fade"
         onClick={onClose}
       />
       <div
@@ -212,7 +213,7 @@ export const Tabs = <K extends string>({
 }) => (
   <div
     role="tablist"
-    className="flex gap-1 overflow-x-auto rounded-[6px] bg-night-2 p-1"
+    className="flex gap-1 overflow-x-auto rounded-[6px] bg-lagoon-2 p-1"
   >
     {tabs.map((t) => (
       <button
@@ -221,7 +222,7 @@ export const Tabs = <K extends string>({
         type="button"
         aria-selected={t.key === value}
         onClick={() => onChange(t.key)}
-        className={`min-h-11 flex-1 whitespace-nowrap rounded-[4px] px-3 text-sm ${t.key === value ? 'bg-parchment text-ink font-bold' : 'text-muted-night'}`}
+        className={`min-h-11 flex-1 whitespace-nowrap rounded-[4px] px-3 text-sm ${t.key === value ? 'bg-paper text-ink font-bold' : 'text-seafoam'}`}
       >
         {t.label}
       </button>
@@ -252,7 +253,7 @@ export const TopBar = ({
     </span>
     <span
       role="img"
-      className="inline-flex items-center gap-1 text-gold tabular"
+      className="inline-flex items-center gap-1 text-sun tabular"
       aria-label={fmt(copy.splash.gold, { n: gold.toLocaleString() })}
     >
       <CoinIcon /> {gold.toLocaleString()}
@@ -267,14 +268,14 @@ export const CoinIcon = ({ size = 16 }: { size?: number }) => (
       cx="8"
       cy="8"
       r="6.5"
-      fill="#E8B341"
-      stroke="#a37a22"
+      fill="#FFB21E"
+      stroke="#C98400"
       strokeWidth="1.5"
     />
     <path
       d="M8 4.5v7M5.8 6.2h3.4a1.4 1.4 0 0 1 0 2.8H6.8a1.4 1.4 0 0 0 0 2.8h3.4"
       fill="none"
-      stroke="#7a5a14"
+      stroke="#7A4E05"
       strokeWidth="1.2"
       strokeLinecap="round"
     />
@@ -285,8 +286,8 @@ export const FlameIcon = ({ size = 16 }: { size?: number }) => (
   <svg width={size} height={size} viewBox="0 0 16 16" aria-hidden>
     <path
       d="M8 1.5c1 2.5 4 4 4 7.5a4 4 0 0 1-8 0c0-1.8 1-3 2-4 0 1.5.6 2.5 1.5 2.8C7 5.5 7.4 3.4 8 1.5Z"
-      fill="#E8B341"
-      stroke="#a37a22"
+      fill="#FFB21E"
+      stroke="#C98400"
       strokeWidth="1"
       strokeLinejoin="round"
     />

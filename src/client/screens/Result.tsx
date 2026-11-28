@@ -145,16 +145,14 @@ export const Result = () => {
           <Button
             kind={u.buried || !u.loggedIn ? 'gold' : 'ink'}
             className={
-              u.buried || !u.loggedIn
-                ? ''
-                : 'border-muted-night/50 text-on-night'
+              u.buried || !u.loggedIn ? '' : 'border-seafoam/50 text-foam'
             }
             onClick={() => app.go({ k: 'pick' })}
           >
             {fmt(copy.result.again, { n: u.huntsLeft })}
           </Button>
         ) : (
-          <p className="text-center text-muted-night">
+          <p className="text-center text-seafoam">
             {fmt(copy.result.done, { time: newIslandTime() })}
           </p>
         )}
@@ -163,14 +161,14 @@ export const Result = () => {
             <>
               <Button
                 kind="ink"
-                className="border-muted-night/50 text-on-night"
+                className="border-seafoam/50 text-foam"
                 onClick={() => setSharing(true)}
               >
                 {copy.result.share}
               </Button>
               <Button
                 kind="ink"
-                className="border-muted-night/50 text-on-night"
+                className="border-seafoam/50 text-foam"
                 onClick={challenge}
               >
                 {copy.result.challenge}
@@ -179,7 +177,7 @@ export const Result = () => {
           )}
           <Button
             kind="ink"
-            className="col-span-2 border-muted-night/50 text-on-night"
+            className="col-span-2 border-seafoam/50 text-foam"
             onClick={() => app.go({ k: 'boards' })}
           >
             {copy.result.boards}
@@ -189,11 +187,11 @@ export const Result = () => {
       {sub !== undefined && (
         // Optional and separate (COM-2.3): opens the subreddit, where Reddit's own Join button
         // subscribes the player. No subscribe API: before approval it would act as the app (COM-2.8).
-        <p className="text-center text-sm text-muted-night">
+        <p className="text-center text-sm text-seafoam">
           {copy.result.joinLine}{' '}
           <button
             type="button"
-            className="min-h-11 font-bold text-gold underline underline-offset-4"
+            className="min-h-11 font-bold text-sun underline underline-offset-4"
             onClick={() => go(`https://www.reddit.com/r/${sub}`)}
           >
             {copy.result.join}
