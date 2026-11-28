@@ -313,6 +313,32 @@ export const drawScene = (
 
   // Fog over unseen tiles, softer next to seen ones.
   if (s.seen !== null) {
+    // Past the coast (UI-3.3) the fog bank thins into open sea instead of ending in a hard line.
+    const band = t * 2.5;
+    const x0 = X(0);
+    const y0 = Y(0);
+    const x1 = X(W);
+    const y1 = Y(H);
+    const fade = (
+      ax: number,
+      ay: number,
+      bx: number,
+      by: number,
+      rx: number,
+      ry: number,
+      rw: number,
+      rh: number
+    ): void => {
+      const g = ctx.createLinearGradient(ax, ay, bx, by);
+      g.addColorStop(0, COL.fog);
+      g.addColorStop(1, 'rgba(20,32,43,0)');
+      ctx.fillStyle = g;
+      ctx.fillRect(rx, ry, rw, rh);
+    };
+    if (y0 > 0) fade(0, y0, 0, y0 - band, x0, y0 - band, x1 - x0, band);
+    if (y1 < ch) fade(0, y1, 0, y1 + band, x0, y1, x1 - x0, band);
+    if (x0 > 0) fade(x0, 0, x0 - band, 0, x0 - band, y0, band, y1 - y0);
+    if (x1 < cw) fade(x1, 0, x1 + band, 0, x1, y0, band, y1 - y0);
     for (let y = 0; y < H; y++) {
       for (let x = 0; x < W; x++) {
         const i = idx(x, y);
@@ -458,8 +484,13 @@ export const cameraFor = (
   const worldH = H * tile;
   const fx = focus === null ? W / 2 : focus.x + 0.5;
   const fy = focus === null ? H / 2 : focus.y + 0.5;
-  const clamp = (o: number, view: number, world: number): number =>
-    world <= view ? (view - world) / 2 : Math.min(0, Math.max(view - world, o));
+  // Zoomed in, the view may run a quarter-screen past the coast into open sea, so a sailor at the
+  // dock or on the shore sits nearer the middle instead of pinned to the edge (UI-3.3).
+  const clamp = (o: number, view: number, world: number): number => {
+    if (world <= view) return (view - world) / 2;
+    const pad = zoom > 0 ? view * 0.25 : 0;
+    return Math.min(pad, Math.max(view - world - pad, o));
+  };
   return {
     tile,
     ox: clamp(cw / 2 - fx * tile, cw, worldW),
