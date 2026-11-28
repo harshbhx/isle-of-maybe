@@ -98,3 +98,28 @@ Severity: **S1** = would lose the hackathon or get the app rejected · **S2** = 
 | Constellations, folding, split-the-room, shared-clue detective, memory painting | Already on Reddit (TaaraNight, Origami Master, Hostage Hot Take / Predictably Wrong, REDACTED, PAINT-IT). |
 
 **Isle of Maybe is still the pick.**
+
+---
+
+## Break-test pass (28 Nov 2026, server complete)
+
+`src/server/break.test.ts` holds each attack as a regression test.
+
+| Attack | Result | Where |
+|---|---|---|
+| Parallel `hunt/start` to beat the 3-a-day cap or re-hunt a chart after a give-up reveal | **Fixed**: atomic `hSetNX used:{c}` + `hIncrBy` with rollback | #94 |
+| Bury after only *starting* a hunt (start reveals tiles around the dock) | **Fixed**: CHART-1.7, server counts finished hunts | #95 |
+| Scrape `GET /api/hall` / boards (≈166 Redis calls each) | **Fixed**: whole `/api` rate-limited; Hall cached 10 min, trusted board 30 s | #96 |
+| Loid-less viewers sharing `anon:unknown` (one allowance for all) | **Fixed**: throwaway identity per request; hunts continue by secret hunt id | #97 |
+| Client uploads any image to "Share my chart" (posts as the app until approval) | **Fixed by design change**: server draws the image | #91, #92 |
+| Read the chest from any response before the hunt ends | Held: tested on every hunt response (HUNT-4.3) | T23 |
+| Teleport, jump or walk on water | Held: every step replayed with shared rules | T23 |
+| Dig away from your position, or double-tap to get paid twice | Held: dig must match the server position; end is exactly-once | T23 |
+| Fake votes, self-reports, report spam | Held: one vote per finished hunt, one report per player, own and captain charts refused | T25b, T25 |
+| Text or free drawing smuggled into a chart | Held: pieces rebuilt field by field; unknown kinds and stamps refused | T24 |
+
+**Accepted risks (documented, not fixed):**
+- **Second identity scouting.** Someone can open a post logged out, give up an Old Captain hunt to see its chest, then hunt the same captain chart logged in. It costs one of their 3 hunts and the gain is one chest's gold. Multi-account play can't be stopped from inside a post.
+- **Report brigading.** Three accounts can hide any chart until a moderator restores it (COM-1.3). Restoring keeps their reports, so they can't hide it again.
+- **Staleness.** A hidden chart can stay on the trusted board for up to 30 s and in the Hall for up to 10 min.
+- **Ink grade in shares.** The grade hints at how close the X is. That's acceptable because any hunter of that chart sees the chart anyway.
