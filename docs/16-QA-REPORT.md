@@ -1,6 +1,6 @@
 # 16 — QA report
 
-Automated run of the QA matrix and break tests (`docs/08-TESTING.md`) against the local preview, 28 Nov 2026, `main` after #137 (judge pass). Re-run before every upload to the demo sub (SHIP-4.1):
+Automated run of the QA matrix and break tests (`docs/08-TESTING.md`) against the local preview, 28 Nov 2026, `main` after #152 plus the 3D island (T86). Re-run before every upload to the demo sub (SHIP-4.1):
 
 ```bash
 npm run build && npm run qa        # writes nothing; add a path to save the table
@@ -26,6 +26,8 @@ npm run build && npm run qa        # writes nothing; add a path to save the tabl
 | J1 | Splash says what the game is at every post size | PASS | pitch visible at 390×320, 390×512, 740×320; how-it-works strip only when ≥ 440 px tall |
 | J2 | Hunt shows one hint at a time | PASS | hints on screen before/after walking: 1/1 |
 | J4 | Wide screens show the chart beside the island | PASS | 1280×800: chart panel beside the island, thumbnail hidden |
+| J7 | 3D island renders and taps walk | PASS | three.js chunk loaded: True; a tap walked the sailor: True; console [] |
+| J9 | Without WebGL the 2D island takes over | PASS | no WebGL: three.js not loaded True; walking works True; console [] |
 
 **Needs a real device or Reddit (Harsh):**
 
@@ -42,6 +44,7 @@ npm run build && npm run qa        # writes nothing; add a path to save the tabl
 - [ ] **§5** Judge simulation on 7 and 8 Dec (two people, phone + desktop)
 - [ ] **J5** Result card: Join the crew opens the subreddit (Reddit only: needs the post's subreddit name)
 - [ ] **J6** Every judging day: ≥ 5 tester charts on today's island; Pick shows Trusted and Fresh
+- [ ] **J8** 3D island on real phones in the Reddit app: smooth walking (≥ 30 fps), clouds clear as you walk, taps land on the tile you meant; a phone without WebGL gets the 2D island
 
 ## Break tests 1–12 → where they're enforced
 | # | Attack | Result | Test |

@@ -12,7 +12,9 @@ import base64, json, os, subprocess, sys, time, urllib.request
 from playwright.sync_api import sync_playwright
 
 ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-DAY = sys.argv[1] if len(sys.argv) > 1 else "2026-12-09"
+ARGS = [a for a in sys.argv[1:] if not a.startswith("--")]
+DAY = ARGS[0] if ARGS else "2026-12-09"
+CAPTURE_ONLY = "--capture-only" in sys.argv  # screenshots in /tmp/iom-gallery, no slides
 BASE = "http://localhost:5180"
 SHOTS = "/tmp/iom-gallery"
 os.makedirs(SHOTS, exist_ok=True)
@@ -37,13 +39,13 @@ def capture(init):
     seed, mod = init["island"]["seed"], init["island"]["modifier"]
     r = json.loads(subprocess.check_output(["node", "--experimental-strip-types", "--no-warnings", "tools/assets/captain-route.ts", seed, mod], cwd=ROOT))
     with sync_playwright() as p:
-        b = p.chromium.launch(executable_path="/usr/bin/google-chrome", args=["--no-sandbox"])
+        b = p.chromium.launch(executable_path="/usr/bin/google-chrome", args=["--no-sandbox", "--use-angle=swiftshader", "--enable-unsafe-swiftshader"])
         pg = b.new_page(viewport={"width": 390, "height": 512}, device_scale_factor=2)
         pg.goto(BASE + "/splash.html"); pg.wait_for_timeout(1000); pg.screenshot(path=f"{SHOTS}/splash.png"); pg.close()
 
         pg = b.new_page(viewport={"width": 390, "height": 844}, device_scale_factor=2)
         logs = []
-        pg.on("console", lambda m: logs.append(m.text) if m.type in ("error", "warning") else None)
+        pg.on("console", lambda m: logs.append(m.text) if m.type in ("error", "warning") and "GL Driver Message" not in m.text else None)
         btn = lambda n, exact=False: pg.get_by_role("button", name=n, exact=exact)
         pg.goto(BASE + "/game.html"); pg.wait_for_timeout(1000)
         btn("Skip").first.click(); pg.wait_for_timeout(800); pg.screenshot(path=f"{SHOTS}/dispatch.png")
@@ -52,10 +54,11 @@ def capture(init):
         leg_found = 0
         for li, leg in enumerate(r["legs"]):
             for i, k in enumerate(leg):
-                pg.keyboard.press(k); pg.wait_for_timeout(150)
+                # Software WebGL renders slowly here; wait for each step to finish before the next key.
+                pg.keyboard.press(k); pg.wait_for_timeout(450)
                 if li == 0 and i == len(leg) - 6:
                     pg.screenshot(path=f"{SHOTS}/hunt.png")
-            pg.wait_for_timeout(400); pg.keyboard.press(" "); pg.wait_for_timeout(1500)
+            pg.wait_for_timeout(1500); pg.keyboard.press(" "); pg.wait_for_timeout(2000)
             if "Rate this chart" in pg.inner_text("main"):
                 leg_found = li
                 break
@@ -124,7 +127,7 @@ def capture(init):
                 pg.get_by_role("button", name=n).first.click(); pg.wait_for_timeout(800)
         pg.get_by_role("button", name="Follow this chart").first.click(); pg.wait_for_timeout(900)
         for k in r["legs"][0][:14]:
-            pg.keyboard.press(k); pg.wait_for_timeout(150)
+            pg.keyboard.press(k); pg.wait_for_timeout(450)
         pg.wait_for_timeout(800); pg.screenshot(path=f"{SHOTS}/wide.png"); pg.close()
         b.close()
 
@@ -224,5 +227,6 @@ if __name__ == "__main__":
         capture(init)
     finally:
         srv.terminate(); srv.wait()
-    crop_top("dispatch", 0.5)
-    compose()
+    if not CAPTURE_ONLY:
+        crop_top("dispatch", 0.5)
+        compose()

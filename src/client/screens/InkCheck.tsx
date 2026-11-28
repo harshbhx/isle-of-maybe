@@ -55,11 +55,13 @@ export const InkCheck = ({
     <div className="mx-auto flex w-full max-w-[560px] flex-col gap-3 p-3">
       <SrTitle>{copy.chart.title}</SrTitle>
       <div className="relative aspect-square w-full overflow-hidden rounded-[6px]">
+        {/* Straight down in 2D, so your paper chart lines up tile for tile with the true island. */}
         <IslandCanvas
           scene={scene}
           zoom={0}
           focus={null}
           label={copy.chart.title}
+          flat
         />
         <svg
           viewBox={`0 0 ${CHART_PX} ${CHART_PX}`}
