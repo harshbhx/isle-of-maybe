@@ -27,21 +27,24 @@
 Treasure maps are the oldest user-generated content: one person draws, another trusts. Most daily games are you against a puzzle. We wanted a daily game where you play *for* strangers: your map is somebody else's puzzle tomorrow. Reddit is the only place with enough strangers, every day, to make that work. (Small map-drawing jam games like Captain Peggles showed the loop is fun; we rebuilt it around a shared daily island and a whole community.)
 
 **What it does**
-- Every day there's a new 3D island, the same for everyone, under low cloud that lifts where you walk. The map you follow, and the one you draw, are flat ink on paper: the gap between the real island and a remembered map is the game.
-- You pick one of three maps drawn by other players (or the Old Captain's), walk the fogged island and dig with three shovels.
+- Every day there's a new 3D island, the same for everyone, under low mist that lifts where you walk. The map you follow, and the one you draw, are flat ink on paper: the gap between the real island and a remembered map is the game.
+- You pick one of three maps drawn by other players (or the Old Captain's), then play as an explorer: walk and run freely (a floating stick on phones, WASD on desktop) and dig with three shovels.
+- **Beat the tide:** every hunt has 150 seconds. The sea rises in three waves and swallows the low beach, quicksand traps the careless, thicket slows you and cliffs block the way. A stranger's map can send you the long way round.
+- **The find is a moment:** the chest bursts out of the sand on a fountain of gold under a shaft of light, with "Buried by u/name" engraved on the lid.
 - Then you bury your own chest, but only where you've been, and draw a map to it from memory with a small ink kit: landmark stamps, a dotted path and one X.
 - An instant Ink check grades your map. Tomorrow's Dispatch tells you how many sailors found your chest.
 - Chests far from landmarks pay more, to you and to whoever finds them, so the best players hide boldly and chart carefully.
 - Good maps rise (players rate them True or Cursed) and their makers earn Cartographer tiers. You can share your chart as a comment and challenge friends with a link.
+- **Only on Reddit:** your explorer's hat shows your flair rank; the dock sign says which redditor named the island; today's footsteps wear trodden paths into the grass, so by evening you can see where the whole subreddit walked; and other redditors hunting right now appear as lantern-lit ghosts with their u/name.
 - Each weekday has a twist (Twins, Low tide, Thick jungle, Sea fog, Lantern night). A daily **crew goal** turns tomorrow into Lantern night when the community finds enough chests, and the top reply under the day's sticky **names tomorrow's island**.
-- A 45-second Practice Cove teaches the hunt on a perfect map; the Hall of Charts keeps the best maps of past days.
+- A coached Practice Cove (five steps, under a minute) teaches moving, running, the chart, the tide and digging; the chart editor coaches your first map, with a magnifier under your finger on phones. The Hall of Charts keeps the best maps of past days.
 - The post itself says what the game is ("Follow a stranger's map to buried gold. Then bury yours.") over today's coastline. On a wide screen the map sits beside the island, so you read and walk at the same time. The result card ends with one optional invitation to join the crew.
 
 **How we built it**
-Devvit Web: React client, a three.js 3D island (lazy-loaded only in the game, with a Canvas 2D fallback for phones without WebGL), SVG chart editor; Hono server; Redis for everything; the scheduler posts a new island at 00:00 UTC with a sticky comment for chart shares. The island is generated from a daily seed by shared TypeScript that runs on both client and server, so the server re-checks every step and dig: the chest's location never reaches your device until the hunt ends. Charts are structured data, not freehand images, which keeps them safe to show to strangers and lets the game grade them. Even the share image is drawn on the server (a small PNG encoder in plain TypeScript), so nobody can post an arbitrary picture through the app. We red-teamed our own server with break tests (parallel requests, crafted steps, scraping) and fixed five bugs before launch; an automated QA run and an accessibility scan (0 violations, fully keyboard-playable) gate every upload.
+Devvit Web: React client, a three.js world built entirely in code (a sculpted height field, a wave shader that reads the real water depth for foam and colour, instanced swaying plants, an animated explorer, all lazy-loaded only in the game, with a Canvas 2D fallback for phones without WebGL and quality that steps itself down below 40 fps), SVG chart editor; Hono server; Redis for everything; the scheduler posts a new island at 00:00 UTC with a sticky comment for chart shares. The island is generated from a daily seed by shared TypeScript that runs on both client and server, so the server re-checks every step and dig on its own clock (how fast you could have run, whether the tide had already covered that sand): the chest's location never reaches your device until the hunt ends. Worn paths are aggregate counts shown only after three hunts; ghost positions are broadcast over realtime and never stored. Charts are structured data, not freehand images, which keeps them safe to show to strangers and lets the game grade them. Even the share image is drawn on the server (a small PNG encoder in plain TypeScript), so nobody can post an arbitrary picture through the app. We red-teamed our own server with break tests (parallel requests, crafted steps, scraping) and fixed five bugs before launch; an automated QA run and an accessibility scan (0 violations, fully keyboard-playable) gate every upload.
 
 **Challenges**
-Making a two-part loop easy: we made you *use* a stranger's map before you draw one, so you learn by doing. Making it fair: bury-where-you've-been, depth multipliers and the Ink check. Making it work with few players: Old Captain charts and a "fresh chart" slot that gives every new map exposure.
+Making free movement fair on a server that decides everything: the explorer moves smoothly, but every move becomes four-way tile steps with minimum times, and the tide is checked at the earliest moment each step could have happened. Making 3D smooth inside the Reddit app: no downloaded assets, one draw call per plant type, and adaptive quality. Making a two-part loop easy: we made you *use* a stranger's map before you draw one, so you learn by doing. Making it fair: bury-where-you've-been, depth multipliers and the Ink check. Making it work with few players: Old Captain charts and a "fresh chart" slot that gives every new map exposure.
 
 **Accomplishments**
 (fill from real numbers: players, charts, finds, find rate, best chart)
@@ -50,7 +53,7 @@ Making a two-part loop easy: we made you *use* a stranger's map before you draw 
 (fill)
 
 **What's next**
-Storm days that move a landmark at noon (so morning maps go wrong), seasonal islands, and letting subreddits run their own archipelago.
+Messages in a bottle that wash up on tomorrow's island, storm days that move a landmark at noon (so morning maps go wrong), seasonal islands, and letting subreddits run their own archipelago.
 
 **Built with:** devvit, devvit-web, react, typescript, three.js, webgl, hono, redis, canvas, svg, vite, tailwindcss
 

@@ -494,7 +494,12 @@ const dispose = (o: Object3D): void => {
 
 export const createIsland3D = (
   canvas: HTMLCanvasElement,
-  opts: { reducedMotion: boolean; onFail: () => void }
+  opts: {
+    reducedMotion: boolean;
+    onFail: () => void;
+    /** Adaptive quality (ADV-7.1); off only for offline renders such as key art. */
+    adaptive?: boolean;
+  }
 ): Island3D => {
   const quality = qualityTier();
   const renderer = new WebGLRenderer({
@@ -567,7 +572,7 @@ export const createIsland3D = (
     if (level >= 3) renderer.setPixelRatio(1);
   };
   const watchFrames = (t: number, dt: number): void => {
-    if (level >= 3 || dt <= 0) return;
+    if (opts.adaptive === false || level >= 3 || dt <= 0) return;
     if (watchFrom === 0) watchFrom = t + 2; // let the first frames (shader compiles) pass
     if (t < watchFrom) return;
     frames.push(dt);

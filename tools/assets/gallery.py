@@ -48,6 +48,7 @@ def capture(init):
         pg.goto(BASE + "/splash.html"); pg.wait_for_timeout(1000); pg.screenshot(path=f"{SHOTS}/splash.png"); pg.close()
 
         pg = b.new_page(viewport={"width": 390, "height": 844}, device_scale_factor=2)
+        pg.add_init_script("localStorage.setItem('iom:quality', 'fixed')")
         logs = []
         pg.on("console", lambda m: logs.append(m.text) if m.type in ("error", "warning") and "GL Driver Message" not in m.text else None)
         btn = lambda n, exact=False: pg.get_by_role("button", name=n, exact=exact)
@@ -59,72 +60,33 @@ def capture(init):
         pg.goto(BASE + "/game.html"); pg.wait_for_timeout(1000)
         btn("Skip").first.click(); pg.wait_for_timeout(800); pg.screenshot(path=f"{SHOTS}/dispatch.png")
         btn("Today’s island →").click(); pg.wait_for_timeout(900); pg.screenshot(path=f"{SHOTS}/pick.png")
-        btn("Follow this chart").nth(2).click(); pg.wait_for_timeout(900)  # the Old Captain's card
-        leg_found = 0
-        taken = 0
-
-        def step(k):
-            # Software WebGL renders slowly here, and a key pressed mid-walk is ignored; press until the
-            # step counter moves, so the route stays exact.
-            nonlocal taken
+        btn("Follow this chart").nth(2).click(); pg.wait_for_timeout(6000)  # the Old Captain's card
+        # The 3D hunt (ADV-3): hold keys to walk and run, then three digs and the ending on the island.
+        grab("hunt")
+        for k, ms in [("ArrowUp", 1800), ("ArrowLeft", 1200), ("ArrowUp", 1500), ("ArrowRight", 900)]:
+            pg.keyboard.down(k)
+            for _ in range(ms // 300):
+                pg.wait_for_timeout(300); grab("hunt")
+            pg.keyboard.up(k)
+            if k == "ArrowUp" and not os.path.exists(f"{SHOTS}/hunt-taken"):
+                # The first stretch, still near the dock where the island is open and readable.
+                pg.screenshot(path=f"{SHOTS}/hunt.png"); open(f"{SHOTS}/hunt-taken", "w").close()
+        for _ in range(3):
+            btn("Dig", True).click()
             for _ in range(6):
-                pg.keyboard.press(k)
-                for _ in range(20):
-                    pg.wait_for_timeout(100)
-                    if f"{taken + 1} step" in pg.inner_text("main"):
-                        taken += 1
-                        return
-            raise RuntimeError(f"step {taken + 1} did not register")
-
-        for li, leg in enumerate(r["legs"]):
-            for i, k in enumerate(leg):
-                step(k)
-                if i % 2 == 0:
-                    grab("hunt")
-                if li == 0 and i == len(leg) - 6:
-                    pg.screenshot(path=f"{SHOTS}/hunt.png")
-            pg.wait_for_timeout(1500); grab("hunt"); pg.keyboard.press(" ")
-            for _ in range(5):
-                pg.wait_for_timeout(250); grab("hunt")
-            if "Rate this chart" in pg.inner_text("main"):
-                leg_found = li
-                break
-        pg.wait_for_timeout(1200); pg.screenshot(path=f"{SHOTS}/reveal.png")
+                pg.wait_for_timeout(300); grab("hunt")
+        for _ in range(8):
+            pg.wait_for_timeout(350); grab("hunt")
+        pg.wait_for_timeout(1500); pg.screenshot(path=f"{SHOTS}/reveal.png")
         btn("True map").click(); pg.wait_for_timeout(500)
-        btn("Bury your chest").click(); pg.wait_for_timeout(900)
-
-        # The bury cursor starts at the dock and jumps to the next buryable tile; steer it to a spot
-        # two tiles from the found chest, inside what the sailor uncovered.
-        walked = [(r["dock"]["x"], r["dock"]["y"])]
-        for k in [k for leg in r["legs"][: leg_found + 1] for k in leg]:
-            x, y = walked[-1]; dx, dy = STEP[k]; walked.append((x + dx, y + dy))
-        rad = {"clear": 4, "fog": 2}.get(mod, 3)
-        seen = {(x + i, y + j) for (x, y) in walked for i in range(-rad, rad + 1) for j in range(-rad, rad + 1) if i * i + j * j <= rad * rad}
-        marks = {(l["at"]["x"], l["at"]["y"]) for l in r["landmarks"]}
+        btn("Bury your chest").click(); pg.wait_for_timeout(2500)
         dock = (r["dock"]["x"], r["dock"]["y"])
-        ok = lambda t: t in seen and 0 <= t[0] < 40 and 0 <= t[1] < 40 and r["walk"][t[1] * 40 + t[0]] and t not in marks and t != dock
-
-        def nudge(cur, k):
-            dx, dy = STEP[k]
-            for n in range(1, 40):
-                t = (cur[0] + dx * n, cur[1] + dy * n)
-                if not (0 <= t[0] < 40 and 0 <= t[1] < 40):
-                    return cur
-                if ok(t):
-                    return t
-            return cur
-
-        c = r["chests"][leg_found]["at"]
-        target, cur = (c["x"] + 2, c["y"] - 2), dock
-        for _ in range(80):
-            if cur == target:
-                break
-            moves = [(abs(nudge(cur, k)[0] - target[0]) + abs(nudge(cur, k)[1] - target[1]), k) for k in STEP if nudge(cur, k) != cur]
-            if not moves:
-                break
-            _, k = min(moves); cur = nudge(cur, k); pg.keyboard.press(k); pg.wait_for_timeout(60)
-        pg.wait_for_timeout(300); pg.screenshot(path=f"{SHOTS}/bury.png")
+        for k in ["ArrowUp", "ArrowUp", "ArrowLeft"]:
+            pg.keyboard.press(k); pg.wait_for_timeout(120)
+        pg.wait_for_timeout(400); pg.screenshot(path=f"{SHOTS}/bury.png")
         pg.keyboard.press("Enter"); pg.wait_for_timeout(1200)
+        c = {"x": dock[0] - 1, "y": dock[1] - 4}
+        cur = (c["x"], c["y"])
 
         # Chart from memory: the nearest landmarks, a path from the dock, the X.
         svg = pg.locator("svg[viewBox='0 0 400 400']").first
@@ -153,13 +115,13 @@ def capture(init):
         pg.close()
 
         pg = b.new_page(viewport={"width": 1280, "height": 800}, device_scale_factor=1.5)
+        pg.add_init_script("localStorage.setItem('iom:quality', 'fixed')")
         pg.goto(BASE + "/game.html"); pg.wait_for_timeout(1000)
         for n in ["Skip", "Today’s island →"]:
             if pg.get_by_role("button", name=n).count():
                 pg.get_by_role("button", name=n).first.click(); pg.wait_for_timeout(800)
-        pg.get_by_role("button", name="Follow this chart").first.click(); pg.wait_for_timeout(900)
-        for k in r["legs"][0][:14]:
-            pg.keyboard.press(k); pg.wait_for_timeout(450)
+        pg.get_by_role("button", name="Follow this chart").first.click(); pg.wait_for_timeout(6000)
+        pg.keyboard.down("ArrowUp"); pg.wait_for_timeout(2500); pg.keyboard.up("ArrowUp")
         pg.wait_for_timeout(800); pg.screenshot(path=f"{SHOTS}/wide.png"); pg.close()
         b.close()
 
@@ -182,14 +144,15 @@ def font(path):
 WAVES = "data:image/svg+xml;base64," + base64.b64encode(open(os.path.join(ROOT, "src/client/assets/waves.svg"), "rb").read()).decode()
 CSS = f"""
 @font-face{{font-family:Fell;src:url(data:font/woff2;base64,{font('im-fell-english-sc/files/im-fell-english-sc-latin-400-normal.woff2')})}}
-@font-face{{font-family:Atk;font-weight:400;src:url(data:font/woff2;base64,{font('atkinson-hyperlegible/files/atkinson-hyperlegible-latin-400-normal.woff2')})}}
-@font-face{{font-family:Atk;font-weight:700;src:url(data:font/woff2;base64,{font('atkinson-hyperlegible/files/atkinson-hyperlegible-latin-700-normal.woff2')})}}
+@font-face{{font-family:Atk;font-weight:400;src:url(data:font/woff2;base64,{font('bricolage-grotesque/files/bricolage-grotesque-latin-400-normal.woff2')})}}
+@font-face{{font-family:Fra;font-weight:700;src:url(data:font/woff2;base64,{font('fraunces/files/fraunces-latin-700-normal.woff2')})}}
+@font-face{{font-family:Atk;font-weight:700;src:url(data:font/woff2;base64,{font('bricolage-grotesque/files/bricolage-grotesque-latin-800-normal.woff2')})}}
 html,body{{margin:0;width:1500px;height:1000px;overflow:hidden;background:#0A6468 url({WAVES});background-size:150px 75px;color:#FFF7E8;font-family:Atk}}
-h1{{font-family:Fell;font-weight:400;font-size:58px;line-height:1.08;margin:0;max-width:32ch}}
+h1{{font-family:Fra;font-weight:700;letter-spacing:-0.01em;font-size:58px;line-height:1.08;margin:0;max-width:32ch}}
 .lead{{color:#C8EEE7;font-size:28px;line-height:1.4;margin:16px 0 34px;max-width:52ch}}
 .phone{{border-radius:26px;border:9px solid #08575C;box-shadow:0 10px 0 rgba(4,52,56,.45);overflow:hidden;background:#0A6468}}
 .phone img{{display:block;width:100%}}
-.cap{{font-family:Fell;font-size:30px;margin-top:18px;text-align:center;color:#FFF7E8}}
+.cap{{font-family:Fra;font-weight:700;font-size:28px;margin-top:18px;text-align:center;color:#FFF7E8}}
 .num{{display:inline-flex;width:42px;height:42px;border-radius:50%;background:#FFB21E;color:#2B1D12;font-family:Atk;font-weight:700;font-size:23px;align-items:center;justify-content:center;margin-right:10px;vertical-align:middle}}
 .paper{{background:#FFF4DC;color:#2B1D12;border-radius:8px;box-shadow:0 8px 0 rgba(4,52,56,.4);padding:34px 38px}}
 ul{{margin:0;padding:0;list-style:none}} li{{font-size:26px;line-height:1.38;margin:0 0 18px}} li b{{color:#B8233F}}
@@ -210,7 +173,7 @@ def phones(items, w=300):
 def slides():
     return {
         "gallery-1-loop": page(f"""<div style='padding:56px 70px'><h1>A new 3D island every day, and a stranger’s map to it</h1>
-          <p class=lead>Pick a map another redditor drew from memory, walk out from under the cloud, and dig with three shovels.</p>
+          <p class=lead>Pick a map another redditor drew from memory, then walk and run before the tide comes in. Dig with three shovels.</p>
           {phones([("pick", "Pick a map", True), ("hunt", "Walk the island", True), ("reveal", "Dig", True)], 280)}</div>"""),
         "gallery-2-chart": page(f"""<div style='padding:56px 70px'><h1>Then bury yours and chart it from memory</h1>
           <p class=lead>Ten stamps, a dotted path, one X, on paper. The Ink check lays your map over the real island and grades it.</p>
@@ -225,7 +188,7 @@ def slides():
           </ul></div>
           {phones([("dispatch-top", "Dispatch", False), ("share", "Share sheet", False)], 290)}</div>"""),
         "gallery-4-desktop": page(f"""<div style='padding:56px 70px'><h1>On desktop the paper map sits beside the island</h1>
-          <p class=lead style='margin-bottom:26px'>Read and walk at the same time. Arrows walk, Space digs, M shows the map.</p>
+          <p class=lead style='margin-bottom:26px'>Read and walk at the same time. WASD or arrows walk, Shift runs, Space digs, M shows the map.</p>
           <div class='phone' style='border-radius:16px;width:1180px;margin:0 auto'><img src='{img("wide")}'></div></div>"""),
         "gallery-5-fair": page(f"""<div style='display:flex;gap:70px;align-items:center;padding:60px 80px;height:880px'>
           <div style='width:410px'><div class='phone' style='border-radius:14px;border-width:6px'><img src='{img("splash")}'></div><div class='cap'>The post explains itself</div></div>
@@ -240,7 +203,7 @@ def slides():
 
 
 GIFS = {
-    "gallery-0-hunt": ("hunt", "Walk out from under the cloud", "Follow a stranger’s map across a new 3D island. The cloud lifts where you walk; you have three shovels."),
+    "gallery-0-hunt": ("hunt", "Beat the tide", "Walk and run a new 3D island with a stranger’s map. The tide rises, quicksand waits, and you have three shovels."),
     "gallery-0-chart": ("chart", "Chart it from memory", "Stamps, a dotted path and one X on paper. Then the Ink check lays your map over the real island."),
 }
 
@@ -256,7 +219,7 @@ def make_gifs():
                 continue
             html = page(f"""<div style='width:900px;height:600px;position:relative'>
               <div style='position:absolute;left:46px;top:70px;width:480px'><h1 style='font-size:46px'>{title}</h1><p class=lead style='font-size:22px'>{lead}</p>
-              <div style='display:flex;align-items:center;gap:12px;margin-top:30px'><span style='font-family:Fell;font-size:30px'>Isle of Maybe</span></div></div>
+              <div style='display:flex;align-items:center;gap:12px;margin-top:30px'><span style='font-family:Fra;font-weight:700;font-size:30px'>Isle of Maybe</span></div></div>
               <div class='phone' style='position:absolute;left:570px;top:24px;width:262px;height:550px;border-width:8px'></div></div>""").replace("width:1500px;height:1000px", "width:900px;height:600px")
             f = f"{SHOTS}/{name}.html"
             open(f, "w").write(html)
@@ -295,6 +258,8 @@ def compose():
 
 
 if __name__ == "__main__":
+    if os.path.exists(f"{SHOTS}/hunt-taken"):
+        os.remove(f"{SHOTS}/hunt-taken")
     srv, init = start_preview()
     try:
         print("preview day", init["day"], "· Day", init["dayNumber"], "·", init["island"]["name"])

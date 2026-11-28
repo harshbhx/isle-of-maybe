@@ -68,3 +68,9 @@ Extra attacks from the red-team pass (bury before finishing a hunt, scraping the
 - axe-core over all 12 screens: 0 violations (#112); re-run after the judge pass on the new splash (390×512) and the wide hunt (1280×800): 0 violations.
 - Bundle ≈ 101 KB gzip; `tools/check-dist.mjs` fails the build if anything points outside `dist/client`.
 - Every Redis key has a TTL, and nothing but day records, counts, post links and streak bits outlives 30 days (`cleanup.test.ts`).
+
+## Adventure rebuild (28 Nov, evening)
+- `npm run qa`: **21/21**. New checks: **J10**, where the world steps itself down on software WebGL (adaptive quality, ADV-7.1), and **B1**, where the game JavaScript stays within 450 KB gzip (257 KB now, ADV-7.2). J2 and Q5 now cover held-key walking and the ending cinematic.
+- Unit tests: 167. New this round: tide, hazards, pace and flooding on the server clock, worn paths, ghost pings.
+- Manual, on real phones (laptop agent, `docs/LAPTOP-PROMPT.md` Part 1b): the floating stick, tide and quicksand feel, the find cinematic, flair hats, the dock sign, coached Practice Cove, the chart loupe, ghosts between two accounts (realtime), and worn paths after 3+ hunts.
+

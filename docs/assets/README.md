@@ -12,7 +12,8 @@ node --experimental-strip-types tools/assets/make-art.ts && python3 tools/assets
 | `featuring-1920x1080.png` | Featuring image / presentation title slide |
 | `tile-1080x1080.png` | Square tile: logo + wordmark |
 | `tile-1120x512.png` | App page tile image (the page asks for 560x256; this is 2x) |
-| `featuring-1500x1000.mp4` | App page featuring video (MP4, 15 s, silent): the sea chart, walking the 3D island, charting, the sea chart |
+| `featuring-1500x1000.mp4` | App page featuring video (MP4, 20 s, silent, 680 KB): the sea chart, the find, walking the island, charting, the sea chart |
+| `gallery-0-find.gif` | Animated find moment from the real renderer (`python3 tools/assets/scene.py`, which also writes the splash key art `src/client/assets/keyart.webp`) |
 | `devpost-gallery-1500x1000.png` | Devpost gallery cover (3:2) |
 | `gallery-0-hunt.gif`, `gallery-0-chart.gif` | Animated Devpost images: walking the 3D island as the cloud lifts; charting from memory and the Ink check |
 | `gallery-1-loop.png` … `gallery-5-fair.png` | Devpost gallery slides from a real playthrough (`python3 tools/assets/gallery.py`); order and alt text in `docs/18-SUBREDDIT-KIT.md` §4 |
