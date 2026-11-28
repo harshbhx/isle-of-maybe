@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Isle of Maybe: Privacy Policy</title>
+<meta name="description" content="What Isle of Maybe stores, why, for how long, and who can see it.">
+<meta name="theme-color" content="#0A6468">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="/favicon.ico" sizes="48x48">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="canonical" href="https://isle-of-maybe.pages.dev/privacy">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Isle of Maybe">
+<meta property="og:title" content="Isle of Maybe: Privacy Policy">
+<meta property="og:description" content="What Isle of Maybe stores, why, for how long, and who can see it.">
+<meta property="og:url" content="https://isle-of-maybe.pages.dev/privacy">
+<meta property="og:image" content="https://isle-of-maybe.pages.dev/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="preload" href="/assets/fonts/fraunces-900.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/assets/site.css">
+<script src="/assets/site.js" defer></script>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="wrap top">
+  <a class="brand" href="/" aria-label="Isle of Maybe, home"><img src="/assets/img/lockup-on-dark.svg" alt="" width="280" height="56"></a>
+  <nav class="nav" aria-label="Main">
+    <a class="hide-xs" href="/how-to-play">How to play</a>
+    <a class="hide-sm" href="/press">Press</a>
+    <a class="btn" href="https://www.reddit.com/r/IsleOfMaybe/">Play on Reddit</a>
+  </nav>
+</header>
+<main id="main">
+<div class="paper doc"><article class="wrap">
+<h1>Isle of Maybe: Privacy Policy</h1>
+<p><b>Effective date:</b> 28 November 2026<br><b>App:</b> Isle of Maybe, a daily treasure-map game that runs inside Reddit posts on Reddit's Developer Platform (Devvit).<br><b>Developer:</b> Harsh Bhanushali (u/GrassJunior7078). This is an independent app. It is not made or endorsed by Reddit.<br><b>Contact:</b> send modmail to r/IsleOfMaybe, or open an issue at <a href="https://github.com/harshbhx/isle-of-maybe/issues">https://github.com/harshbhx/isle-of-maybe/issues</a>.</p>
+<p>This policy covers what the app itself stores and shows. Reddit runs the platform the game lives on and processes data under its own terms. The app's own practices are described below.</p>
+<h2>The short version</h2>
+<ul><li>The app knows your Reddit <b>username and user id</b> only while you play, because Reddit passes them to it. It never asks for a password, email, real name, location or any other personal information.</li><li>It stores <b>game data</b> (your hunts, your chart, your gold and your streak) so the game works. Nearly all of it <b>expires automatically within 30 days</b>.</li><li>Some things are <b>shown to other players</b>: your username on charts you draw, on leaderboards, as a ghost while you hunt (you can turn this off), and on share comments you choose to post.</li><li>No analytics, ads, trackers or third parties. Nothing is sold, and nothing is used to train AI.</li><li>You can <b>delete your own chart</b> at any time from the game.</li></ul>
+<h2>What the app stores, and why</h2>
+<div class="table"><table><thead><tr><th scope="col">Data</th><th scope="col">Why</th><th scope="col">Who can see it</th><th scope="col">Kept for</th></tr></thead><tbody><tr><td>Your Reddit username and user id</td><td>To attach your chart, gold, streak and hunts to you</td><td>Your username is shown on your charts, the boards and (if on) your ghost</td><td>With the records below</td></tr><tr><td>Your hunt: start time, tiles stepped on, shovels used, the result</td><td>So the server can check every step and dig fairly (nothing about the chest is sent to you until the hunt ends)</td><td>Only the server</td><td>2 days</td></tr><tr><td>Tiles you have seen today</td><td>You can only bury where you've been</td><td>Only you (on the bury screen)</td><td>2 days</td></tr><tr><td>Your chart (stamps, path, X, optional phrase from a fixed list) and where you buried your chest</td><td>It's the game: other players follow your chart</td><td>Other players see the chart and your username, never the chest's position until their hunt ends</td><td>30 days, or until you delete it</td></tr><tr><td>Votes (True / Cursed) and reports on charts</td><td>Trust ranking and moderation</td><td>Totals are shown; who voted or reported is never shown</td><td>30 days</td></tr><tr><td>Gold, finds, flair tier, which charts you hunted</td><td>Scores, boards and tiers</td><td>Gold and tier on the boards and your hat</td><td>30 days after your last play</td></tr><tr><td>Streak (which days you played)</td><td>Daily streak</td><td>Only you</td><td>30 days after your last play</td></tr><tr><td>Daily player list (user ids only)</td><td>Counting daily players and return rates for the moderators' stats</td><td>Moderators see counts, never names</td><td>30 days</td></tr><tr><td>Worn paths: how many hunts crossed each tile today</td><td>The crowd's trails on the island</td><td>Everyone sees the trails, which are counts only and never who walked where. A tile shows wear only after 3 or more hunts</td><td>40 days, with the day's counts</td></tr><tr><td>Ghost pings: your name, current tile and flair tier while you hunt</td><td>Other hunters see you live</td><td>Players on the same island at the same moment</td><td><b>Not stored.</b> They're sent over Reddit's realtime channel and gone. Only a &quot;last ping&quot; timestamp is kept, for 1 minute, to rate-limit</td></tr><tr><td>Rate-limit counters</td><td>Abuse protection</td><td>Only the server</td><td>Seconds</td></tr><tr><td>The day's island (its seed, name, who named it) and totals</td><td>The daily post</td><td>Everyone</td><td>Up to 400 days, so old posts still open (it holds no personal data apart from the redditor who named the island, which is already public in a comment)</td></tr></tbody></table></div>
+<p>All of this lives in the app's own Redis storage on Reddit's Developer Platform. Nothing is sent anywhere else: the app makes no requests to outside services, and the game client loads only its own files.</p>
+<h2>What other players can see</h2>
+<ul><li><b>Charts:</b> &quot;Charted by u/name&quot; and the chart itself. Never your chest's position before they've finished hunting.</li><li><b>Boards and the Hall of Charts:</b> usernames with gold, finds or trust.</li><li><b>Ghosts:</b> while you hunt in 3D, other hunters on the same island can see a ghost with your username and flair tier at your current tile. <b>Turn it off with &quot;Ghosts: on&quot; in the hunt's header.</b> Off works both ways: you see no ghosts and nobody sees yours. The game explains this on your first hunt.</li><li><b>Share comments:</b> only if you choose &quot;Share my chart&quot; and confirm. The app then posts a comment with your chart image and a spoiler-free line under the day's sticky comment. Until the app is approved by Reddit, these comments appear from the app's account. It's always optional.</li></ul>
+<h2>Your choices and controls</h2>
+<ul><li><b>Delete your chart:</b> &quot;Delete my chart&quot; on the result card or in your Dispatch. It's removed with its stats, votes and reports. Your chest stays buried for that day, but nobody can follow your chart to it.</li><li><b>Ghosts:</b> on or off, any time, remembered on your device.</li><li><b>Sharing and joining the subreddit:</b> always optional. The game never posts, comments or subscribes on its own.</li><li><b>Everything else</b> expires on its own within 30 days of your last play.</li><li><b>Deleted posts and comments:</b> when a day's post is deleted, that day's charts and records are deleted. When a share comment is deleted, the app forgets it.</li><li><b>Your Reddit account:</b> if you delete your Reddit account, all of your records here expire within 30 days. To have them removed sooner, send modmail to r/IsleOfMaybe or open a GitHub issue, and they'll be deleted within 7 days.</li></ul>
+<h2>On your device</h2>
+<p>The game keeps a few small settings in your browser's local storage on Reddit: hint and tutorial progress, the sound setting, and your ghost setting. They never leave your device.</p>
+<h2>Children</h2>
+<p>The game is not directed at children under 13, and it does not knowingly collect information from them. Reddit requires its users to be at least 13 years old.</p>
+<h2>Security</h2>
+<p>Data is stored only on Reddit's Developer Platform. The server decides every outcome, and the client is never trusted with hidden information. If a security problem ever affected your data, we would tell Reddit and post a notice in r/IsleOfMaybe.</p>
+<h2>Changes</h2>
+<p>If this policy changes, the new version will be posted at this same address with a new effective date, and the change will be noted in r/IsleOfMaybe.</p>
+<h2>Contact</h2>
+<p>Modmail to r/IsleOfMaybe, or <a href="https://github.com/harshbhx/isle-of-maybe/issues">https://github.com/harshbhx/isle-of-maybe/issues</a>.</p>
+</article></div>
+</main>
+<footer class="foot">
+  <div class="wrap">
+    <div>
+      <img src="/assets/img/lockup-on-dark.svg" alt="Isle of Maybe" width="200" height="40">
+      <p>A daily treasure-map game that runs inside Reddit posts. An independent game, made for Reddit's Developer Platform by Harsh Bhanushali. Not made or endorsed by Reddit.</p>
+    </div>
+    <ul aria-label="More">
+      <li><a href="/how-to-play">How to play</a></li>
+      <li><a href="/press">Press kit</a></li>
+      <li><a href="/privacy">Privacy</a></li>
+      <li><a href="/terms">Terms</a></li>
+      <li><a href="https://www.reddit.com/r/IsleOfMaybe/">r/IsleOfMaybe</a></li>
+      <li><a href="https://github.com/harshbhx/isle-of-maybe">Source on GitHub</a></li>
+    </ul>
+  </div>
+</footer>
+</body>
+</html>
