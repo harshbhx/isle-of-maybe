@@ -1,12 +1,16 @@
 # Laptop agent: one prompt
 
-Paste this to the laptop agent. Steps marked **[Harsh]** need you at the keyboard.
+The game is built (server, client, QA tooling all merged on `main`). What's left needs a real Reddit account, a phone and the Devvit CLI. Paste this to the laptop agent. Steps marked **[Harsh]** need you at the keyboard.
 
-> Set up my Reddit hackathon game **Isle of Maybe** locally. The repo already exists: https://github.com/harshbhx/isle-of-maybe (specs, docs, CI and issues are in it).
-> 1. Make sure Node 24 (see `.nvmrc`), git and the GitHub CLI are installed. Git author for this repo must be "Harsh Bhanushali <bhanushaliharsh434@gmail.com>", commits signed with my existing signing key (tell me if none is set up).
-> 2. Clone the repo into ~/code/isle-of-maybe and run `npm install`, `npm run test:types`, `npm run lint`, `npm run test:unit`, `npm run build`. All must pass.
-> 3. **[Harsh]** Run `npm run login` and log in to Reddit's developer platform when the browser opens.
-> 4. **[Harsh]** I create r/IsleOfMaybe_dev (private) and r/IsleOfMaybe (public). Wait for me to confirm.
-> 5. Run `npm run dev` against r/IsleOfMaybe_dev and confirm the template post loads. Send me the post link. If the app name `isle-of-maybe` is taken on developers.reddit.com, use `isle-of-maybe-game`, update `devvit.json` and `package.json` through an issue → PR, and tell me.
-> 6. Read AGENTS.md and specs/README.md. Don't start feature work; tell me when Gate 0 in docs/00-RUNBOOK.md passes.
-> Rules: no Dependabot, no Co-Authored-By lines, every change through issue → PR → squash merge, never leave a PR open.
+> Take my Reddit hackathon game **Isle of Maybe** from "built" to "running on Reddit". Repo: https://github.com/harshbhx/isle-of-maybe. Read `AGENTS.md`, `docs/00-RUNBOOK.md` and `docs/16-QA-REPORT.md` first.
+> 1. Make sure Node 24 (see `.nvmrc`), git, the GitHub CLI, Python 3 and Playwright for Python (`pip install playwright && playwright install chromium`) are installed. Git author must be "Harsh Bhanushali <bhanushaliharsh434@gmail.com>"; no Co-Authored-By lines.
+> 2. Clone into ~/code/isle-of-maybe, `npm install`, then `npm run test:types && npm run lint && npm run test:unit && npm run build`. All must pass. Then `npm run qa` (it starts the local preview itself; set `executable_path` in `tools/preview/qa.py` if Chrome lives elsewhere). Expect 14/14.
+> 3. **[Harsh]** `npm run login` and log in to Reddit's developer platform in the browser.
+> 4. **[Harsh]** Create r/IsleOfMaybe_dev (private) and r/IsleOfMaybe (public, keep it under 200 members). Tell the agent when done.
+> 5. `npm run dev` against r/IsleOfMaybe_dev. If the app name `isle-of-maybe` is taken, use `isle-of-maybe-game`: change `devvit.json` and `package.json` through an issue → PR. If `devvit.json` is rejected, fix only the reported keys (the file was validated against the 0.15 schema) through an issue → PR.
+> 6. In the dev sub, open the subreddit mod menu → **Isle of Maybe: Post today's island**. Open the post on my phone and on desktop and send me the link. **Gate 0: the splash shows today's island and Set sail opens the game.**
+> 7. Work through the "Needs a real device or Reddit" list in `docs/16-QA-REPORT.md` with me: feed scrolling over the splash, a full loop on phone, logged out in a private window, Share my chart (confirm sheet → comment under the sticky), Challenge a friend (link opens with that chart first), Review reported charts (report one chart from three accounts), Stats menu, and the Crew goal app setting. Check `npx devvit logs r/IsleOfMaybe_dev` for errors after each.
+> 8. For every problem: open a GitHub issue with steps, screenshot and log lines, label `bug`, then fix it through branch → PR (requirement IDs, how tested) → CI green → squash merge. Never leave a PR open.
+> 9. **[Harsh]** Upload `docs/assets/icon-1024.png`, `featuring-1920x1080.png` and `tile-1080x1080.png` and the listing text from `docs/assets/README.md` in the app's catalog settings. Review the glyph sheet (#28) and the Atlas (`npm run atlas`, #13).
+> 10. Stop and report: what passed, what's broken (issue links), and anything that needs my decision.
+> Rules: no Dependabot, every change through issue → PR → squash merge, don't upload to r/IsleOfMaybe after the freeze (Tue 8 Dec 22:00 IST) unless I say so, and never run `npm run dev` against the public sub after 5 Dec.
