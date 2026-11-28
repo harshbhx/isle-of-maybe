@@ -15,7 +15,8 @@
     "test:types": "tsc --build",
     "test:unit": "node --experimental-strip-types --no-warnings=ExperimentalWarning --test \"src/**/*.test.ts\"",
     "preview:local": "node --experimental-strip-types --no-warnings=ExperimentalWarning tools/preview/server.ts",
-    "atlas": "node --experimental-strip-types --no-warnings=ExperimentalWarning tools/atlas/atlas.ts"
+    "atlas": "node --experimental-strip-types --no-warnings=ExperimentalWarning tools/atlas/atlas.ts",
+    "qa": "python3 tools/preview/qa.py"
   },
   "engines": {
     "node": ">=24.0.0"
