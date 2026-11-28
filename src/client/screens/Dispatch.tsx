@@ -32,12 +32,14 @@ const Item = ({ c }: { c: DispatchChart }) => {
         </p>
         <p className="inline-flex items-center gap-3 text-sm">
           <span
+            role="img"
             className="inline-flex items-center gap-1"
             aria-label={`${c.trueVotes} ${copy.reveal.true}`}
           >
             <Glyph glyph={COMPASS_GLYPH} size={16} /> {c.trueVotes}
           </span>
           <span
+            role="img"
             className="inline-flex items-center gap-1 text-seal"
             aria-label={`${c.cursedVotes} ${copy.reveal.cursed}`}
           >
