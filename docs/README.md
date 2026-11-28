@@ -39,6 +39,9 @@
 | `docs/12-PROMPTS.md` | Copy-paste prompts per phase + emergencies |
 | `docs/13-PLAYTEST.md` | Two-subreddit setup, tester recruiting, invite + reminder messages |
 | `docs/14-INSPIRATION.md` | Past winners and the Featuring guide reviewed; 7 ideas we adopted |
+| `docs/15-COMPONENTS.md` | Component kit and the wireframe → file map |
+| `docs/16-QA-REPORT.md` | Automated QA run (`npm run qa`) and the break-test map |
+| `docs/assets/`, `docs/img/` | Catalog art, listing text, screenshots, glyph sheet |
 | `tools/create-issues.sh` | Labels, milestones and 64 GitHub issues from the tasks (`DRY_RUN=1` to preview; skips existing) |
 
 ## Honesty notes
@@ -46,5 +49,3 @@
 - The game is only as alive as its players. Seeding the demo sub with real testers is a P0 task, not marketing.
 - Art decides a lot of Delightful UX and Polish. Ten good glyphs matter more than ten features.
 - Platform facts were checked against Reddit's docs repo on 28 Nov 2026. Re-check `devvit.json` keys against the live schema when scaffolding.
-| [16-QA-REPORT.md](16-QA-REPORT.md) | Automated QA matrix + break-test map; re-run with `npm run qa` |
-| [15-COMPONENTS.md](15-COMPONENTS.md) | Component kit and wireframe → file map |

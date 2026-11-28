@@ -7,7 +7,7 @@
 - [x] T05 Specs, docs and agent rules in the repo — SHIP-1.1
 - [x] T66 Stats menu for daily players, find rate and return rate — SHIP-3.1
 - [ ] T67 In-app catalog assets and presentation exports — SHIP-5.1, SHIP-5.2
-- [ ] T70 App README final pass — SHIP-1.1
+- [x] T70 App README final pass — SHIP-1.1
 - [ ] T71 Recruit testers and run the daily reminder — SHIP-2.2, SHIP-2.3
 - [ ] T72 QA matrix, break tests and two judge simulations — SHIP-4.1, SHIP-4.2
 - [ ] T73 Final upload, demo post live, member count under 200 — SHIP-1.3

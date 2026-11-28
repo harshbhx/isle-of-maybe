@@ -31,9 +31,11 @@ Treasure maps are the oldest user-generated content: one person draws, another t
 - An instant Ink check grades your map. Tomorrow's Dispatch tells you how many sailors found your chest.
 - Chests far from landmarks pay more, to you and to whoever finds them, so the best players hide boldly and chart carefully.
 - Good maps rise (players rate them True or Cursed) and their makers earn Cartographer tiers. You can share your chart as a comment and challenge friends with a link.
+- Each weekday has a twist (Twins, Low tide, Thick jungle, Sea fog, Lantern night). A daily **crew goal** turns tomorrow into Lantern night when the community finds enough chests, and the top reply under the day's sticky **names tomorrow's island**.
+- A 45-second Practice Cove teaches the hunt on a perfect map; the Hall of Charts keeps the best maps of past days.
 
 **How we built it**
-Devvit Web: React client, Canvas 2D island, SVG chart editor; Hono server; Redis for everything; the scheduler posts a new island at 00:00 UTC with a sticky comment for chart shares. The island is generated from a daily seed by shared TypeScript that runs on both client and server, so the server re-checks every step and dig: the chest's location never reaches your device until the hunt ends. Charts are structured data, not freehand images, which keeps them safe to show to strangers and lets the game grade them.
+Devvit Web: React client, Canvas 2D island, SVG chart editor; Hono server; Redis for everything; the scheduler posts a new island at 00:00 UTC with a sticky comment for chart shares. The island is generated from a daily seed by shared TypeScript that runs on both client and server, so the server re-checks every step and dig: the chest's location never reaches your device until the hunt ends. Charts are structured data, not freehand images, which keeps them safe to show to strangers and lets the game grade them. Even the share image is drawn on the server (a small PNG encoder in plain TypeScript), so nobody can post an arbitrary picture through the app. We red-teamed our own server with break tests (parallel requests, crafted steps, scraping) and fixed five bugs before launch; an automated QA run and an accessibility scan (0 violations, fully keyboard-playable) gate every upload.
 
 **Challenges**
 Making a two-part loop easy: we made you *use* a stranger's map before you draw one, so you learn by doing. Making it fair: bury-where-you've-been, depth multipliers and the Ink check. Making it work with few players: Old Captain charts and a "fresh chart" slot that gives every new map exposure.
@@ -45,7 +47,7 @@ Making a two-part loop easy: we made you *use* a stranger's map before you draw 
 (fill)
 
 **What's next**
-Seasonal islands, storm days that move landmarks, community-voted island names, and letting subreddits run their own archipelago.
+Storm days that move a landmark at noon (so morning maps go wrong), seasonal islands, and letting subreddits run their own archipelago.
 
 **Built with:** devvit, devvit-web, react, typescript, hono, redis, canvas, svg, vite, tailwindcss
 
