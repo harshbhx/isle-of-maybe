@@ -270,9 +270,28 @@ with sync_playwright() as pw:
             nogl.close()
             return (not loaded) and walked and not errs, f"no WebGL: three.js not loaded {not loaded}; walking works {walked}; console {errs[:2]}"
         check("J9", "Without WebGL the 2D island takes over", j9)
+
+        # ADV-7.1: on a slow GPU (headless software WebGL) the world steps itself down.
+        def j10():
+            pg = page(); errs = []
+            pg.on("pageerror", lambda e: errs.append(str(e)))
+            pg.goto(BASE + "/game.html"); pg.wait_for_timeout(900)
+            for n in ["Skip", "Today’s island →"]:
+                if pg.get_by_role("button", name=n).count(): pg.get_by_role("button", name=n).first.click(); pg.wait_for_timeout(700)
+            pg.get_by_role("button", name="Follow this chart").first.click(); pg.wait_for_timeout(9000)
+            lv = pg.evaluate("document.querySelector('canvas[data-quality]')?.dataset.quality ?? '-1'")
+            pg.close()
+            return int(lv) >= 1 and not errs, f"quality level after 9 s on software WebGL: {lv}; errors {errs[:1]}"
+        check("J10", "Slow GPUs step the world down (adaptive quality)", j10)
     finally:
         srv.terminate(); srv.wait()
     browser.close()
+
+# ADV-7.2: the game entry's JavaScript stays within 450 KB gzip.
+import gzip as _gz
+_js = sorted(glob.glob("dist/client/*.js"))
+_total = sum(len(_gz.compress(open(f, "rb").read(), 9)) for f in _js)
+check("B1", "Game JavaScript within 450 KB gzip", lambda: (_total <= 450 * 1024, f"{_total // 1024} KB gzip across {len(_js)} files"))
 
 manual = [
     ("S2.1", "Feed scrolls over the splash with wheel, trackpad and touch (Reddit app, phone + desktop)"),
