@@ -17,6 +17,7 @@ import {
   type Screen,
 } from './app-context.ts';
 import { Banner, ErrorState, Loading, TopBar } from './components/ui.tsx';
+import { SoundToggle } from './components/SoundToggle.tsx';
 import { copy, fmt } from './copy.ts';
 import { ApiFailure, get } from './lib/api.ts';
 import { flag } from './lib/hints.ts';
@@ -222,6 +223,7 @@ export const App = () => {
           })}
           streak={init.user.streak}
           gold={init.user.gold}
+          right={<SoundToggle />}
         />
         {!init.isToday && init.todayPost !== null && (
           <div className="px-3 pb-2">
