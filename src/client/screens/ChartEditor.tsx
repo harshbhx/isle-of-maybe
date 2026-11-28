@@ -1,5 +1,6 @@
 // W7 · Chart editor (CHART-2): the island disappears; only the coastline and dock are printed.
 // Stamps from the fixed set, one snapped path, one X. Touch, mouse and keyboard (CHART-2.4).
+// First time: a 4-step coach strip; on touch, labelled stamps, a loupe and a tap of vibration (ADV-9).
 import { useReducer, useRef, useState, type PointerEvent } from 'react';
 import type { ChartSubmitResponse } from '../../shared/api.ts';
 import { MAX_SEGMENTS, MAX_STAMPS } from '../../shared/chart.ts';
@@ -13,16 +14,19 @@ import {
 import { useApp } from '../app-context.ts';
 import { ChartView } from '../components/ChartView.tsx';
 import { Glyph } from '../components/Glyph.tsx';
-import { Hint } from '../components/Hint.tsx';
 import { Banner, Button, Sheet, Title } from '../components/ui.tsx';
 import { copy, fmt } from '../copy.ts';
 import { useKeys } from '../island/input.ts';
+import { useHint } from '../lib/hints.ts';
 import { NOTE_IDS, type NoteId } from '../../shared/notes.ts';
 import { ApiFailure, post } from '../lib/api.ts';
 import * as ed from '../lib/editor.ts';
 import { px } from '../lib/geom.ts';
 import { play } from '../lib/sound.ts';
 import { InkCheck } from './InkCheck.tsx';
+
+/** How much the touch loupe magnifies the chart under the finger (ADV-9.4). */
+const LOUPE_ZOOM = 2.4;
 
 type Action =
   | { k: 'place'; tool: ed.Tool; at: Tile }
@@ -73,6 +77,30 @@ export const ChartEditor = ({ at, depth }: { at: Tile; depth: Depth }) => {
   const svg = useRef<SVGSVGElement | null>(null);
   const drag = useRef<{ moved: boolean } | null>(null);
   const c = ed.counts(s.pieces);
+  // Touch helpers (ADV-9.4): a loupe above the finger, and a light buzz on each snap.
+  const touch = useRef(false);
+  const [loupe, setLoupe] = useState<{
+    x: number;
+    y: number;
+    u: number;
+    v: number;
+    w: number;
+  } | null>(null);
+  const coachHint = useHint('chart');
+  const buzz = (): void => {
+    if (touch.current) navigator.vibrate?.(8);
+  };
+  const lens = (e: PointerEvent<SVGSVGElement>): void => {
+    if (e.pointerType !== 'touch') return;
+    const r = e.currentTarget.getBoundingClientRect();
+    setLoupe({
+      x: e.clientX - r.left,
+      y: e.clientY - r.top,
+      u: (e.clientX - r.left) / r.width,
+      v: (e.clientY - r.top) / r.height,
+      w: r.width,
+    });
+  };
 
   const toTile = (e: PointerEvent<SVGSVGElement>): Tile => {
     const r = e.currentTarget.getBoundingClientRect();
@@ -88,6 +116,8 @@ export const ChartEditor = ({ at, depth }: { at: Tile; depth: Depth }) => {
     };
   };
   const onDown = (e: PointerEvent<SVGSVGElement>): void => {
+    touch.current = e.pointerType === 'touch';
+    lens(e);
     const t = toTile(e);
     const hitSel = ed.hit(s.pieces, t);
     if (hitSel !== null) {
@@ -98,17 +128,21 @@ export const ChartEditor = ({ at, depth }: { at: Tile; depth: Depth }) => {
     }
     dispatch({ k: 'place', tool, at: t });
     play('quill');
+    buzz();
   };
   const onMove = (e: PointerEvent<SVGSVGElement>): void => {
+    if (e.buttons !== 0 || e.pointerType === 'touch') lens(e);
     if (drag.current === null) return;
     const t = toTile(e);
     const cur = selTile(s);
     if (cur !== null && cur.x === t.x && cur.y === t.y) return;
     dispatch({ k: 'move', to: t, record: !drag.current.moved });
     drag.current.moved = true;
+    buzz();
   };
   const onUp = (): void => {
     drag.current = null;
+    setLoupe(null);
   };
 
   const submit = async (): Promise<void> => {
@@ -171,6 +205,9 @@ export const ChartEditor = ({ at, depth }: { at: Tile; depth: Depth }) => {
 
   const sel = selTile(s);
   const stampFull = c.stamps >= MAX_STAMPS;
+  // The coach moves on as each part of the chart exists (ADV-9.3).
+  const coachStep = c.stamps === 0 ? 0 : c.steps === 0 ? 1 : !c.hasX ? 2 : 3;
+  const coachOn = coachHint.show;
   return (
     <div className="mx-auto flex w-full max-w-[560px] flex-col gap-2 p-3 anim-fade">
       <div className="flex items-center gap-2">
@@ -194,8 +231,33 @@ export const ChartEditor = ({ at, depth }: { at: Tile; depth: Depth }) => {
           </Button>
         </div>
       </div>
-      <Hint k="chart" />
-      <div className="parchment p-1.5">
+      {coachHint.show && (
+        <ol
+          className="parchment anim-rise grid grid-cols-4 gap-1 rounded-[8px] p-1.5 text-center text-[12px] leading-tight text-ink"
+          aria-label={copy.chart.coachTitle}
+        >
+          {copy.chart.coach.map((line, i) => (
+            <li
+              key={line}
+              aria-current={i === coachStep ? 'step' : undefined}
+              className={`rounded-[6px] px-1 py-1.5 ${i < coachStep ? 'bg-palm/15 text-ink-soft line-through' : i === coachStep ? 'bg-mango/45 font-semibold' : ''}`}
+            >
+              <span className="block font-display text-[15px]">{i + 1}</span>
+              {line}
+            </li>
+          ))}
+          <li className="col-span-4">
+            <button
+              type="button"
+              onClick={coachHint.done}
+              className="min-h-8 text-ink-soft underline"
+            >
+              {copy.chart.coachDone}
+            </button>
+          </li>
+        </ol>
+      )}
+      <div className="parchment relative p-1.5">
         <ChartView
           island={island}
           pieces={s.pieces}
@@ -222,6 +284,30 @@ export const ChartEditor = ({ at, depth }: { at: Tile; depth: Depth }) => {
             />
           )}
         </ChartView>
+        {loupe !== null && (
+          <div
+            aria-hidden
+            className="pointer-events-none absolute z-10 h-28 w-28 overflow-hidden rounded-full border-4 border-ink/70 bg-paper shadow-[0_6px_0_rgba(43,29,18,0.3)]"
+            style={{ left: loupe.x - 56, top: Math.max(-40, loupe.y - 150) }}
+          >
+            <div
+              className="absolute"
+              style={{
+                width: loupe.w * LOUPE_ZOOM,
+                left: 56 - loupe.u * loupe.w * LOUPE_ZOOM,
+                top: 56 - loupe.v * loupe.w * LOUPE_ZOOM,
+              }}
+            >
+              <ChartView
+                island={island}
+                pieces={s.pieces}
+                depth={depth}
+                label=""
+              />
+            </div>
+            <span className="absolute left-1/2 top-1/2 h-3 w-3 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-hibiscus" />
+          </div>
+        )}
       </div>
       <p
         className="tabular text-center text-sm text-seafoam"
@@ -232,7 +318,7 @@ export const ChartEditor = ({ at, depth }: { at: Tile; depth: Depth }) => {
       <div
         role="toolbar"
         aria-label={copy.chart.stamps}
-        className="grid grid-cols-5 gap-1.5 sm:grid-cols-10"
+        className={`grid grid-cols-5 gap-1.5 sm:grid-cols-10 ${coachOn && coachStep === 0 ? 'coach-target' : ''}`}
       >
         {LANDMARK_TYPES.map((t: LandmarkType) => (
           <button
@@ -242,16 +328,19 @@ export const ChartEditor = ({ at, depth }: { at: Tile; depth: Depth }) => {
             aria-pressed={tool.k === 'stamp' && tool.t === t}
             disabled={stampFull}
             onClick={() => setTool({ k: 'stamp', t })}
-            className={`parchment flex h-12 items-center justify-center disabled:opacity-40 ${tool.k === 'stamp' && tool.t === t ? 'outline outline-3 outline-mango' : ''}`}
+            className={`parchment flex min-h-16 flex-col items-center justify-center gap-0.5 px-0.5 py-1 disabled:opacity-40 ${tool.k === 'stamp' && tool.t === t ? 'outline outline-3 outline-mango' : ''}`}
           >
-            <Glyph glyph={LANDMARK_GLYPHS[t]} size={28} color="#2B1D12" />
+            <Glyph glyph={LANDMARK_GLYPHS[t]} size={26} color="#2B1D12" />
+            <span className="text-[11px] leading-none text-ink-soft">
+              {copy.landmark[t]}
+            </span>
           </button>
         ))}
       </div>
       <div className="flex items-center gap-2">
         <Button
           kind="ink"
-          className="border-seafoam/50 text-foam"
+          className={`border-seafoam/50 text-foam ${coachOn && coachStep === 1 ? 'coach-target' : ''}`}
           pressed={tool.k === 'path'}
           onClick={() => setTool({ k: 'path' })}
           disabled={c.steps >= MAX_SEGMENTS && tool.k !== 'path'}
@@ -269,7 +358,7 @@ export const ChartEditor = ({ at, depth }: { at: Tile; depth: Depth }) => {
         </Button>
         <Button
           kind="ink"
-          className="border-seafoam/50 text-foam"
+          className={`border-seafoam/50 text-foam ${coachOn && coachStep === 2 ? 'coach-target' : ''}`}
           pressed={tool.k === 'x'}
           onClick={() => setTool({ k: 'x' })}
         >
@@ -319,7 +408,7 @@ export const ChartEditor = ({ at, depth }: { at: Tile; depth: Depth }) => {
       </Sheet>
       <Button
         kind="gold"
-        className="w-full"
+        className={`w-full ${coachOn && coachStep === 3 ? 'coach-target' : ''}`}
         disabled={!c.hasX || busy}
         onClick={() => void submit()}
       >
