@@ -12,4 +12,4 @@
 - [x] T64 Entry points, expanded mode and direct launch — UI-1.1, UI-1.2, UI-1.3
 - [x] T65 Accessibility and console-clean audit — UI-6.1, UI-6.2, UI-8.3
 - [x] T81 Hunt: one hint at a time, camera pans past the island's edge — UI-3.3, UI-4.4
-- [ ] T82 Hunt on wide screens: chart beside the island — UI-3.4
+- [x] T82 Hunt on wide screens: chart beside the island — UI-3.4

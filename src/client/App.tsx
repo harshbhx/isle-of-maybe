@@ -215,7 +215,14 @@ export const App = () => {
 
   return (
     <AppContext.Provider value={value}>
-      <div className="mx-auto flex h-full max-w-[720px] flex-col">
+      <div
+        className={`mx-auto flex h-full flex-col ${
+          // The hunt widens on big screens to fit the chart beside the island (UI-3.4).
+          screen.k === 'hunt'
+            ? 'max-w-[720px] lg:max-w-[1180px]'
+            : 'max-w-[720px]'
+        }`}
+      >
         <TopBar
           dayLabel={fmt(copy.splash.day, {
             n: init.dayNumber,
