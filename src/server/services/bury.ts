@@ -38,7 +38,7 @@ export const seenFor = async (
   return { mask: await readSeenHex(kv, actor.id, day) };
 };
 
-/** Bury on a seen, walkable tile that isn't the dock or a landmark; once a day (CHART-1.4, CHART-1.5). */
+/** Bury on a seen, walkable tile that isn't the dock or a landmark, after a finished hunt; once a day (CHART-1.4, CHART-1.5, CHART-1.7). */
 export const buryChest = async (
   kv: Kv,
   actor: Actor,
@@ -60,6 +60,9 @@ export const buryChest = async (
     throw new ApiError('bad_request', 'you have not explored that tile');
   }
   const udKey = K.userDay(actor.id, day);
+  if ((await kv.hGet(udKey, 'finished')) === undefined) {
+    throw new ApiError('conflict', 'finish a hunt before you bury');
+  }
   if (!(await hSetOnce(kv, udKey, 'buried', '1', TTL.userDay))) {
     throw new ApiError('conflict', 'you already buried today');
   }

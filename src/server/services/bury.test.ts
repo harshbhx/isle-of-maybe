@@ -32,6 +32,7 @@ const setup = async (): Promise<{ kv: FakeKv; spot: Tile; unseen: Tile }> => {
   const unseen = tiles[tiles.length - 1];
   assert.ok(spot !== undefined && unseen !== undefined);
   await addSeen(kv, alice.id, DAY, [idx(spot.x, spot.y)]);
+  await kv.hSet(K.userDay(alice.id, DAY), { finished: '1' });
   return { kv, spot, unseen };
 };
 
