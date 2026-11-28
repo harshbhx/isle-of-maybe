@@ -6,7 +6,7 @@ A daily treasure-map game that runs inside Reddit posts. Every day there's a new
 
 <p>
   <img src="docs/img/screens/04-pick.png" width="190" alt="Pick a chart drawn by a stranger">
-  <img src="docs/img/screens/05-hunt.png" width="190" alt="Walk the 3D island as the cloud lifts, and dig">
+  <img src="docs/img/screens/05-hunt.png" width="190" alt="Walk the 3D island as the explorer, before the tide comes in, and dig">
   <img src="docs/img/screens/06-reveal.png" width="190" alt="See the chart's X against the real chest">
   <img src="docs/img/screens/08-chart.png" width="190" alt="Draw your own chart from memory">
 </p>
@@ -14,13 +14,16 @@ A daily treasure-map game that runs inside Reddit posts. Every day there's a new
 > Built for Reddit's Game of the Day Hackathon (Nov–Dec 2026) on Reddit's Developer Platform (Devvit Web).
 
 ## How to play
-1. Tap **Set sail** on today's island post. First time? A 45-second **Practice Cove** shows you how (you can skip it).
+1. Tap **Set sail** on today's island post. First time? **Practice Cove** coaches you in five quick steps (you can skip it).
 2. Pick a chart: **Trusted** (rated well by other sailors), **Fresh** (nobody has tried it yet), or the **Old Captain's**.
-3. Tap the island to walk: the first tap shows your route, the second walks it. The low cloud lifts where you walk. Open the chart any time. You have **3 shovels**: dig where you think the X means.
-4. See where the chest really was against the map's X, then rate the chart **True map** or **Cursed map**.
-5. **Bury your chest** on a spot you've walked near. Far from landmarks is **Deep**, which pays three times as much to you and to whoever finds it.
-6. **Draw your chart from memory**: up to 6 landmark stamps, a dotted path of up to 8 steps, one X, and if you like, one margin note from a fixed list ("Count your steps.").
-7. Get your **Ink check** right away. Tomorrow your **Dispatch** tells you how many sailors tried your chart, how many found your chest, and the salvage gold you earned.
+3. You're the explorer. **Walk and run**: on a phone, put your thumb anywhere on the left and drag (push far to run); on a computer, WASD or the arrows, Shift to run, or click where you want to go. The mist lifts where you walk. Open the chart any time (M).
+4. **Beat the tide**: you have 150 seconds before the sea floods the low beach in three waves. Watch for quicksand (it traps you for a moment) and thicket (it slows you down); cliffs and jungle block the way. You have **3 shovels**: dig (Space) where you think the X means.
+5. See the chest burst open (or where it really was), engraved with who buried it, against the map's X, then rate the chart **True map** or **Cursed map**.
+6. **Bury your chest** on a spot you've walked near. Far from landmarks is **Deep**, which pays three times as much to you and to whoever finds it.
+7. **Draw your chart from memory**: up to 6 landmark stamps, a dotted path of up to 8 steps, one X, and if you like, one margin note from a fixed list ("Count your steps.").
+8. Get your **Ink check** right away. Tomorrow your **Dispatch** tells you how many sailors tried your chart, how many found your chest, and the salvage gold you earned.
+
+**On Reddit, together:** your hat shows your flair rank, the dock sign names whoever named the island, today's footsteps wear paths into the grass (shown once three or more hunts cross a spot), and other redditors hunting right now walk past as lantern-lit ghosts (you can hide them).
 
 You can hunt up to 3 charts a day and bury one chest. Streaks, gold boards, the **Hall of Charts** and Cartographer tiers (Deckhand to Legend of the Isles) reward coming back and drawing honest maps.
 

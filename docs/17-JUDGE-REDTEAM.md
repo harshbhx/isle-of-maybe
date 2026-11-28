@@ -102,3 +102,15 @@ New risks and how they're covered:
 | #153 | The 3D island with the 2D fallback; QA J7, J9 |
 | T87 | Devpost GIFs and slides in 3D, refreshed screenshots, this scorecard, laptop prompt and the Chrome runbook |
 
+## Pass 3: after the adventure rebuild (28 Nov, evening)
+Harsh played pass 2 and found it "too simple, robotic". The rebuild answers him directly: free movement as an explorer, a rising tide, hazards, a cinematic find, Reddit-only layers, and coached onboarding.
+
+| Criterion | Pass 2 | Pass 3 | Why |
+|---|---|---|---|
+| Delightful UX | 9 | 9.5 | Moving feels like a game (floating stick, run, follow camera); the find is a real moment; Practice Cove coaches by doing; the chart editor coaches the first map and has a loupe on phones |
+| Polish | 8.5 | 9 | Sculpted world, wave-shader sea, new type, key art on the splash, adaptive quality; still to prove on real phones (J8) |
+| Reddity | 8 | 9 | Flair hats, the named-by dock sign, crowd-worn paths and live ghosts make the island visibly the subreddit's |
+| Daily Content | 8.5 | 9 | Every day's island now also carries the crowd's trails, and the tide puts real tension into a 2-minute daily session |
+
+Remaining risks: frame rate on low-end phones in the Reddit app (mitigated by adaptive quality, which must be checked on a real phone); realtime ghosts need a live check; worn paths only appear once 3+ hunts cross a tile, so testers matter during judging (J6).
+
