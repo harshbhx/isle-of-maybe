@@ -13,7 +13,7 @@ Scope: the 28 Nov rebuild Harsh asked for after playing the game. "Too simple, r
 
 ## ADV-2 Hazards and pace (engine + server)
 - **ADV-2.1** THE engine SHALL pick quicksand tiles from the day's seed: 3–5 patches of 2–4 sand or grass tiles, never on or next to the dock, never on a landmark. They are deterministic for a seed and never cut the island apart. Quicksand stays walkable.
-- **ADV-2.2** THE engine SHALL give every step a minimum time: 0.2 s onto open ground (the run speed), 0.4 s onto jungle (relief `jungle`), and 0.2 s + 2.5 s onto quicksand.
+- **ADV-2.2** THE engine SHALL give every step a minimum time: 0.2 s onto open ground (the run speed), 0.4 s onto thicket, and 0.2 s + 2.5 s onto quicksand. A thicket is a walkable grass tile with 2 or more jungle tiles (relief `jungle`) among its 8 neighbours. Jungle tiles themselves stay impassable.
 - **ADV-2.3** IF a batch of steps needs more minimum time since the hunt started than the server clock allows (plus 1.5 s of slack), THEN THE server SHALL reject it as too fast.
 - **ADV-2.4** THE engine SHALL keep rock tiles impassable (cliffs), as today.
 
