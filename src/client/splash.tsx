@@ -1,16 +1,18 @@
-// W1 · Inline splash (DAY-3, UI-1.2): day, island, modifier, live counts, streak and one Set sail
-// button. No canvas, no gesture capture, nothing scrolls; the game opens in expanded mode.
+// W1 · Inline splash (DAY-3, UI-1.2): what the game is, today's coastline, live counts, streak and one
+// Set sail button. No canvas, no gesture capture, nothing scrolls; the game opens in expanded mode.
 import './index.css';
 
 import { StrictMode, useEffect, useMemo, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import type { InitResponse } from '../shared/api.ts';
-import { IMPLEMENTED_MODIFIERS } from '../shared/day.ts';
+import { dayLabel, IMPLEMENTED_MODIFIERS } from '../shared/day.ts';
+import { LANDMARK_GLYPHS, X_GLYPH } from '../shared/glyphs.ts';
 import { generateIsland } from '../shared/island.ts';
 import { liveChannel } from '../shared/live.ts';
 import { ChartView } from './components/ChartView.tsx';
 import { CrewGoal } from './components/CrewGoal.tsx';
-import { CoinIcon, FlameIcon } from './components/ui.tsx';
+import { Glyph } from './components/Glyph.tsx';
+import { CoinIcon, FlameIcon, ShovelIcon } from './components/ui.tsx';
 import { copy, fmt } from './copy.ts';
 import { get } from './lib/api.ts';
 import { go, listen, openGame } from './lib/platform.ts';
@@ -52,24 +54,27 @@ export const Splash = () => {
         : generateIsland(seed, modifier),
     [seed, modifier]
   );
+  const date = day === undefined ? '' : dayLabel(day);
   return (
-    <main className="flex h-full flex-col justify-between gap-2 overflow-hidden bg-night px-4 py-3 text-on-night">
+    <main className="flex h-full flex-col gap-2 overflow-hidden bg-night px-4 py-3 text-on-night">
       <header className="flex items-start gap-2">
         <div className="min-w-0">
           <h1 className="font-display text-[26px] leading-none">
             {copy.splash.title}
           </h1>
           {init !== null && (
-            <p className="font-display mt-1 truncate text-[20px] text-gold">
+            <p className="font-display mt-1 truncate text-[20px] leading-tight text-gold">
               {fmt(copy.splash.day, {
                 n: init.dayNumber,
                 island: init.island.name,
               })}
-              {init.island.namedBy !== null && (
-                <span className="block font-body text-xs text-muted-night">
-                  {fmt(copy.splash.namedBy, { name: init.island.namedBy })}
-                </span>
-              )}
+            </p>
+          )}
+          {init !== null && (
+            <p className="truncate text-xs text-muted-night">
+              {date}
+              {init.island.namedBy !== null &&
+                ` · ${fmt(copy.splash.namedBy, { name: init.island.namedBy })}`}
             </p>
           )}
         </div>
@@ -92,11 +97,21 @@ export const Splash = () => {
           </p>
         )}
       </header>
-      <div className="flex min-h-0 items-center gap-3">
-        <div className="flex min-h-0 min-w-0 flex-1 flex-col gap-1 text-sm">
-          {init === null ? (
-            <p className="text-muted-night">{copy.splash.tagline}</p>
-          ) : (
+      {/* What the game is, always (DAY-3.4): judges and new players read this before anything else. */}
+      <p className="text-[15px] leading-snug">{copy.splash.pitch}</p>
+      {/* A size container, so the hero can be square and as big as the space allows. */}
+      <div className="flex min-h-0 flex-1 items-stretch gap-3 [container-type:size]">
+        {island !== null && (
+          // Today's coastline as the hero: shape only, no landmarks, so it never helps a chart.
+          <div
+            className="parchment aspect-square w-[min(100cqh,48cqw,14rem)] shrink-0 self-center rotate-[-2deg] p-1"
+            aria-hidden
+          >
+            <ChartView island={island} pieces={[]} label="" />
+          </div>
+        )}
+        <div className="flex min-h-0 min-w-0 flex-1 flex-col justify-center-safe gap-1 overflow-hidden text-sm">
+          {init !== null && (
             <>
               {IMPLEMENTED_MODIFIERS.has(init.island.modifier) && (
                 <p className="text-muted-night">
@@ -119,7 +134,8 @@ export const Splash = () => {
                 />
               )}
               {mine !== undefined && (
-                <p className="tabular">
+                // Below the smallest post height, drop this line rather than clip it.
+                <p className="tabular [@media(max-height:319px)]:hidden">
                   {fmt(copy.splash.yourChart, {
                     n: mine.dayNumber,
                     finds: mine.finds,
@@ -146,18 +162,32 @@ export const Splash = () => {
             </>
           )}
         </div>
-        {island !== null && (
-          <div
-            className="parchment w-24 shrink-0 rotate-[-3deg] p-1 sm:w-32"
-            aria-hidden
-          >
-            <ChartView island={island} pieces={[]} label="" />
-          </div>
-        )}
       </div>
+      {/* The loop in three steps, only when the post is tall enough to keep it calm (DAY-3.5). */}
+      <ol className="hidden items-center justify-between gap-1 text-xs text-muted-night [@media(min-height:440px)]:flex">
+        {copy.splash.how.map((step, i) => (
+          <li key={step} className="flex min-w-0 items-center gap-1.5">
+            {i > 0 && (
+              <span aria-hidden className="text-gold">
+                ›
+              </span>
+            )}
+            <span aria-hidden className="shrink-0 text-gold">
+              {i === 0 ? (
+                <Glyph glyph={LANDMARK_GLYPHS.palm} size={18} />
+              ) : i === 1 ? (
+                <ShovelIcon />
+              ) : (
+                <Glyph glyph={X_GLYPH} size={18} />
+              )}
+            </span>
+            <span className="min-w-0">{step}</span>
+          </li>
+        ))}
+      </ol>
       <button
         type="button"
-        className="min-h-12 w-full rounded-[6px] bg-gold font-bold text-night shadow-[0_3px_0_#a37a22] active:translate-y-[2px]"
+        className="min-h-12 w-full shrink-0 rounded-[6px] bg-gold font-bold text-night shadow-[0_3px_0_#a37a22] active:translate-y-[2px]"
         onClick={(e) => openGame(e.nativeEvent)}
       >
         {copy.splash.cta}

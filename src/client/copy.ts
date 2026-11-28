@@ -12,6 +12,12 @@ export const copy = {
   splash: {
     title: 'Isle of Maybe',
     tagline: 'Bury it. Chart it. Trust a stranger’s map.',
+    pitch: 'Follow a stranger’s map to buried gold. Then bury yours.',
+    how: [
+      'Follow a stranger’s map',
+      'Dig for their chest',
+      'Bury yours, chart it',
+    ],
     day: 'Day {n} · {island}',
     counts: '{buried} chests buried · {found} found',
     yourChart: 'Your chart from Day {n}: {finds} found',
@@ -132,7 +138,8 @@ export const copy = {
     share: 'Share my chart',
     challenge: 'Challenge a friend',
     boards: 'Leaderboards',
-    join: 'Join the crew',
+    join: 'Join the crew →',
+    joinLine: 'A new island lands every day.',
     done: 'That’s today’s sailing. New island at {time} your time.',
     streak: 'Streak {n}',
     total: '{n} gold total',
