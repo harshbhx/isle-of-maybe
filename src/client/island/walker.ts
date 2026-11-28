@@ -13,7 +13,11 @@ export const useWalker = (start: Tile) => {
   const [pos, setPos] = useState<{ x: number; y: number }>(start);
   const [busy, setBusy] = useState(false);
   const raf = useRef(0);
+  const finish = useRef<(() => void) | null>(null);
   useEffect(() => () => cancelAnimationFrame(raf.current), []);
+
+  /** Skip the rest of the walking animation (HUNT-3.4). */
+  const skip = useCallback(() => finish.current?.(), []);
 
   const reset = useCallback((t: Tile) => {
     cancelAnimationFrame(raf.current);
@@ -40,6 +44,17 @@ export const useWalker = (start: Tile) => {
         }
         const t0 = performance.now();
         let done = 0;
+        finish.current = () => {
+          cancelAnimationFrame(raf.current);
+          for (; done < route.length; done++) {
+            const t = route[done];
+            if (t !== undefined) onStep(t);
+          }
+          finish.current = null;
+          setPos(route[route.length - 1] ?? from);
+          setBusy(false);
+          resolve();
+        };
         const tick = (now: number): void => {
           const k = ((now - t0) / 1000) * TILES_PER_SECOND;
           while (done < route.length && done + 1 <= k) {
@@ -48,6 +63,7 @@ export const useWalker = (start: Tile) => {
             done++;
           }
           if (done >= route.length) {
+            finish.current = null;
             const last = route[route.length - 1] ?? from;
             setPos(last);
             setBusy(false);
@@ -64,5 +80,5 @@ export const useWalker = (start: Tile) => {
     []
   );
 
-  return { pos, busy, walk, reset };
+  return { pos, busy, walk, reset, skip };
 };
