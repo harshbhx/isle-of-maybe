@@ -3,12 +3,11 @@
 // footprints, holes, route dots, reveal markers and low cloud over unseen land. Loaded lazily by
 // IslandCanvas, which falls back to the 2D renderer if anything here fails (UI-3.5).
 import {
+  ACESFilmicToneMapping,
   AmbientLight,
   BoxGeometry,
-  BufferAttribute,
   BufferGeometry,
   CircleGeometry,
-  Color,
   ConeGeometry,
   CylinderGeometry,
   DirectionalLight,
@@ -38,26 +37,22 @@ import {
   type Material,
 } from 'three';
 import type { LandmarkType } from '../../../shared/types.ts';
+import { H, W, type Island, type Tile } from '../../../shared/types.ts';
 import {
-  H,
-  W,
-  WATER,
-  idx,
-  type Island,
-  type Tile,
-} from '../../../shared/types.ts';
-import {
-  cloudAt,
-  cloudTiles,
   landmarkVisible,
   tileKind,
-  tileTop,
   tilesAcross,
   toTile,
   toWorld,
-  type TileKind,
 } from '../../../shared/relief.ts';
 import type { Scene } from '../draw.ts';
+import { createFlora, type Wind } from './world/flora.ts';
+import { SEA_LEVELS, buildHeights, type Heights } from './world/heights.ts';
+import { createBirds } from './world/life.ts';
+import { createMist, type Mist } from './world/mist.ts';
+import { createSea, type Sea } from './world/sea.ts';
+import { createSky, skyLook } from './world/sky.ts';
+import { buildTerrainGeometry } from './world/terrain.ts';
 
 export type Island3D = {
   update: (
@@ -66,7 +61,27 @@ export type Island3D = {
     focus: { x: number; y: number } | null
   ) => void;
   tileAt: (px: number, py: number) => Tile | null;
+  /** Sea level as a fractional tide level 0–3 (ADV-4.2). */
+  setTide: (level: number) => void;
   dispose: () => void;
+};
+
+export type Quality = 'high' | 'low';
+
+/** High on a desktop-class device, lighter on phones (ADV-4.3). */
+export const qualityTier = (): Quality => {
+  const fine = window.matchMedia?.('(pointer: fine)').matches ?? false;
+  const cores = navigator.hardwareConcurrency ?? 4;
+  return fine && cores >= 4 ? 'high' : 'low';
+};
+
+const seaLevelFor = (tide: number): number => {
+  const lo = Math.max(0, Math.min(3, Math.floor(tide)));
+  const hi = Math.min(3, lo + 1);
+  const f = Math.max(0, Math.min(1, tide - lo));
+  const a = SEA_LEVELS[lo] ?? 0.12;
+  const b = SEA_LEVELS[hi] ?? a;
+  return a + (b - a) * f;
 };
 
 // Tropical day (docs/03-DESIGN.md §3).
@@ -100,34 +115,11 @@ const COL = {
   sky: 0xfff3d6,
 };
 
-const STEPS: readonly (readonly [number, number])[] = [
-  [1, 0],
-  [-1, 0],
-  [0, 1],
-  [0, -1],
-];
 /** A footprint is two small prints, left and right. */
 const PRINTS: readonly (readonly [number, number])[] = [
   [-0.08, 0.04],
   [0.08, -0.04],
 ];
-
-const TOP_COLOUR: Record<TileKind, number> = {
-  water: COL.sea,
-  sand: COL.sand,
-  grass: COL.grass,
-  jungle: COL.grass2,
-  rock: COL.grass2,
-  pond: COL.pond,
-};
-const SIDE_COLOUR: Record<TileKind, number> = {
-  water: COL.sea,
-  sand: COL.sandSide,
-  grass: COL.grassSide,
-  jungle: COL.grassSide,
-  rock: COL.grassSide,
-  pond: COL.sandSide,
-};
 
 const lambert = (
   color: number,
@@ -145,150 +137,6 @@ const lambert = (
     opacity: extra.opacity ?? 1,
     flatShading: extra.flat ?? true,
   });
-
-/** One non-indexed geometry for every land tile: a top face and only the sides that show. */
-const buildTerrain = (island: Island): BufferGeometry => {
-  const pos: number[] = [];
-  const col: number[] = [];
-  const c = new Color();
-  const quad = (
-    a: number[],
-    b: number[],
-    cc: number[],
-    d: number[],
-    colour: number,
-    shade: number
-  ): void => {
-    c.setHex(colour).multiplyScalar(shade);
-    for (const v of [a, b, cc, a, cc, d]) {
-      pos.push(v[0] ?? 0, v[1] ?? 0, v[2] ?? 0);
-      col.push(c.r, c.g, c.b);
-    }
-  };
-  for (let y = 0; y < H; y++) {
-    for (let x = 0; x < W; x++) {
-      const k = tileKind(island, x, y);
-      if (k === 'water') continue;
-      const top = tileTop(island, x, y);
-      const { x: cx, z: cz } = toWorld({ x, y });
-      const x0 = cx - 0.5;
-      const x1 = cx + 0.5;
-      const z0 = cz - 0.5;
-      const z1 = cz + 0.5;
-      const grass2 = k === 'grass' && (x * 7 + y * 13) % 3 === 0;
-      quad(
-        [x0, top, z0],
-        [x0, top, z1],
-        [x1, top, z1],
-        [x1, top, z0],
-        grass2 ? COL.grass2 : TOP_COLOUR[k],
-        1
-      );
-      const side = SIDE_COLOUR[k];
-      const n = (dx: number, dy: number): number =>
-        x + dx < 0 || y + dy < 0 || x + dx >= W || y + dy >= H
-          ? -0.6
-          : tileKind(island, x + dx, y + dy) === 'water'
-            ? -0.6
-            : tileTop(island, x + dx, y + dy);
-      const s = n(0, 1);
-      if (s < top)
-        quad(
-          [x0, s, z1],
-          [x1, s, z1],
-          [x1, top, z1],
-          [x0, top, z1],
-          side,
-          0.95
-        );
-      const nn = n(0, -1);
-      if (nn < top)
-        quad(
-          [x1, nn, z0],
-          [x0, nn, z0],
-          [x0, top, z0],
-          [x1, top, z0],
-          side,
-          0.7
-        );
-      const e = n(1, 0);
-      if (e < top)
-        quad(
-          [x1, e, z1],
-          [x1, e, z0],
-          [x1, top, z0],
-          [x1, top, z1],
-          side,
-          0.82
-        );
-      const wv = n(-1, 0);
-      if (wv < top)
-        quad(
-          [x0, wv, z0],
-          [x0, wv, z1],
-          [x0, top, z1],
-          [x0, top, z0],
-          side,
-          0.78
-        );
-    }
-  }
-  const g = new BufferGeometry();
-  g.setAttribute('position', new BufferAttribute(new Float32Array(pos), 3));
-  g.setAttribute('color', new BufferAttribute(new Float32Array(col), 3));
-  g.computeVertexNormals();
-  return g;
-};
-
-/** The lagoon floor: shallow and light next to land, deep and dark further out. */
-const buildSeabed = (island: Island): BufferGeometry => {
-  const M = 20;
-  const N = W + 2 * M;
-  const dist = new Float32Array(N * N).fill(99);
-  const queue: number[] = [];
-  for (let y = 0; y < H; y++)
-    for (let x = 0; x < W; x++)
-      if (island.terrain[idx(x, y)] !== WATER) {
-        const i = (y + M) * N + (x + M);
-        dist[i] = 0;
-        queue.push(i);
-      }
-  for (let q = 0; q < queue.length; q++) {
-    const i = queue[q] ?? 0;
-    const d = dist[i] ?? 0;
-    const x = i % N;
-    const y = Math.floor(i / N);
-    for (const [dx, dy] of STEPS) {
-      const nx = x + dx;
-      const ny = y + dy;
-      if (nx < 0 || ny < 0 || nx >= N || ny >= N) continue;
-      const j = ny * N + nx;
-      if ((dist[j] ?? 0) > d + 1) {
-        dist[j] = d + 1;
-        queue.push(j);
-      }
-    }
-  }
-  const g = new PlaneGeometry(N, N, N - 1, N - 1);
-  g.rotateX(-Math.PI / 2);
-  const p = g.getAttribute('position');
-  const colours = new Float32Array(p.count * 3);
-  const shallow = new Color(COL.shallows);
-  const deep = new Color(COL.deep);
-  const c = new Color();
-  for (let v = 0; v < p.count; v++) {
-    const d = dist[v] ?? 99;
-    const t = Math.min(1, Math.max(0, (d - 1) / 6));
-    p.setY(v, -0.12 - t * 1.3);
-    c.copy(shallow).lerp(deep, t);
-    colours[v * 3] = c.r;
-    colours[v * 3 + 1] = c.g;
-    colours[v * 3 + 2] = c.b;
-  }
-  g.setAttribute('color', new BufferAttribute(colours, 3));
-  g.computeVertexNormals();
-  return g;
-};
 
 const palm = (scale = 1, lean = 0.12): Group => {
   const g = new Group();
@@ -624,12 +472,17 @@ export const createIsland3D = (
   canvas: HTMLCanvasElement,
   opts: { reducedMotion: boolean; onFail: () => void }
 ): Island3D => {
+  const quality = qualityTier();
   const renderer = new WebGLRenderer({
     canvas,
     antialias: true,
     powerPreference: 'high-performance',
   });
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.75));
+  renderer.setPixelRatio(
+    Math.min(window.devicePixelRatio || 1, quality === 'high' ? 2 : 1.5)
+  );
+  renderer.toneMapping = ACESFilmicToneMapping;
+  renderer.toneMappingExposure = 1.05;
   renderer.shadowMap.enabled = true;
   renderer.shadowMap.type = PCFShadowMap;
   canvas.addEventListener('webglcontextlost', (e) => {
@@ -638,35 +491,33 @@ export const createIsland3D = (
   });
 
   const scene = new ThreeScene();
-  scene.background = new Color(COL.deep);
-  scene.fog = new Fog(COL.deep, 34, 80);
-  const camera = new PerspectiveCamera(35, 1, 0.1, 220);
-  scene.add(new HemisphereLight(COL.sky, COL.sea, 1.6));
-  scene.add(new AmbientLight(0xffffff, 0.35));
+  const camera = new PerspectiveCamera(35, 1, 0.1, 700);
+  const hemi = new HemisphereLight(COL.sky, COL.sea, 1.15);
+  scene.add(hemi);
+  scene.add(new AmbientLight(0xffffff, 0.18));
   const sun = new DirectionalLight(0xfff1d0, 2.4);
   sun.position.set(-14, 26, 10);
   sun.castShadow = true;
-  sun.shadow.mapSize.set(1024, 1024);
+  const shadowSize = quality === 'high' ? 2048 : 1024;
+  sun.shadow.mapSize.set(shadowSize, shadowSize);
   sun.shadow.camera.left = -24;
   sun.shadow.camera.right = 24;
   sun.shadow.camera.top = 24;
   sun.shadow.camera.bottom = -24;
   sun.shadow.camera.near = 1;
   sun.shadow.camera.far = 70;
-  sun.shadow.bias = -0.0008;
+  sun.shadow.bias = -0.0006;
+  sun.shadow.normalBias = 0.02;
   scene.add(sun);
-
-  // The open sea: a faceted plane that swells slowly (held still under reduced motion).
-  const seaGeo = new PlaneGeometry(140, 140, 70, 70);
-  seaGeo.rotateX(-Math.PI / 2);
-  const seaBase = Float32Array.from(seaGeo.getAttribute('position').array);
-  const sea = new Mesh(
-    seaGeo,
-    lambert(COL.sea, { transparent: true, opacity: 0.7 })
-  );
-  sea.position.y = 0.04;
-  sea.receiveShadow = true;
-  scene.add(sea);
+  scene.add(sun.target);
+  const wind: Wind = { value: 0 };
+  let sea: Sea | null = null;
+  let tide = 0;
+  let sky: { group: Group; tick: (t: number) => void } | null = null;
+  let birds: { group: Group; tick: (t: number) => void } | null = null;
+  let heights: Heights | null = null;
+  const env = new Group();
+  scene.add(env);
 
   const world = new Group();
   scene.add(world);
@@ -713,8 +564,7 @@ export const createIsland3D = (
 
   let island: Island | null = null;
   let terrain: Mesh | null = null;
-  let clouds: InstancedMesh | null = null;
-  let cloudIdx: number[] = [];
+  let mist: Mist | null = null;
   let lastSeen: Uint8Array | null | undefined;
   let landmarks: { type: LandmarkType; at: Tile; obj: Group }[] = [];
   let markerKey = '';
@@ -726,155 +576,106 @@ export const createIsland3D = (
   scene.add(markerGroup);
 
   const m4 = new Matrix4();
-  const tmp = new Object3D();
   const target = new Vector3(0, 0, 0);
   let distance = 40;
   let wantTarget = new Vector3(0, 0, 0);
   let wantDistance = 40;
   let snapped = false;
   let current: Omit<Scene, 'now'> | null = null;
-  const topAt = (x: number, y: number): number =>
-    island === null
-      ? 0
-      : tileKind(island, x, y) === 'water'
-        ? 0.04
-        : tileTop(island, x, y);
+  const seaY = (): number => sea?.level() ?? SEA_LEVELS[0] ?? 0.12;
+  const topAt = (x: number, y: number): number => {
+    if (island === null || heights === null) return 0;
+    const w = toWorld({ x, y });
+    return Math.max(
+      heights.at(w.x, w.z),
+      tileKind(island, x, y) === 'water' ? seaY() : -9
+    );
+  };
 
   const build = (next: Island): void => {
     dispose(world);
     world.clear();
+    dispose(env);
+    env.clear();
     island = next;
+    const h = buildHeights(next);
+    heights = h;
+    // Sky, light and haze (Lantern night is a warm dusk).
+    const look = skyLook(next.modifier === 'lanterns');
+    scene.fog = new Fog(look.horizon, 55, 190);
+    scene.background = look.horizon;
+    hemi.color.copy(look.hemiSky);
+    hemi.groundColor.copy(look.hemiGround);
+    sun.color.copy(look.sun);
+    sun.intensity = look.sunPower;
+    sun.position.copy(look.sunDir).multiplyScalar(40);
+    sky = createSky(look, next.seed, quality === 'high' ? 7 : 3);
+    env.add(sky.group);
+    sea = createSea(h, {
+      size: 96,
+      segments: quality === 'high' ? 192 : 110,
+      calm: opts.reducedMotion,
+      sunDir: look.sunDir,
+    });
+    sea.setFog(look.horizon, 55, 190);
+    sea.setLevel(seaLevelFor(tide));
+    env.add(sea.mesh);
+    birds =
+      quality === 'high' || !opts.reducedMotion
+        ? createBirds(next.seed, quality === 'high' ? 9 : 5)
+        : null;
+    if (birds !== null && !opts.reducedMotion) env.add(birds.group);
+
     terrain = new Mesh(
-      buildTerrain(next),
-      new MeshLambertMaterial({ vertexColors: true, flatShading: true })
+      buildTerrainGeometry(next, h),
+      new MeshLambertMaterial({ vertexColors: true })
     );
     terrain.receiveShadow = true;
     terrain.castShadow = true;
     world.add(terrain);
-    const bed = new Mesh(
-      buildSeabed(next),
-      new MeshLambertMaterial({ vertexColors: true, flatShading: true })
-    );
-    bed.receiveShadow = true;
-    world.add(bed);
-    // Dock planks out into the water.
+    // Dock: a short jetty of planks on posts.
     const dw = toWorld(next.dock);
-    for (let i = 0; i < 3; i++) {
+    const deck = Math.max(h.at(dw.x, dw.z), 0.3) + 0.08;
+    for (let i = 0; i < 6; i++) {
       const plank = new Mesh(
-        new BoxGeometry(0.8, 0.06, 0.22),
-        lambert(COL.plank)
+        new BoxGeometry(0.9, 0.06, 0.2),
+        lambert(i % 2 === 0 ? COL.plank : 0x8a6a40)
       );
-      plank.position.set(dw.x, 0.18, dw.z + 0.2 + i * 0.3);
+      plank.position.set(dw.x, deck, dw.z + 0.1 + i * 0.24);
       plank.castShadow = true;
+      plank.receiveShadow = true;
       world.add(plank);
     }
-    // What blocks the way: jungle trees and boulders on raised mounds (instanced, one draw each).
-    const jungle: Tile[] = [];
-    const rocks: Tile[] = [];
-    for (let y = 0; y < H; y++)
-      for (let x = 0; x < W; x++) {
-        const k = tileKind(next, x, y);
-        if (k === 'jungle') jungle.push({ x, y });
-        else if (k === 'rock') rocks.push({ x, y });
+    for (const sx of [-0.4, 0.4])
+      for (const sz of [0.6, 1.3]) {
+        const post = new Mesh(
+          new CylinderGeometry(0.05, 0.06, 1.2, 6),
+          lambert(0x6a4a2c)
+        );
+        post.position.set(dw.x + sx, deck - 0.5, dw.z + sz);
+        world.add(post);
       }
-    const canopy = new InstancedMesh(
-      new IcosahedronGeometry(0.36, 0),
-      lambert(COL.jungle),
-      jungle.length * 2
-    );
-    const trunks = new InstancedMesh(
-      new CylinderGeometry(0.05, 0.07, 0.4, 5),
-      lambert(COL.wood),
-      jungle.length * 2
-    );
-    let ti = 0;
-    for (const t of jungle) {
-      const w = toWorld(t);
-      const top = tileTop(next, t.x, t.y);
-      for (let k = 0; k < 2; k++) {
-        const h = (t.x * 73 + t.y * 37 + k * 11) % 7;
-        const ox = (k === 0 ? -0.2 : 0.2) + (h - 3) * 0.02;
-        const oz = (k === 0 ? 0.15 : -0.15) + (3 - h) * 0.02;
-        const sc = 0.85 + (h % 3) * 0.15;
-        tmp.position.set(w.x + ox, top + 0.2 * sc, w.z + oz);
-        tmp.rotation.set(0, 0, 0);
-        tmp.scale.setScalar(sc);
-        tmp.updateMatrix();
-        trunks.setMatrixAt(ti, tmp.matrix);
-        tmp.position.y = top + 0.55 * sc;
-        tmp.rotation.set(h * 0.4, h, 0);
-        tmp.scale.set(sc, sc * 1.1, sc);
-        tmp.updateMatrix();
-        canopy.setMatrixAt(ti, tmp.matrix);
-        ti++;
-      }
-    }
-    canopy.castShadow = true;
-    trunks.castShadow = true;
-    const boulders = new InstancedMesh(
-      new IcosahedronGeometry(0.4, 0),
-      lambert(COL.rock),
-      rocks.length
-    );
-    rocks.forEach((t, i) => {
-      const w = toWorld(t);
-      const h = (t.x * 29 + t.y * 53) % 5;
-      tmp.position.set(
-        w.x + (h - 2) * 0.04,
-        tileTop(next, t.x, t.y) + 0.22,
-        w.z
-      );
-      tmp.rotation.set(h * 0.5, h * 1.3, 0);
-      tmp.scale.set(1 + h * 0.05, 0.75 + h * 0.06, 0.95);
-      tmp.updateMatrix();
-      boulders.setMatrixAt(i, tmp.matrix);
-    });
-    boulders.castShadow = true;
-    boulders.receiveShadow = true;
-    world.add(canopy, trunks, boulders);
+    const flora = createFlora(next, h, wind, quality === 'high' ? 1 : 0.45);
+    for (const m of flora.meshes) world.add(m);
 
     landmarks = next.landmarks.map((l) => {
       const obj = landmarkModel(l.type);
       obj.scale.setScalar(1.45);
       const w = toWorld(l.at);
-      obj.position.set(w.x, tileTop(next, l.at.x, l.at.y), w.z);
+      obj.position.set(w.x, h.at(w.x, w.z) - 0.02, w.z);
       obj.rotation.y = ((l.at.x * 31 + l.at.y * 17) % 8) * 0.25 - 1;
       world.add(obj);
       return { type: l.type, at: l.at, obj };
     });
-    cloudIdx = cloudTiles(next);
-    const cg = new IcosahedronGeometry(0.72, 1);
-    clouds = new InstancedMesh(
-      cg,
-      lambert(COL.cloud, { emissive: 0x3c4a46 }),
-      cloudIdx.length
-    );
-    world.add(clouds);
+    mist = createMist(next, quality === 'high' ? 3 : 2);
+    world.add(mist.group);
     lastSeen = undefined;
     markerKey = '';
     holesKey = '';
   };
 
   const refreshClouds = (seen: Uint8Array | null): void => {
-    if (clouds === null || island === null) return;
-    cloudIdx.forEach((i, n) => {
-      const state = cloudAt(seen, i);
-      const x = i % W;
-      const y = Math.floor(i / W);
-      const w = toWorld({ x, y });
-      const jitter = ((x * 13 + y * 7) % 5) * 0.07;
-      const s = state === 'none' ? 0.0001 : state === 'thin' ? 0.62 : 1;
-      tmp.position.set(
-        w.x,
-        1.35 + jitter + (state === 'thin' ? -0.25 : 0),
-        w.z
-      );
-      tmp.rotation.set(0, (x + y) * 0.7, 0);
-      tmp.scale.set(1.12 * s, 0.62 * s, 1.12 * s);
-      tmp.updateMatrix();
-      clouds?.setMatrixAt(n, tmp.matrix);
-    });
-    clouds.instanceMatrix.needsUpdate = true;
+    mist?.setSeen(seen);
   };
 
   const refreshHoles = (holes: readonly Tile[]): void => {
@@ -1060,7 +861,6 @@ export const createIsland3D = (
   const tiltClose = (50 * Math.PI) / 180;
   const tiltWide = (62 * Math.PI) / 180;
   let tilt = tiltClose;
-  const seaPos = seaGeo.getAttribute('position');
   const loop = (now: number): void => {
     if (!alive) return;
     frame = requestAnimationFrame(loop);
@@ -1080,17 +880,10 @@ export const createIsland3D = (
     if (!opts.reducedMotion) {
       target.lerp(wantTarget, 0.16);
       distance += (wantDistance - distance) * 0.16;
-      for (let v = 0; v < seaPos.count; v++) {
-        const x = seaBase[v * 3] ?? 0;
-        const z = seaBase[v * 3 + 2] ?? 0;
-        seaPos.setY(
-          v,
-          Math.sin(x * 0.55 + t * 0.9) * 0.05 +
-            Math.cos(z * 0.7 + t * 1.2) * 0.04
-        );
-      }
-      seaPos.needsUpdate = true;
-      if (clouds !== null) clouds.position.y = Math.sin(t * 0.6) * 0.05;
+      wind.value = t;
+      sky?.tick(t);
+      birds?.tick(t);
+      mist?.tick(t);
       for (const l of landmarks)
         if (l.type === 'campfire')
           l.obj.children.forEach((c) => {
@@ -1104,6 +897,17 @@ export const createIsland3D = (
       target.z + distance * Math.cos(tilt)
     );
     camera.lookAt(target);
+    sea?.tick(opts.reducedMotion ? 0 : t);
+    // Keep the sun's shadow box centred on what the camera is looking at.
+    if (sun.target.position.distanceToSquared(target) > 1) {
+      sun.target.position.copy(target);
+      sun.position
+        .copy(target)
+        .addScaledVector(
+          sun.position.clone().sub(sun.target.position).normalize(),
+          40
+        );
+    }
 
     const s = current;
     if (s !== null) {
@@ -1151,6 +955,10 @@ export const createIsland3D = (
   return {
     update,
     tileAt,
+    setTide: (level) => {
+      tide = level;
+      sea?.setLevel(seaLevelFor(level));
+    },
     dispose: () => {
       alive = false;
       cancelAnimationFrame(frame);
