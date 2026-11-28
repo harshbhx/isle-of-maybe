@@ -20,6 +20,7 @@ export const copy = {
     oldDay: 'This is Day {n}. Today’s island is Day {today} →',
     streak: '{n}-day streak',
     gold: '{n} gold',
+    namedBy: 'named by u/{name}',
   },
   mod: {
     clear: 'Clear skies: you can see 4 tiles.',

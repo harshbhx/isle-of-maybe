@@ -165,6 +165,7 @@ Voice: short, salty, kind. Tease the map, never the player. Every string lives i
 ## Client extras (labels the wireframes imply; same voice)
 | Key | Text |
 |---|---|
+| splash.namedBy | named by u/{name} (DAY-6.2 credit) |
 | splash.tagline | Bury it. Chart it. Trust a stranger's map. |
 | splash.streak / splash.gold | {n}-day streak / {n} gold (screen-reader labels) |
 | pick.fresh0 | New · nobody has tried it yet |

@@ -69,6 +69,11 @@ export const Result = () => {
             island: init.island.name,
           })}
         </Title>
+        {init.island.namedBy !== null && (
+          <p className="-mt-1 text-xs text-ink-soft">
+            {fmt(copy.splash.namedBy, { name: init.island.namedBy })}
+          </p>
+        )}
         {lastHunt !== null && (
           <p>
             {fmt(
