@@ -10,12 +10,28 @@ node --experimental-strip-types tools/assets/make-art.ts && python3 tools/assets
 |---|---|
 | `icon-1024.png`, `icon-256.png` | App icon and subreddit icon: the logo on the lagoon (readable at 64 px) |
 | `featuring-1920x1080.png` | Featuring image / presentation title slide |
-| `tile-1080x1080.png` | Tile image: logo + wordmark |
+| `tile-1080x1080.png` | Square tile: logo + wordmark |
+| `tile-1120x512.png` | App page tile image (the page asks for 560x256; this is 2x) |
+| `featuring-1500x1000.mp4` | App page featuring video (MP4, 15 s, silent): the sea chart, walking the 3D island, charting, the sea chart |
 | `devpost-gallery-1500x1000.png` | Devpost gallery cover (3:2) |
 | `gallery-0-hunt.gif`, `gallery-0-chart.gif` | Animated Devpost images: walking the 3D island as the cloud lifts; charting from memory and the Ink check |
 | `gallery-1-loop.png` … `gallery-5-fair.png` | Devpost gallery slides from a real playthrough (`python3 tools/assets/gallery.py`); order and alt text in `docs/18-SUBREDDIT-KIT.md` §4 |
 | `subreddit-banner-1920x384.png`, `subreddit-banner-mobile-1600x480.png` | r/IsleOfMaybe header images (left quarter kept plain for Reddit's icon and name) |
 | `../img/screens/*.png` | Gameplay screenshots for the gallery and slides |
+
+## App page (developers.reddit.com, as entered 28 Nov)
+| Field | Value |
+|---|---|
+| Display name | Isle of Maybe |
+| Description (15–200) | A new treasure island every day. Follow a map another redditor drew from memory, then bury your own chest and chart it. Tomorrow, see how many sailors found it. |
+| Promotional icon | `icon-1024.png` |
+| Featuring asset (MP4) | `featuring-1500x1000.mp4` |
+| Fallback asset | `devpost-gallery-1500x1000.png` |
+| Tile image | `tile-1120x512.png` |
+| Featuring description (≤ 35) | A new treasure island every day |
+| Tile tagline (≤ 20) | Bury it. Chart it. |
+| Category | Puzzle |
+| NSFW | No |
 
 ## Listing text
 - **Name:** Isle of Maybe

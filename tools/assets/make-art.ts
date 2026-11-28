@@ -144,6 +144,17 @@ ${word ? logo(w * 0.2, w * 0.1, w * 0.6) : logo(w * 0.12, w * 0.12, w * 0.76)}
 ${word ? `<text x="${w / 2}" y="${w * 0.86}" text-anchor="middle" font-family="Fell" font-size="${w * 0.1}" fill="${C.foam}">Isle of Maybe</text>` : ''}</svg>`
   );
 
+/** Wide catalog tile (the app page asks for 560x256): logo left, wordmark right, on the lagoon. */
+const wideTile = (w: number, h: number): string =>
+  page(
+    w,
+    h,
+    `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}" style="position:absolute"><rect width="${w}" height="${h}" fill="${C.lagoon}"/>${waves(w, h)}</svg>
+<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;gap:${h * 0.08}px">
+<svg width="${h * 0.6}" height="${h * 0.6}" viewBox="0 0 ${h * 0.6} ${h * 0.6}">${logo(0, 0, h * 0.6)}</svg>
+<div class="word" style="font-size:${h * 0.19}px;color:${C.foam}">Isle of Maybe</div></div>`
+  );
+
 /** Subreddit header: the chart runs edge to edge; the wordmark sits right of centre, clear of Reddit's icon. */
 const subBanner = (w: number, h: number, mobile: boolean): string => {
   const s = h * (mobile ? 0.5 : 0.62);
@@ -200,6 +211,7 @@ const files: Record<string, string> = {
   'icon-1024': icon(1024),
   'icon-256': icon(256),
   'tile-1080x1080': icon(1080, true),
+  'tile-1120x512': wideTile(1120, 512),
   'subreddit-banner-1920x384': subBanner(1920, 384, false),
   'subreddit-banner-mobile-1600x480': subBanner(1600, 480, true),
   'featuring-1920x1080': title(1920, 1080),
