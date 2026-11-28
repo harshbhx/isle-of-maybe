@@ -6,6 +6,7 @@ import { utcDay } from '../../shared/day.ts';
 import type { LiveKind } from '../../shared/live.ts';
 import type { Actor } from '../services/actor.ts';
 import { board, hall } from '../services/boards.ts';
+import { wearFor } from '../services/wear.ts';
 import { buryChest, seenFor, submitChart } from '../services/bury.ts';
 import { pickCharts } from '../services/charts.ts';
 import {
@@ -174,6 +175,9 @@ export const createApi = (d: ApiDeps): Hono => {
     })
   );
 
+  api.get('/wear', (c) =>
+    handle(c, async () => wearFor(kv, await d.postDay(), d.now()))
+  );
   api.get('/seen', (c) =>
     handle(c, async () => seenFor(kv, d.actor(), await d.postDay()))
   );

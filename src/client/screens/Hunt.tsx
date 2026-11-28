@@ -8,6 +8,7 @@ import type {
   PickSlot,
   Reveal,
   StepsResponse,
+  WearResponse,
 } from '../../shared/api.ts';
 import { revealRadius } from '../../shared/day.ts';
 import {
@@ -36,7 +37,8 @@ import { IslandCanvas } from '../island/IslandCanvas.tsx';
 import type { Footprint } from '../island/draw.ts';
 import { useDriveKeys, useKeys, useRoute } from '../island/input.ts';
 import { reducedMotion, useWalker } from '../island/walker.ts';
-import { ApiFailure, post } from '../lib/api.ts';
+import { ApiFailure, get, post } from '../lib/api.ts';
+import { decodeWear } from '../../shared/wear.ts';
 import { emptyMask, reveal } from '../lib/fog.ts';
 import { markHintSeen } from '../lib/hints.ts';
 import { toast } from '../lib/platform.ts';
@@ -192,6 +194,19 @@ export const Hunt = ({ start, chart }: Props) => {
     return () => h3d.drive(null);
     // Driving starts once per renderer; `at` is only its starting tile.
     // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [h3d]);
+
+  // The crowd's paths (ADV-6.5): where today's hunters walked, worn into the island.
+  useEffect(() => {
+    if (h3d === null) return;
+    let live = true;
+    get<WearResponse>('/wear').then(
+      (w) => live && h3d.setWear(decodeWear(w.levels)),
+      () => undefined
+    );
+    return () => {
+      live = false;
+    };
   }, [h3d]);
 
   // Reddit on the island (ADV-6.1, ADV-6.3): your flair hat, and the sign for whoever named it.

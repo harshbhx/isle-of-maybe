@@ -7,7 +7,7 @@ import { serveStatic } from '@hono/node-server/serve-static';
 import { Hono } from 'hono';
 import { utcDay } from '../../src/shared/day.ts';
 import { depthClass } from '../../src/shared/depth.ts';
-import { walkable } from '../../src/shared/path.ts';
+import { aStar, walkable } from '../../src/shared/path.ts';
 import { rngFor } from '../../src/shared/rng.ts';
 import type { ChartPiece } from '../../src/shared/types.ts';
 import { createApi } from '../../src/server/routes/app.ts';
@@ -22,7 +22,9 @@ const kv = new FakeKv();
 const fakeDay = process.env.PREVIEW_DAY;
 const offset =
   fakeDay !== undefined && /^\d{4}-\d{2}-\d{2}$/.test(fakeDay)
-    ? Date.parse(`${fakeDay}T00:00:00Z`) + (Date.now() % 86_400_000) - Date.now()
+    ? Date.parse(`${fakeDay}T00:00:00Z`) +
+      (Date.now() % 86_400_000) -
+      Date.now()
     : 0;
 const clock = (): number => Date.now() + offset;
 const now = clock();
@@ -141,6 +143,23 @@ for (const [i, name] of sailors.entries()) {
     member: `t2_${name}`,
     score: 400 - i * 90,
   });
+}
+
+// The crowd's worn paths (ADV-6.4): earlier hunters walked from the dock towards the strangers'
+// chests, a few dozen times in all, so the preview shows the trails a busy day leaves.
+{
+  const trails = rngFor(`${day}|wear`);
+  for (let h = 0; h < 140; h++) {
+    const to = { x: Math.floor(trails() * 40), y: Math.floor(trails() * 40) };
+    if (!walkable(island.terrain, to.x, to.y)) continue;
+    const route = aStar(island.terrain, island.dock, to) ?? [];
+    const seen = new Set(
+      route
+        .slice(0, Math.max(6, Math.floor(route.length * (0.5 + trails() / 2))))
+        .map((t) => t.y * 40 + t.x)
+    );
+    for (const i of seen) await kv.hIncrBy(K.wear(day), String(i), 1);
+  }
 }
 await kv.hSet(K.dayCounts(day), { buried: '38', found: '51', hunts: '120' });
 

@@ -333,3 +333,30 @@ test('HUNT-4.2 the reveal says why the hunt ended', async () => {
   await startHunt(kv, alice, DAY, `cap-${DAY}-0`, 'g', NOW);
   assert.equal((await giveUp(kv, alice, 'g', NOW + 5 * S)).reason, 'gaveUp');
 });
+
+test('ADV-6.4 worn paths count each hunt once per tile, show from 3 hunts, and say nothing about who', async () => {
+  const { kv, route } = await setup();
+  const { wearFor, WEAR_REBUILD_MS } = await import('./wear.ts');
+  const walk = route.slice(1, 4);
+  const cap = `cap-${DAY}-0`;
+  const hunters = [alice, bob, anon];
+  for (const [i, who] of hunters.entries()) {
+    await startHunt(kv, who, DAY, cap, `w${i}`);
+    // Walking back and forth over the same tiles still counts once per hunt.
+    await applySteps(kv, who, `w${i}`, 0, [
+      ...walk,
+      ...walk.slice(0, -1).reverse(),
+    ]);
+    await giveUp(kv, who, `w${i}`, NOW);
+    const lv = (await wearFor(kv, DAY, NOW + (i + 1) * WEAR_REBUILD_MS)).levels;
+    const t = walk[1] ?? { x: 0, y: 0 };
+    assert.equal(lv[idx(t.x, t.y)], i < 2 ? '0' : '1', `after ${i + 1} hunts`);
+  }
+  const counts = await kv.hGetAll(K.wear(DAY));
+  const t = walk[1] ?? { x: 0, y: 0 };
+  assert.equal(counts[String(idx(t.x, t.y))], '3');
+  const body = JSON.stringify(
+    await wearFor(kv, DAY, NOW + 9 * WEAR_REBUILD_MS)
+  );
+  for (const who of hunters) assert.equal(body.includes(who.id), false);
+});

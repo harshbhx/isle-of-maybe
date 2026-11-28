@@ -144,6 +144,9 @@ export type GiveUpRequest = { huntId: string };
 /** Today's seen-tiles mask as hex (see `src/shared/seen.ts`); the bury screen fogs everything else. */
 export type SeenResponse = { mask: string };
 
+/** Today's crowd wear, one digit 0–3 per tile (ADV-6.4). */
+export type WearResponse = { levels: string };
+
 export type BuryRequest = { at: Tile };
 export type BuryResponse = { at: Tile; depth: Depth };
 

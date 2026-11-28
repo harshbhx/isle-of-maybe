@@ -8,6 +8,7 @@ import {
   BoxGeometry,
   BufferGeometry,
   CircleGeometry,
+  Color,
   ConeGeometry,
   CylinderGeometry,
   DirectionalLight,
@@ -81,6 +82,8 @@ export type Island3D = {
   pose: (p: Pose | null) => void;
   /** The explorer's position in tile units, while driving. */
   position: () => { x: number; y: number } | null;
+  /** Today's crowd wear, 0–3 per tile: trodden paths on the island (ADV-6.5). */
+  setWear: (levels: Uint8Array) => void;
   /** The explorer's hat shows the player's flair tier (ADV-6.1). */
   setHat: (tier: HatTier) => void;
   /** The carved sign by the dock: the island's name and who named it (ADV-6.3). */
@@ -537,6 +540,8 @@ export const createIsland3D = (
   let lastQs: ReadonlySet<number> | null = null;
   let qsMesh: Object3D | null = null;
   let signObj: Group | null = null;
+  let baseColors: Float32Array | null = null;
+  const dirt = new Color(0x9e7b50);
   const env = new Group();
   scene.add(env);
 
@@ -675,6 +680,9 @@ export const createIsland3D = (
     terrain.receiveShadow = true;
     terrain.castShadow = true;
     world.add(terrain);
+    baseColors = Float32Array.from(
+      terrain.geometry.getAttribute('color').array
+    );
     // Dock: a short jetty of planks on posts.
     const dw = toWorld(next.dock);
     const deck = Math.max(h.at(dw.x, dw.z), 0.3) + 0.08;
@@ -1223,6 +1231,37 @@ export const createIsland3D = (
       }
     },
     position: () => (drv === null ? null : { x: pos.x, y: pos.y }),
+    setWear: (levels) => {
+      if (terrain === null || baseColors === null) return;
+      const geo = terrain.geometry;
+      const posA = geo.getAttribute('position');
+      const colA = geo.getAttribute('color');
+      // Bilinear over tile centres, so a trail is a soft path rather than squares.
+      const lv = (x: number, y: number): number =>
+        x < 0 || y < 0 || x >= W || y >= H ? 0 : (levels[y * W + x] ?? 0);
+      for (let v = 0; v < posA.count; v++) {
+        const tx = posA.getX(v) + W / 2 - 0.5;
+        const ty = posA.getZ(v) + H / 2 - 0.5;
+        const x0 = Math.floor(tx);
+        const y0 = Math.floor(ty);
+        const fx = tx - x0;
+        const fy = ty - y0;
+        const w =
+          (lv(x0, y0) * (1 - fx) + lv(x0 + 1, y0) * fx) * (1 - fy) +
+          (lv(x0, y0 + 1) * (1 - fx) + lv(x0 + 1, y0 + 1) * fx) * fy;
+        const k = Math.min(0.78, w * 0.3);
+        const r = baseColors[v * 3] ?? 0;
+        const g = baseColors[v * 3 + 1] ?? 0;
+        const b = baseColors[v * 3 + 2] ?? 0;
+        colA.setXYZ(
+          v,
+          r + (dirt.r - r) * k,
+          g + (dirt.g - g) * k,
+          b + (dirt.b - b) * k
+        );
+      }
+      colA.needsUpdate = true;
+    },
     setHat: (tier) => explorer.setHat(tier),
     setSign: (title, by, font) => {
       if (signObj !== null) {
