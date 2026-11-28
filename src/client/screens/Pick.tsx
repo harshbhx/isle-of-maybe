@@ -1,5 +1,5 @@
 // W3 · Pick a chart (HUNT-1): Trusted, Fresh and Old Captain cards, or a friend's challenge first.
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState, type PointerEvent } from 'react';
 import type {
   ChartPublic,
   HuntStartResponse,
@@ -50,9 +50,17 @@ const PickCard = ({
   const by = chart.captain
     ? copy.common.captainBy
     : fmt(copy.common.byDay, { name: chart.author, n: init.dayNumber });
+  // A soft light follows the mouse over the chart you're about to pick (ADV-9.5).
+  const spot = (e: PointerEvent<HTMLElement>): void => {
+    if (e.pointerType !== 'mouse') return;
+    const r = e.currentTarget.getBoundingClientRect();
+    e.currentTarget.style.setProperty('--sx', `${e.clientX - r.left}px`);
+    e.currentTarget.style.setProperty('--sy', `${e.clientY - r.top}px`);
+  };
   return (
     <article
-      className="parchment flex w-[86%] shrink-0 snap-center flex-col gap-2 p-3 md:w-auto"
+      onPointerMove={spot}
+      className="spotlight parchment flex w-[86%] shrink-0 snap-center flex-col gap-2 p-3 md:w-auto"
       aria-label={`${SLOT_LABEL[slot]} · ${by}`}
     >
       <header className="flex items-center justify-between">
