@@ -1,5 +1,6 @@
 // W1 · Inline splash (DAY-3, UI-1.2): what the game is, today's coastline, live counts, streak and one
 // Set sail button. No canvas, no gesture capture, nothing scrolls; the game opens in expanded mode.
+import keyart from './assets/keyart.webp';
 import './index.css';
 
 import { StrictMode, useEffect, useMemo, useState } from 'react';
@@ -57,7 +58,13 @@ export const Splash = () => {
   );
   const date = day === undefined ? '' : dayLabel(day);
   return (
-    <main className="flex h-full flex-col gap-2 overflow-hidden bg-lagoon px-4 py-3 text-foam">
+    <main
+      className="flex h-full flex-col gap-2 overflow-hidden bg-lagoon bg-cover bg-right px-4 py-3 text-foam"
+      style={{
+        // Key art from the game itself (ADV-9.6): the find, behind a lagoon wash so text stays readable.
+        backgroundImage: `linear-gradient(90deg, rgba(10,100,104,0.97) 0%, rgba(10,100,104,0.9) 38%, rgba(10,100,104,0.55) 70%, rgba(10,100,104,0.25) 100%), url(${keyart})`,
+      }}
+    >
       <header className="flex items-start gap-2">
         <div className="min-w-0">
           <h1 className="font-title flex items-center gap-2 text-[28px] leading-none">

@@ -15,4 +15,4 @@
 - [ ] T102 (#187) Floating joystick (shared by the hunt and Practice Cove) — ADV-3.1
 - [x] T103 (#188) Practice Cove in 3D with a 5-step coach — ADV-9.1, ADV-9.2
 - [x] T104 (#189) Chart editor: coach strip, labels, loupe, haptics — ADV-9.3, ADV-9.4
-- [ ] T105 (#190) Motion components and the UX audit pass — ADV-9.5
+- [x] T105 (#190) Motion components and the UX audit pass — ADV-9.5

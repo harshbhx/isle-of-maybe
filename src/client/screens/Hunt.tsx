@@ -1,5 +1,6 @@
 // W4 · Hunt (HUNT-2 – HUNT-4 client side): walk with a route preview, open the chart any time, dig
 // where you stand. Steps go to the server in batches; the server decides every dig.
+import { Sparks } from '../components/motion.tsx';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type {
   ChartPublic,
@@ -601,14 +602,16 @@ export const Hunt = ({ start, chart }: Props) => {
               +
             </Button>
           </div>
-          <Button
-            kind="gold"
-            className="min-w-28"
-            onClick={() => void dig()}
-            disabled={busy || walker.busy || shovels <= 0}
-          >
-            {copy.hunt.dig}
-          </Button>
+          <Sparks>
+            <Button
+              kind="gold"
+              className="min-w-28"
+              onClick={() => void dig()}
+              disabled={busy || walker.busy || shovels <= 0}
+            >
+              {copy.hunt.dig}
+            </Button>
+          </Sparks>
         </div>
       </div>
       {/* Wide screens (UI-3.4): the chart sits beside the island, full size and always open, so

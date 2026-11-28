@@ -237,7 +237,6 @@
   letter-spacing: -0.02em;
 }
 
-
 /* Coach pointer (ADV-9.2): a mango ring that breathes around the control the coach means. */
 .coach-target {
   position: relative;
@@ -266,5 +265,83 @@
   .coach-target::after {
     animation: none;
     opacity: 1;
+  }
+}
+
+/* Motion pieces (ADV-9.5): transform/opacity only; still under reduced motion. */
+.shimmer-band {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    105deg,
+    transparent 35%,
+    rgba(255, 247, 232, 0.75) 50%,
+    transparent 65%
+  );
+  transform: translateX(-120%);
+  animation: shimmer 2.8s ease-in-out 0.4s infinite;
+  pointer-events: none;
+}
+@keyframes shimmer {
+  0% {
+    transform: translateX(-120%);
+  }
+  45%,
+  100% {
+    transform: translateX(120%);
+  }
+}
+.spotlight::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: radial-gradient(
+    220px circle at var(--sx, 50%) var(--sy, 30%),
+    rgba(255, 207, 107, 0.28),
+    transparent 70%
+  );
+  opacity: 0;
+  transition: opacity 0.25s;
+  pointer-events: none;
+  z-index: 1;
+}
+.spotlight:hover::before {
+  opacity: 1;
+}
+.spark {
+  position: absolute;
+  left: -2px;
+  top: -2px;
+  width: 4px;
+  height: 4px;
+}
+.spark::after {
+  content: '';
+  position: absolute;
+  width: 4px;
+  height: 10px;
+  border-radius: 2px;
+  background: var(--color-mango);
+  animation: spark 0.5s ease-out forwards;
+}
+@keyframes spark {
+  0% {
+    transform: translateY(-6px) scaleY(1);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(-30px) scaleY(0.3);
+    opacity: 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .shimmer-band,
+  .spark::after {
+    animation: none;
+    opacity: 0;
+  }
+  .spotlight::before {
+    transition: none;
   }
 }

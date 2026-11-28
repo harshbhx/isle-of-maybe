@@ -1,5 +1,6 @@
 // W5 · Reveal (HUNT-4.2, HUNT-5): where the chest really was against the chart's X, the gold, and
 // an optional True / Cursed rating that never blocks moving on (HUNT-5.2).
+import { Shimmer } from '../components/motion.tsx';
 import { useEffect, useMemo, useState } from 'react';
 import type {
   ChartPublic,
@@ -121,7 +122,7 @@ export const Reveal = ({
       </div>
       <Card className="anim-rise flex flex-col gap-3">
         <Title className={reveal.found ? '' : 'text-hibiscus'}>
-          {headline}
+          {reveal.found ? <Shimmer>{headline}</Shimmer> : headline}
         </Title>
         {reveal.found &&
           Array.from({ length: 8 }, (_, i) => (
