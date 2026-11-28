@@ -10,4 +10,8 @@ with sync_playwright() as p:
         pg = b.new_page(viewport={"width": w, "height": h})
         pg.goto("file://" + f); pg.wait_for_timeout(300)
         pg.screenshot(path=f"docs/assets/{name}.png"); pg.close(); print("docs/assets/" + name + ".png")
+        if name.startswith("subreddit-"):
+            # Reddit caps header images at a few hundred KB; a 256-colour palette keeps the red X.
+            from PIL import Image
+            Image.open(f"docs/assets/{name}.png").convert("RGB").quantize(colors=256, method=Image.Quantize.MEDIANCUT, dither=Image.Dither.FLOYDSTEINBERG).save(f"docs/assets/{name}.png", optimize=True)
     b.close()

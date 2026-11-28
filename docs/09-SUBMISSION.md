@@ -87,14 +87,14 @@ Fonts: IM Fell English SC and Atkinson Hyperlegible (SIL Open Font License). Ins
 
 ## 4. Demo post set-up (8 Dec)
 1. Make sure today's island post exists and has activity (charts, finds) from testers: at least 5 player charts every day from 7 to 16 Dec, so Pick shows Trusted and Fresh charts, not only the Old Captain (`docs/17-JUDGE-REDTEAM.md` J6). Link judges to **today's** post.
-2. Pin a short "How to play" post in the sub (text only) and the community rules: be kind, no spoilers in titles.
-3. Subreddit description: "Daily treasure-map game. Bury it, chart it, trust a stranger's map."
+2. Set up r/IsleOfMaybe from `docs/18-SUBREDDIT-KIT.md` §3: description, banner and icon, rules, flair, welcome message and the pinned "How to play" post.
+3. Upload the Devpost images in the order in `docs/18-SUBREDDIT-KIT.md` §4.
 4. Check member count < 200.
 
 ## 5. Optional video (≤ 60 s, phone screen recording)
 | Time | Shot | Voice-over / caption |
 |---|---|---|
-| 0–5 s | Feed scroll → Isle of Maybe post → Set sail | "Every day, a new island." |
+| 0–5 s | Feed scroll → stop on the Isle of Maybe post (pitch line and coastline visible) → Set sail | "Every day, a new island." |
 | 5–15 s | Pick a stranger's chart → walk in fog | "Follow a map a stranger drew from memory." |
 | 15–22 s | Dig → chest opens, gold | "Three shovels. Find their chest." |
 | 22–28 s | A miss reveal with the ink line | "…or find out how wrong their map was." |
@@ -104,3 +104,5 @@ Fonts: IM Fell English SC and Atkinson Hyperlegible (SIL Open Font License). Ins
 | 55–60 s | Title card | "Isle of Maybe. Bury it. Chart it. Trust a stranger's map." |
 
 Record on a phone (the intended device). Lowest resolution for drafts, full quality for the final.
+
+Rules for the video: under one minute (judges may stop at 60 s), showing the game running on the device it was built for (the Reddit app on a phone), public on YouTube or Vimeo. Record in r/IsleOfMaybe on 7–8 Dec with tester charts on the island, so Pick shows real players' maps. Skip the miss shot if time is tight; the find and the Dispatch matter more.

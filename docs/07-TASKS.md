@@ -96,5 +96,6 @@ Owner: **H** = Harsh · **A** = coding agent. **P0** = ships or we don't submit 
 | T81 | Hunt: one hint at a time, camera pans past the island's edge | A | P1 | 1 h | 06-client-shell | UI-3.3, UI-4.4 | J2, J3 |
 | T82 | Hunt on wide screens: chart beside the island | A | P1 | 1.5 h | 06-client-shell | UI-3.4 | J4 |
 | T83 | Join the crew link on the result card | A | P1 | 0.5 h | 05-community | COM-2.8, COM-2.3 | J5 |
+| T84 | Devpost gallery from a real playthrough and the subreddit kit | A | P1 | 2 h | 07-launch | SHIP-1.3, SHIP-5.2 | docs/18 |
 
 **Cut line:** if behind on Sun 6 Dec 21:00 IST, drop T26/T53 to the "Today" board only, and drop T28, T29, T52, T60, T61 and all P2. Never cut: T23 (server authority), T42/T64 (scroll safety), T49 (chart editor), T54 (states), T63 (Practice Cove), T70 (README), T71 (testers).
