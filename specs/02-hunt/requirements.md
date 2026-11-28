@@ -18,11 +18,11 @@ Scope: choosing a chart and hunting a stranger's chest. Source: PRD §5.2–5.4,
 - **HUNT-3.1** WHEN the client sends steps, THE server SHALL accept them only if each is 4-directionally adjacent to the previous and walkable, starting from the server's last position.
 - **HUNT-3.2** THE server SHALL reveal tiles within the day's radius after every accepted step and record them in the player's seen-tiles mask for that day.
 - **HUNT-3.3** THE server SHALL treat a repeated step batch (same step index) as a no-op.
-- **HUNT-3.4** THE client SHALL preview the A* route before walking and SHALL let the player skip the walking animation.
+- **HUNT-3.4** IN the 2D fallback, THE client SHALL preview the A* route before walking and SHALL let the player skip the walking animation. (In 3D the explorer moves freely: ADV-3.)
 
 ## HUNT-4 Digging and the end of a hunt
 - **HUNT-4.1** WHEN a player digs, THE server SHALL dig at the server's position, use one shovel, and report found if Chebyshev distance to the chest ≤ 1.
-- **HUNT-4.2** WHEN a dig finds the chest or the last shovel is used or the player gives up, THE server SHALL end the hunt and return the reveal: chest tile, the chart's X, distance in paces, gold earned.
+- **HUNT-4.2** WHEN a dig finds the chest or the last shovel is used or the player gives up or the tide runs out (ADV-1.6), THE server SHALL end the hunt and return the reveal: chest tile, the chart's X, distance in paces, gold earned, and the reason.
 - **HUNT-4.3** THE server SHALL never include the chest position in any response before the hunt ends.
 - **HUNT-4.4** WHEN a hunt ends with a find, THE server SHALL add finder gold (ENG-4.2) to the player and salvage (ENG-4.3) to the chart's author, and increment the chart's finds.
 - **HUNT-4.5** WHEN any hunt ends, THE server SHALL increment the chart's attempts and update its trust score, and mark the player's streak for the day.
