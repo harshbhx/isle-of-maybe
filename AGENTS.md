@@ -28,7 +28,7 @@ You are building **Isle of Maybe**, a daily treasure-map game that runs inside R
 
 ## 2. Stack and conventions
 - Official Devvit React template: Devvit Web 0.15.x, React 19, Hono, Vite, Tailwind 4, TypeScript (strict, `exactOptionalPropertyTypes`, `noUncheckedIndexedAccess`). Node ≥ 24 (`.nvmrc`).
-- Island: Canvas 2D. Chart editor: SVG. No game engines, animation libraries or state libraries.
+- Island: three.js 3D (WebGL), lazy-loaded in the game entry only, with the Canvas 2D renderer as the fallback. Chart editor: SVG. No game engines, animation libraries or state libraries.
 - `/src/server`: Hono, `redis`, `reddit`, `context`, `media`, `realtime` from `@devvit/web/server`. Endpoints start with `/api/`; scheduler/menu/forms/triggers under `/internal/` and registered in `devvit.json`.
 - `/src/client`: `splash.html` (inline, keep it tiny), `game.html` (expanded). Use `navigateTo`, `showToast`, `showForm`, `requestExpandedMode`, `showShareSheet` from `@devvit/web/client`. No `window.location`, `alert`, `confirm`, `prompt`, inline `<script>` tags.
 - `/src/shared`: pure logic and API types shared by both.

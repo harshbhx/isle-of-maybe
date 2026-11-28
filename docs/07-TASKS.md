@@ -97,5 +97,8 @@ Owner: **H** = Harsh · **A** = coding agent. **P0** = ships or we don't submit 
 | T82 | Hunt on wide screens: chart beside the island | A | P1 | 1.5 h | 06-client-shell | UI-3.4 | J4 |
 | T83 | Join the crew link on the result card | A | P1 | 0.5 h | 05-community | COM-2.8, COM-2.3 | J5 |
 | T84 | Devpost gallery from a real playthrough and the subreddit kit | A | P1 | 2 h | 07-launch | SHIP-1.3, SHIP-5.2 | docs/18 |
+| T85 | Tropical day palette and the logo across the client, share image and catalog art | A | P0 | 2 h | 06-client-shell | UI-2.1, UI-2.5 | D24, D25 |
+| T86 | 3D island renderer with three.js and the 2D fallback | A | P0 | 1.5 d | 06-client-shell | UI-3.1, UI-3.5, UI-3.6, UI-5.1, UI-7.1 | D12 amended |
+| T87 | New-identity banners, Devpost GIFs and gallery, judge re-score, hand-off | A | P0 | 0.5 d | 07-launch | SHIP-1.3, SHIP-4.2, SHIP-5.1, SHIP-5.2 | |
 
 **Cut line:** if behind on Sun 6 Dec 21:00 IST, drop T26/T53 to the "Today" board only, and drop T28, T29, T52, T60, T61 and all P2. Never cut: T23 (server authority), T42/T64 (scroll safety), T49 (chart editor), T54 (states), T63 (Practice Cove), T70 (README), T71 (testers).

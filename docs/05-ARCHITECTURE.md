@@ -1,6 +1,6 @@
 # 05 — Architecture
 
-Devvit Web app: React client + Canvas 2D island + SVG chart editor; Hono server on Devvit; Redis for all state; scheduler for the daily post. Start from the official React template (`reddit/devvit-template-react`, @devvit/web 0.15.4 at time of writing). Platform facts and limits: `11-AGENT-KNOWLEDGE.md`.
+Devvit Web app: React client + three.js 3D island (Canvas 2D fallback) + SVG chart editor; Hono server on Devvit; Redis for all state; scheduler for the daily post. Start from the official React template (`reddit/devvit-template-react`, @devvit/web 0.15.4 at time of writing). Platform facts and limits: `11-AGENT-KNOWLEDGE.md`.
 
 ---
 
