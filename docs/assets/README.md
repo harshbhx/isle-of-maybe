@@ -33,6 +33,8 @@ node --experimental-strip-types tools/assets/make-art.ts && python3 tools/assets
 | Tile tagline (≤ 20) | Bury it. Chart it. |
 | Category | Puzzle |
 | NSFW | No |
+| Terms and conditions | https://github.com/harshbhx/isle-of-maybe/blob/main/TERMS.md |
+| Privacy policy | https://github.com/harshbhx/isle-of-maybe/blob/main/PRIVACY.md |
 
 ## Listing text
 - **Name:** Isle of Maybe

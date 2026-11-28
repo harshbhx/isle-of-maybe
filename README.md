@@ -41,6 +41,12 @@ You can hunt up to 3 charts a day and bury one chest. Streaks, gold boards, the 
 - The server decides everything: it replays every step and dig, and the chest's position never reaches a player's device before their hunt ends.
 - Sharing a chart as a comment or challenging a friend is optional and always asks first. The share image is drawn by the server from the stored chart.
 - All player content expires after 30 days. Deleting an island post removes its charts; deleting a shared comment unlinks it.
+- You can delete your own chart at any time ("Delete my chart" on the result card or in your Dispatch).
+- Ghosts show your username and tile to others on the same island while you hunt; "Ghosts: off" stops both seeing and being seen. Worn paths are counts only, shown after 3+ hunts.
+- No analytics, ads, trackers or outside requests. Full details: **[Privacy Policy](PRIVACY.md)** · **[Terms of Use](TERMS.md)**.
+
+## Support
+Questions, bugs or a data request: send modmail to **r/IsleOfMaybe**, or open an issue at https://github.com/harshbhx/isle-of-maybe/issues.
 
 ## Development
 ```bash
