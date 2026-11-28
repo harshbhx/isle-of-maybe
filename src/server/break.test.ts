@@ -3,10 +3,12 @@ import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import { ApiError } from './store/errors.ts';
 import { K } from './store/keys.ts';
+import { addDays } from '../shared/day.ts';
 import { neighbors4, walkable } from '../shared/path.ts';
 import { idx } from '../shared/types.ts';
 import { FakeKv } from './testing/fake-kv.ts';
 import { DAY, NOW, addChart, alice, bob, postDay } from './testing/fixtures.ts';
+import { board, hall } from './services/boards.ts';
 import { buryChest } from './services/bury.ts';
 import { giveUp, startHunt } from './services/hunts.ts';
 import { requireDay } from './services/island.ts';
@@ -62,4 +64,70 @@ test('CHART-1.7 you cannot bury before finishing a hunt', async () => {
   );
   await giveUp(kv, alice, 'h', NOW);
   assert.deepEqual((await buryChest(kv, alice, DAY, near, NOW)).at, near);
+});
+
+/** Counts Redis calls made through a FakeKv. */
+const counting = (kv: FakeKv): { kv: FakeKv; calls: () => number } => {
+  let n = 0;
+  const proxy = new Proxy(kv, {
+    get(target, prop, receiver) {
+      const v: unknown = Reflect.get(target, prop, receiver);
+      if (typeof v !== 'function') return v;
+      return (...args: unknown[]) => {
+        n++;
+        return Reflect.apply(v, target, args);
+      };
+    },
+  });
+  return { kv: proxy, calls: () => n };
+};
+
+test('COM-4.1 the Hall stays cheap: a busy fortnight is served from cache on repeat', async () => {
+  const kv = new FakeKv();
+  for (let d = 1; d <= 14; d++) {
+    const day = addDays(DAY, -d);
+    await postDay(kv, NOW - d * 86_400_000);
+    for (let i = 0; i < 40; i++) {
+      await addChart(kv, {
+        id: `${day}-${i}`,
+        author: { id: `t2_x${i}`, name: `x${i}` },
+        day,
+      });
+      await kv.zAdd(K.chartsTrust(day), { member: `${day}-${i}`, score: i });
+      await kv.zAdd(K.chartsAttempts(day), { member: `${day}-${i}`, score: 0 });
+    }
+  }
+  const c = counting(kv);
+  await hall(c.kv, DAY);
+  const first = c.calls();
+  await hall(c.kv, DAY);
+  assert.ok(
+    c.calls() - first <= 2,
+    `repeat Hall used ${c.calls() - first} Redis calls`
+  );
+  assert.ok(first <= 1200, `first Hall used ${first} Redis calls`);
+});
+
+test('COM-3.2 repeat opens of the trusted board are served from a short cache', async () => {
+  const kv = new FakeKv();
+  for (let i = 0; i < 60; i++) {
+    await addChart(kv, {
+      id: `t${i}`,
+      author: { id: `t2_y${i}`, name: `y${i}` },
+    });
+    await kv.hSet(K.chartStats(`t${i}`), { attempts: '5', finds: '3' });
+    await kv.zAdd(K.chartsTrust(DAY), { member: `t${i}`, score: i });
+  }
+  const c = counting(kv);
+  const first = await board(c.kv, 'trusted', DAY, {
+    id: 't2_y3',
+    name: 'y3',
+    loggedIn: true,
+  });
+  const used = c.calls();
+  const again = await board(c.kv, 'trusted', DAY, alice);
+  assert.ok(c.calls() - used <= 2);
+  assert.equal(first.me?.chart?.id, 't3');
+  assert.deepEqual(first.rows, again.rows);
+  assert.equal(again.me, null);
 });

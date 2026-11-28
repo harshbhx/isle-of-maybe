@@ -23,6 +23,8 @@ export const K = {
   boardCartographers: () => 'board:cartographers',
   reportsQueue: () => 'reports:queue',
   flairPending: () => 'flair:pending',
+  hallCache: (d: string) => `cache:hall:${d}`,
+  trustedCache: (d: string) => `cache:trusted:${d}`,
   shareComment: (commentId: string) => `sharecomment:${commentId}`,
   rate: (u: string, sec: number) => `rl:${u}:${sec}`,
 } as const;

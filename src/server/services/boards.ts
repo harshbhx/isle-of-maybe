@@ -9,7 +9,7 @@ import type {
 } from '../../shared/api.ts';
 import { LAUNCH_DAY, addDays, dayNumber } from '../../shared/day.ts';
 import { K } from '../store/keys.ts';
-import type { Kv } from '../store/kv.ts';
+import { TTL, type Kv } from '../store/kv.ts';
 import type { Actor } from './actor.ts';
 import { readChart, readStats, toPublic, type StoredChart } from './charts.ts';
 import { islandOf, readDay } from './island.ts';
@@ -59,36 +59,55 @@ const userBoard = async (
   return { kind, rows, me };
 };
 
+type Ranked = { authorId: string; row: BoardRow };
+
+/** All ranked player charts for a day; cached for 30 s because every open of the board needs it. */
+const rankedCharts = async (kv: Kv, day: string): Promise<Ranked[]> => {
+  const cached = await kv.get(K.trustedCache(day));
+  if (cached !== undefined) {
+    const list: Ranked[] = JSON.parse(cached);
+    return list;
+  }
+  const ids = await kv.zRange(K.chartsTrust(day), 0, SCAN - 1, {
+    by: 'rank',
+    reverse: true,
+  });
+  const list: Ranked[] = [];
+  for (const m of ids) {
+    const c = await readChart(kv, m.member);
+    if (!playerChart(c)) continue;
+    const s = await readStats(kv, c.id);
+    if (s.attempts < TRUSTED_MIN_ATTEMPTS) continue;
+    list.push({
+      authorId: c.authorId,
+      row: {
+        rank: list.length + 1,
+        name: c.authorName,
+        value: Math.round((100 * s.finds) / s.attempts),
+        chart: { id: c.id, attempts: s.attempts, finds: s.finds },
+      },
+    });
+  }
+  await kv.set(K.trustedCache(day), JSON.stringify(list));
+  await kv.expire(K.trustedCache(day), TTL.trustedCache);
+  return list;
+};
+
 /** Today's most trusted player charts with at least 3 attempts (COM-3.1, COM-3.3). */
 const trustedBoard = async (
   kv: Kv,
   day: string,
   actor: Actor
 ): Promise<BoardResponse> => {
-  const ids = await kv.zRange(K.chartsTrust(day), 0, SCAN - 1, {
-    by: 'rank',
-    reverse: true,
-  });
-  const rows: BoardRow[] = [];
-  let me: BoardRow | null = null;
-  let pos = 0;
-  for (const m of ids) {
-    const c = await readChart(kv, m.member);
-    if (!playerChart(c)) continue;
-    const s = await readStats(kv, c.id);
-    if (s.attempts < TRUSTED_MIN_ATTEMPTS) continue;
-    pos++;
-    const row: BoardRow = {
-      rank: pos,
-      name: c.authorName,
-      value: Math.round((100 * s.finds) / s.attempts),
-      chart: { id: c.id, attempts: s.attempts, finds: s.finds },
-    };
-    if (pos <= BOARD_SIZE) rows.push(row);
-    if (actor.loggedIn && c.authorId === actor.id) me = row;
-    if (pos >= BOARD_SIZE && (me !== null || !actor.loggedIn)) break;
-  }
-  return { kind: 'trusted', rows, me };
+  const list = await rankedCharts(kv, day);
+  const mine = actor.loggedIn
+    ? list.find((r) => r.authorId === actor.id)
+    : undefined;
+  return {
+    kind: 'trusted',
+    rows: list.slice(0, BOARD_SIZE).map((r) => r.row),
+    me: mine?.row ?? null,
+  };
 };
 
 export const board = async (
@@ -147,8 +166,13 @@ const hallDay = async (kv: Kv, day: string): Promise<HallDay | null> => {
   };
 };
 
-/** Past days, newest first, up to 14, never before launch (COM-4). */
+/** Past days, newest first, up to 14, never before launch (COM-4). Cached for 10 minutes. */
 export const hall = async (kv: Kv, today: string): Promise<HallResponse> => {
+  const cached = await kv.get(K.hallCache(today));
+  if (cached !== undefined) {
+    const r: HallResponse = JSON.parse(cached);
+    return r;
+  }
   const days: HallDay[] = [];
   for (let i = 1; i <= HALL_DAYS; i++) {
     const day = addDays(today, -i);
@@ -156,5 +180,7 @@ export const hall = async (kv: Kv, today: string): Promise<HallResponse> => {
     const d = await hallDay(kv, day);
     if (d !== null) days.push(d);
   }
+  await kv.set(K.hallCache(today), JSON.stringify({ days }));
+  await kv.expire(K.hallCache(today), TTL.hallCache);
   return { days };
 };
