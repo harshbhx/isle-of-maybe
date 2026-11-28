@@ -135,7 +135,8 @@ const SCAN = 25;
 export const pickCharts = async (
   kv: Kv,
   actor: Actor,
-  day: string
+  day: string,
+  challengeId?: string
 ): Promise<PickResponse> => {
   const used = await usedCharts(kv, actor, day);
   const taken = new Set<string>();
@@ -143,7 +144,16 @@ export const pickCharts = async (
     eligible(c, actor, day, used) && !taken.has(c.id);
   const out: { slot: PickSlot; c: StoredChart }[] = [];
 
-  if (actor.loggedIn) {
+  // A share link's chart goes first, but only if this player may hunt it (HUNT-1.4).
+  if (challengeId !== undefined) {
+    const c = await readChart(kv, challengeId);
+    if (c !== null && !c.captain && ok(c)) {
+      out.push({ slot: 'challenge', c });
+      taken.add(c.id);
+    }
+  }
+
+  if (actor.loggedIn && out.length < 3) {
     const trustIds = (
       await kv.zRange(K.chartsTrust(day), 0, SCAN - 1, {
         by: 'rank',
@@ -155,7 +165,7 @@ export const pickCharts = async (
       trustIds,
       (c) => ok(c) && !c.captain
     );
-    if (trusted !== null) {
+    if (trusted !== null && out.length < 3) {
       out.push({ slot: 'trusted', c: trusted });
       taken.add(trusted.id);
     }
@@ -163,7 +173,7 @@ export const pickCharts = async (
       await kv.zRange(K.chartsAttempts(day), 0, SCAN - 1, { by: 'rank' })
     ).map((m) => m.member);
     const fresh = await firstEligible(kv, freshIds, (c) => ok(c) && !c.captain);
-    if (fresh !== null) {
+    if (fresh !== null && out.length < 3) {
       out.push({ slot: 'fresh', c: fresh });
       taken.add(fresh.id);
     }
