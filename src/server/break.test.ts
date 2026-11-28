@@ -8,6 +8,7 @@ import { neighbors4, walkable } from '../shared/path.ts';
 import { idx } from '../shared/types.ts';
 import { FakeKv } from './testing/fake-kv.ts';
 import { DAY, NOW, addChart, alice, bob, postDay } from './testing/fixtures.ts';
+import { actorFrom } from './services/actor.ts';
 import { board, hall } from './services/boards.ts';
 import { buryChest } from './services/bury.ts';
 import { giveUp, startHunt } from './services/hunts.ts';
@@ -130,4 +131,27 @@ test('COM-3.2 repeat opens of the trusted board are served from a short cache', 
   assert.equal(first.me?.chart?.id, 't3');
   assert.deepEqual(first.rows, again.rows);
   assert.equal(again.me, null);
+});
+
+test('HUNT-2.3 / HUNT-6.1 logged-out viewers without a loid do not share one allowance', async () => {
+  const kv = new FakeKv();
+  await postDay(kv);
+  const first = actorFrom({}, 'a');
+  for (let i = 0; i < 3; i++)
+    await startHunt(kv, first, DAY, `cap-${DAY}-${i}`, `n${i}`);
+  // A different loid-less viewer can still play.
+  const r = await startHunt(kv, actorFrom({}, 'b'), DAY, `cap-${DAY}-0`, 'n9');
+  assert.equal(r.shovels, 3);
+  // The same viewer's next request (new throwaway id) can still finish their hunt by its id...
+  assert.equal((await giveUp(kv, actorFrom({}, 'c'), 'n0', NOW)).found, false);
+  // ...but nobody with a real identity can touch it.
+  await assert.rejects(
+    giveUp(kv, alice, 'n1', NOW),
+    (e: unknown) => e instanceof ApiError && e.code === 'forbidden'
+  );
+  await assert.rejects(
+    giveUp(kv, actorFrom({ loid: 'x' }), 'n1', NOW),
+    ApiError
+  );
+  assert.equal(actorFrom({ loid: '' }, 'd').ephemeral, true);
 });

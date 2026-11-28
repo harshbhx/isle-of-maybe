@@ -12,11 +12,14 @@ const DAY_RE = /^\d{4}-\d{2}-\d{2}$/;
 export const kv: Kv = redis;
 
 export const currentActor = (): Actor =>
-  actorFrom({
-    userId: context.userId,
-    username: context.username,
-    loid: context.loid,
-  });
+  actorFrom(
+    {
+      userId: context.userId,
+      username: context.username,
+      loid: context.loid,
+    },
+    crypto.randomUUID()
+  );
 
 /** The UTC day of the post being viewed, from post data or the post → day index. */
 export const postDay = async (): Promise<string> => {

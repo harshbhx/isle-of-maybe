@@ -33,7 +33,7 @@ import {
   zIncrTtl,
   type Kv,
 } from '../store/kv.ts';
-import type { Actor } from './actor.ts';
+import { ownsHunt, type Actor } from './actor.ts';
 import {
   MAX_HUNTS_PER_DAY,
   eligible,
@@ -69,7 +69,8 @@ const num = (v: string | undefined): number =>
 const loadHunt = async (kv: Kv, actor: Actor, id: string): Promise<Hunt> => {
   const h = await kv.hGetAll(K.hunt(id));
   if (h.actorId === undefined) throw new ApiError('not_found', 'no such hunt');
-  if (h.actorId !== actor.id) throw new ApiError('forbidden', 'not your hunt');
+  if (!ownsHunt(actor, h.actorId))
+    throw new ApiError('forbidden', 'not your hunt');
   return {
     id,
     actorId: h.actorId,
