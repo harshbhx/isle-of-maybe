@@ -12,6 +12,7 @@ import { rngFor } from '../../shared/rng.ts';
 import { serverCopy } from '../copy.ts';
 import { K } from '../store/keys.ts';
 import { TTL, hSetTtl, type Kv } from '../store/kv.ts';
+import { applyFlairs, type SetFlairs } from './flair.ts';
 import { islandOf, readDay } from './island.ts';
 
 /** The two Reddit calls the job needs, so tests can fake them. */
@@ -21,6 +22,7 @@ export type DailyPort = {
     postData: { day: string; seed: string; modifier: string }
   ) => Promise<string>;
   stickyComment: (postId: string, text: string) => Promise<string>;
+  setFlairs: SetFlairs;
 };
 
 export type DailyResult = {
@@ -84,7 +86,18 @@ export const storeCaptainCharts = async (
   }
 };
 
+/** The daily job: post today's island, then catch up on tier flair (COM-6.1). */
 export const runDaily = async (
+  kv: Kv,
+  port: DailyPort,
+  nowMs: number
+): Promise<DailyResult> => {
+  const r = await postIsland(kv, port, nowMs);
+  await applyFlairs(kv, port.setFlairs);
+  return r;
+};
+
+const postIsland = async (
   kv: Kv,
   port: DailyPort,
   nowMs: number

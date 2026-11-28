@@ -1,4 +1,5 @@
-// Devvit implementation of the daily job's Reddit calls: create the island post, sticky the thread.
+// Devvit implementation of the daily job's Reddit calls: create the island post, sticky the thread,
+// set tier flair.
 import { context, reddit } from '@devvit/web/server';
 import { isT3 } from '@devvit/web/shared';
 import type { DailyPort } from '../services/daily.ts';
@@ -22,5 +23,8 @@ export const redditPort: DailyPort = {
     });
     await comment.distinguish(true);
     return comment.id;
+  },
+  setFlairs: async (rows) => {
+    await reddit.setUserFlairBatch(context.subredditName, rows);
   },
 };

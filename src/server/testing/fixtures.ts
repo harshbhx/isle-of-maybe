@@ -16,6 +16,7 @@ export const anon: Actor = { id: 'anon:loid1', name: null, loggedIn: false };
 export const nullPort: DailyPort = {
   createPost: async () => 't3_day',
   stickyComment: async () => 't1_sticky',
+  setFlairs: async () => {},
 };
 
 export const postDay = async (kv: FakeKv, now = NOW): Promise<void> => {
