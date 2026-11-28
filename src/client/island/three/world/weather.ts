@@ -24,7 +24,7 @@ export type Weather = {
 };
 
 /** A soft round puff drawn once on a canvas: no image files, no requests. */
-const puffTexture = (leaf: boolean): Texture => {
+export const puffTexture = (leaf: boolean): Texture => {
   const c = document.createElement('canvas');
   c.width = 64;
   c.height = 64;
