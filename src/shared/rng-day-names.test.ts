@@ -69,7 +69,7 @@ test('DAY-2.1 weekday modifier cycle', () => {
 });
 
 test('DAY-2.2 unimplemented modifiers fall back to clear skies', () => {
-  assert.equal(modifierFor('2026-12-12'), 'clear');
+  assert.equal(modifierFor('2026-12-12'), 'lanterns');
   assert.equal(modifierFor('2026-12-13'), 'clear');
   assert.equal(modifierFor('2026-12-11'), 'fog');
 });

@@ -159,3 +159,13 @@ const GOLDEN = {
     'skullRock@14,5',
   ],
 };
+
+test('DAY-2.1 Lantern night only changes what you see, never the island itself', () => {
+  for (const day of ['2026-12-05', '2026-12-12', '2026-12-19']) {
+    const clear = generateIsland(`maybe-${day}`, 'clear');
+    const lantern = generateIsland(`maybe-${day}`, 'lanterns');
+    assert.deepEqual([...lantern.terrain], [...clear.terrain], day);
+    assert.deepEqual(lantern.landmarks, clear.landmarks, day);
+    assert.deepEqual(lantern.dock, clear.dock, day);
+  }
+});
