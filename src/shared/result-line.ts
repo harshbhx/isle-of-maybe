@@ -1,6 +1,7 @@
 // The spoiler-free result line for shares and challenges (COM-2.6): day, shovels used, found or
 // missed, depth and Ink grade. Never coordinates or landmark positions. Words come from the caller.
 import type { Grade } from './chart.ts';
+import { fillTemplate } from './template.ts';
 import type { Depth } from './types.ts';
 
 export type ResultParts = {
@@ -19,8 +20,7 @@ export type ResultWords = {
   ink: Record<Grade, string>;
 };
 
-const fill = (t: string, v: Record<string, string | number>): string =>
-  t.replace(/\{(\w+)\}/g, (m, k: string) => (k in v ? String(v[k]) : m));
+const fill = fillTemplate;
 
 export const resultLine = (p: ResultParts, w: ResultWords): string => {
   const parts = [fill(w.day, { n: p.dayNumber })];

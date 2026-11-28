@@ -1,6 +1,6 @@
 # 06 — Copy
 
-Voice: short, salty, kind. Tease the map, never the player. Every string lives in `src/client/copy.ts` under these keys. English only (the rules require English).
+Voice: short, salty, kind. Tease the map, never the player. Every string lives in `src/client/copy.ts` under these keys. English only (the rules require English). Counts pick their word in the template: `{n} {n:shovel|shovels}` reads "1 shovel", "2 shovels" (`src/shared/template.ts`); the tables below show the plural.
 
 ## Splash
 | Key | Text |
