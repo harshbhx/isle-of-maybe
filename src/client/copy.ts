@@ -131,6 +131,8 @@ export const copy = {
     streak: 'Streak {n}',
     total: '{n} gold total',
     noChest: 'No chest buried yet.',
+    tomorrow: 'Tomorrow’s island',
+    countdown: 'Lands in {t}',
   },
   share: {
     title: 'Share your chart?',
