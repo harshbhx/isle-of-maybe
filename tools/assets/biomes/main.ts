@@ -31,7 +31,8 @@ if (canvas instanceof HTMLCanvasElement) {
       highlight: null,
     },
     zoom,
-    at
+    // Wide shots frame the whole isle; close ones stand on the dock.
+    zoom < 0.6 ? { x: 20, y: 18 } : at
   );
   h.setHat('legend');
 }
