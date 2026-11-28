@@ -171,6 +171,11 @@ export const Practice = ({ onDone }: { onDone: () => void }) => {
     return () => window.clearInterval(id);
   }, [h3d, stage]);
 
+  useEffect(() => {
+    if (h3d === null) return;
+    h3d.setHat(app.init.user.tier);
+    h3d.setSign(copy.practice.title, null, "'Fraunces', Georgia, serif");
+  }, [h3d, app.init]);
   useDriveKeys(stage === 'play' ? h3d : null);
   const input = useRoute(
     island.terrain,

@@ -50,7 +50,8 @@ import { createFlora, type Wind } from './world/flora.ts';
 import { SEA_LEVELS, buildHeights, type Heights } from './world/heights.ts';
 import { createBirds } from './world/life.ts';
 import { createMist, type Mist } from './world/mist.ts';
-import { createExplorer, type Pose } from './world/explorer.ts';
+import { createExplorer, type HatTier, type Pose } from './world/explorer.ts';
+import { createSign } from './world/sign.ts';
 import { createQuicksand } from './world/quicksand.ts';
 import {
   createCinematic,
@@ -80,6 +81,10 @@ export type Island3D = {
   pose: (p: Pose | null) => void;
   /** The explorer's position in tile units, while driving. */
   position: () => { x: number; y: number } | null;
+  /** The explorer's hat shows the player's flair tier (ADV-6.1). */
+  setHat: (tier: HatTier) => void;
+  /** The carved sign by the dock: the island's name and who named it (ADV-6.3). */
+  setSign: (title: string, by: string | null, font: string) => void;
   /** The end of a hunt on screen (ADV-5): resolves when it has played. */
   cinematic: (c: {
     kind: 'found' | 'missed' | 'tide';
@@ -531,6 +536,7 @@ export const createIsland3D = (
   // Quicksand shows where a screen passes the hunt's hazards (the hunt does; Practice Cove doesn't).
   let lastQs: ReadonlySet<number> | null = null;
   let qsMesh: Object3D | null = null;
+  let signObj: Group | null = null;
   const env = new Group();
   scene.add(env);
 
@@ -1217,6 +1223,31 @@ export const createIsland3D = (
       }
     },
     position: () => (drv === null ? null : { x: pos.x, y: pos.y }),
+    setHat: (tier) => explorer.setHat(tier),
+    setSign: (title, by, font) => {
+      if (signObj !== null) {
+        world.remove(signObj);
+        dispose(signObj);
+        signObj = null;
+      }
+      const isl = island;
+      if (isl === null || heights === null) return;
+      // Beside the jetty, on the first dry tile inland from the dock.
+      const d = isl.dock;
+      const spot = [
+        { x: d.x - 1, y: d.y - 1 },
+        { x: d.x + 1, y: d.y - 1 },
+        { x: d.x, y: d.y - 2 },
+      ].find((t) => tileKind(isl, t.x, t.y) !== 'water') ?? {
+        x: d.x - 1,
+        y: d.y,
+      };
+      const w = toWorld(spot);
+      signObj = createSign(title, by, font);
+      signObj.position.set(w.x, heights.at(w.x, w.z), w.z);
+      signObj.rotation.y = 0.15;
+      world.add(signObj);
+    },
     cinematic: (c) =>
       new Promise<void>((resolve) => {
         const w = toWorld(c.chest);

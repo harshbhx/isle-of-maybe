@@ -16,6 +16,19 @@ import {
 export type Pose =
   'idle' | 'walk' | 'run' | 'dig' | 'stuck' | 'celebrate' | 'dejected';
 
+/** Flair tiers (ENG-4.5) shown as hats (ADV-6.1). */
+export type HatTier =
+  'deckhand' | 'mapmaker' | 'navigator' | 'cartographer' | 'legend';
+
+type Hat = { felt: number; band: number; feather: number | null; pin: boolean };
+const HATS: Record<HatTier, Hat> = {
+  deckhand: { felt: 0xe2c26b, band: 0xb8233f, feather: null, pin: false },
+  mapmaker: { felt: 0x8a5a2b, band: 0x3a2a1a, feather: null, pin: false },
+  navigator: { felt: 0x2f5d3a, band: 0xf3e6c8, feather: 0xfaf6ec, pin: false },
+  cartographer: { felt: 0x2f4a7a, band: 0xd8c08a, feather: null, pin: true },
+  legend: { felt: 0x221c18, band: 0xffc83d, feather: 0xffc83d, pin: true },
+};
+
 const mat = (color: number): MeshLambertMaterial =>
   new MeshLambertMaterial({ color });
 
@@ -47,6 +60,8 @@ export type Explorer = {
   root: Group;
   /** Advance the animation; `speed` is tiles per second, used for stride. */
   animate: (dt: number, pose: Pose, speed: number) => void;
+  /** Dress the hat for a flair tier (ADV-6.1). */
+  setHat: (tier: HatTier) => void;
 };
 
 export const createExplorer = (): Explorer => {
@@ -169,6 +184,35 @@ export const createExplorer = (): Explorer => {
   );
   band.position.y = 0.11;
   head.add(face, hair, eyeL, eyeR, nose, brim, crown, dent, band);
+  // Tier extras: a feather tucked in the band, and a compass pin at the front.
+  const feather = part(new ConeGeometry(0.03, 0.3, 4), 0xfaf6ec);
+  feather.scale.set(1, 1, 0.3);
+  feather.position.set(0.11, 0.2, -0.03);
+  feather.rotation.set(-0.5, 0, -0.45);
+  const pin = new Group();
+  const pinDisc = part(new CylinderGeometry(0.03, 0.03, 0.012, 12), 0xffc83d);
+  pinDisc.rotation.x = Math.PI / 2;
+  const needle = part(new ConeGeometry(0.01, 0.045, 4), 0xb8233f);
+  needle.position.z = 0.008;
+  pin.add(pinDisc, needle);
+  pin.position.set(0, 0.11, 0.124);
+  head.add(feather, pin);
+  const tint = (m: Mesh, hex: number, glow = 0): void => {
+    const mt = m.material;
+    if (mt instanceof MeshLambertMaterial) {
+      mt.color.setHex(hex);
+      mt.emissive.setHex(glow);
+    }
+  };
+  const setHat = (tier: HatTier): void => {
+    const h = HATS[tier];
+    for (const m of [brim, crown, dent]) tint(m, h.felt);
+    tint(band, h.band, tier === 'legend' ? 0x5a3c00 : 0);
+    feather.visible = h.feather !== null;
+    if (h.feather !== null) tint(feather, h.feather);
+    pin.visible = h.pin;
+  };
+  setHat('deckhand');
 
   let phase = 0;
   let t = 0;
@@ -251,5 +295,5 @@ export const createExplorer = (): Explorer => {
       shovel.rotation.set(0.5 + Math.sin(s * Math.PI * 2) * 0.35, 0, 0);
     }
   };
-  return { root, animate };
+  return { root, animate, setHat };
 };

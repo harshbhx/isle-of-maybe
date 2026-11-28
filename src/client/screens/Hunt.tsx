@@ -194,6 +194,18 @@ export const Hunt = ({ start, chart }: Props) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [h3d]);
 
+  // Reddit on the island (ADV-6.1, ADV-6.3): your flair hat, and the sign for whoever named it.
+  useEffect(() => {
+    if (h3d === null) return;
+    h3d.setHat(app.init.user.tier);
+    const by = app.init.island.namedBy;
+    h3d.setSign(
+      island.name,
+      by === null ? null : fmt(copy.hunt.namedBy, { name: by }),
+      PLAQUE_FONT
+    );
+  }, [h3d, app.init, island.name]);
+
   // Keys in 3D: hold to move, Shift to run.
   useDriveKeys(h3d);
 

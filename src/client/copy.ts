@@ -80,6 +80,7 @@ export const copy = {
     tideRising: 'The tide is coming in! The low beach is going under.',
     plaque: 'Buried by u/{name}',
     plaqueCaptain: 'The Old Captain',
+    namedBy: 'Named by u/{name}',
     confirmGiveup: 'Give up and see where the chest was?',
   },
   reveal: {
