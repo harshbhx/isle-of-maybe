@@ -37,6 +37,7 @@ export const TTL = {
   hunt: 2 * DAY_S,
   board: 40 * DAY_S,
   reports: 30 * DAY_S,
+  flair: 8 * DAY_S,
   rate: 2,
 } as const;
 

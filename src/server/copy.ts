@@ -6,6 +6,14 @@ export const serverCopy = {
   shareSticky: (n: number) =>
     `🗺️ Chart shares for Day ${n} go here. Share yours from inside the game: it replies to this comment from your account.`,
   captainName: 'Old Captain',
+  /** Tier names, also used as user flair (COM-6.1). Same text as tier.* in docs/06-COPY.md. */
+  tierName: {
+    deckhand: 'Deckhand',
+    mapmaker: 'Mapmaker',
+    navigator: 'Navigator',
+    cartographer: 'Cartographer',
+    legend: 'Legend of the Isles',
+  },
   toastPosted: (n: number) => `Day ${n} is posted.`,
   toastAlready: (n: number) =>
     `Day ${n} already exists. Filled in anything missing.`,

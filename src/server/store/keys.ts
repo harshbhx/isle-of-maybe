@@ -22,6 +22,7 @@ export const K = {
   boardGoldWeek: (w: string) => `board:gold:${w}`,
   boardCartographers: () => 'board:cartographers',
   reportsQueue: () => 'reports:queue',
+  flairPending: () => 'flair:pending',
   shareComment: (commentId: string) => `sharecomment:${commentId}`,
   rate: (u: string, sec: number) => `rl:${u}:${sec}`,
 } as const;
