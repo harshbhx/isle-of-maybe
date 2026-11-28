@@ -1,6 +1,6 @@
 # 16 — QA report
 
-Automated run of the QA matrix and break tests (`docs/08-TESTING.md`) against the local preview, 28 Nov 2026, `main` after #123. Re-run before every upload to the demo sub (SHIP-4.1):
+Automated run of the QA matrix and break tests (`docs/08-TESTING.md`) against the local preview, 28 Nov 2026, `main` after #137 (judge pass). Re-run before every upload to the demo sub (SHIP-4.1):
 
 ```bash
 npm run build && npm run qa        # writes nothing; add a path to save the table
@@ -23,6 +23,9 @@ npm run build && npm run qa        # writes nothing; add a path to save the tabl
 | B6 | 50 stamps via the API → rejected | PASS | 50 stamps → HTTP 400 |
 | B12/Q8 | Second bury / double tap → one chest | PASS | bury again after Q1 → HTTP 400, 400 |
 | Q2 | Logged out: hunt captain charts, bury asks to log in | PASS | captain charts only (6); bury asks to log in |
+| J1 | Splash says what the game is at every post size | PASS | pitch visible at 390×320, 390×512, 740×320; how-it-works strip only when ≥ 440 px tall |
+| J2 | Hunt shows one hint at a time | PASS | hints on screen before/after walking: 1/1 |
+| J4 | Wide screens show the chart beside the island | PASS | 1280×800: chart panel beside the island, thumbnail hidden |
 
 **Needs a real device or Reddit (Harsh):**
 
@@ -37,6 +40,8 @@ npm run build && npm run qa        # writes nothing; add a path to save the tabl
 - [ ] **Q20/Q21** Daily job twice → one post; day rollover during a hunt
 - [ ] **Q22** Console clean in Android/iOS Reddit apps, Firefox, Safari
 - [ ] **§5** Judge simulation on 7 and 8 Dec (two people, phone + desktop)
+- [ ] **J5** Result card: Join the crew opens the subreddit (Reddit only: needs the post's subreddit name)
+- [ ] **J6** Every judging day: ≥ 5 tester charts on today's island; Pick shows Trusted and Fresh
 
 ## Break tests 1–12 → where they're enforced
 | # | Attack | Result | Test |
@@ -57,6 +62,6 @@ npm run build && npm run qa        # writes nothing; add a path to save the tabl
 Extra attacks from the red-team pass (bury before finishing a hunt, scraping the Hall, loid-less viewers, rate-limit order) are in `src/server/break.test.ts` and `docs/01-RED-TEAM.md`.
 
 ## Also verified
-- axe-core over all 12 screens: 0 violations (#112).
+- axe-core over all 12 screens: 0 violations (#112); re-run after the judge pass on the new splash (390×512) and the wide hunt (1280×800): 0 violations.
 - Bundle ≈ 101 KB gzip; `tools/check-dist.mjs` fails the build if anything points outside `dist/client`.
 - Every Redis key has a TTL, and nothing but day records, counts, post links and streak bits outlives 30 days (`cleanup.test.ts`).

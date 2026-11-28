@@ -7,7 +7,7 @@ Harsh's other commitments in this window (plan around them): 404 Hackathon (Sun 
 ---
 
 ## Status (28 Nov 2026): Phases 1–3 are built
-Engine, server and client are merged on `main` with 137 tests, an automated QA run (`npm run qa`, 14/14) and an accessibility scan with 0 violations. Phase 0 is now about getting the built game onto Reddit; `LAPTOP-PROMPT.md` covers it end to end. Gates G1–G2 are passed by tests; G3 and G4 still need phones, testers and the judge simulations.
+Engine, server and client are merged on `main` with 139 tests, an automated QA run (`npm run qa`, 17/17, including the judge red-team checks J1, J2, J4) and an accessibility scan with 0 violations. Phase 0 is now about getting the built game onto Reddit; `LAPTOP-PROMPT.md` covers it end to end. Gates G1–G2 are passed by tests; G3 and G4 still need phones, testers and the judge simulations.
 
 ## Phase 0 — setup (one 45-minute slot, before Tue 1 Dec)
 Already done by Claude: repo `harshbhx/isle-of-maybe` scaffolded from the Devvit React template, specs, docs, CI, issue/PR templates, labels, milestones and all task issues (T04, T05).
