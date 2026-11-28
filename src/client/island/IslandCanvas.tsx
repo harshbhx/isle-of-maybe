@@ -43,6 +43,14 @@ const webglAvailable = (): boolean => {
   return webglChecked;
 };
 
+const fixedQuality = (): boolean => {
+  try {
+    return window.localStorage.getItem('iom:quality') === 'fixed';
+  } catch {
+    return false;
+  }
+};
+
 export const IslandCanvas = (props: Props) => {
   const [mode, setMode] = useState<'2d' | '3d'>(() =>
     props.flat !== true && webglAvailable() ? '3d' : '2d'
@@ -88,6 +96,9 @@ const Canvas3D = ({
           const h = m.createIsland3D(canvas, {
             reducedMotion: reducedMotion(),
             onFail,
+            // A stored `iom:quality = fixed` keeps full quality for offline captures (gallery,
+            // video); players never set it, and it only affects how the island looks.
+            adaptive: fixedQuality() === false,
           });
           handle.current = h;
           const l = latest.current;
