@@ -41,6 +41,7 @@ export const copy = {
   hint: {
     pick: 'Strangers drew these from memory. Pick one.',
     hunt: 'Tap the island to walk. Open the chart any time.',
+    roam: 'Walk with the stick or WASD. Push far or hold Shift to run. The tide is coming in.',
     dig: 'You have 3 shovels. Dig where the X says.',
     bury: 'You can only bury where you’ve been. Deeper pays more.',
     chart: 'Now draw the way. From memory.',
@@ -73,6 +74,9 @@ export const copy = {
     zoomIn: 'Zoom in',
     zoomOut: 'Zoom out',
     walking: 'Walking…',
+    stick: 'Move the explorer',
+    timeLeft: 'Time before the tide: {t}',
+    tideCovered: 'The tide has covered this spot. Get to higher sand.',
     confirmGiveup: 'Give up and see where the chest was?',
   },
   reveal: {

@@ -50,6 +50,7 @@ import { createFlora, type Wind } from './world/flora.ts';
 import { SEA_LEVELS, buildHeights, type Heights } from './world/heights.ts';
 import { createBirds } from './world/life.ts';
 import { createMist, type Mist } from './world/mist.ts';
+import { createExplorer, type Pose } from './world/explorer.ts';
 import { createSea, type Sea } from './world/sea.ts';
 import { createSky, skyLook } from './world/sky.ts';
 import { buildTerrainGeometry } from './world/terrain.ts';
@@ -63,10 +64,35 @@ export type Island3D = {
   tileAt: (px: number, py: number) => Tile | null;
   /** Sea level as a fractional tide level 0–3 (ADV-4.2). */
   setTide: (level: number) => void;
+  /** Free movement (ADV-3): the renderer moves the explorer and reports each tile step. */
+  drive: (d: Drive | null) => void;
+  /** Stick or keys: x right, y down the screen, length 0–1; `run` forces running. */
+  input: (x: number, y: number, run: boolean) => void;
+  /** Travel to a tapped tile along a walkable path. */
+  goTo: (t: Tile) => void;
+  /** Hold a pose (dig, celebrate, dejected); null hands it back to movement. */
+  pose: (p: Pose | null) => void;
+  /** The explorer's position in tile units, while driving. */
+  position: () => { x: number; y: number } | null;
   dispose: () => void;
 };
 
 export type Quality = 'high' | 'low';
+
+export type Ground = 'open' | 'thicket' | 'quicksand';
+export type Drive = {
+  start: Tile;
+  /** Impassable now: not walkable, or under the tide. */
+  blocked: (x: number, y: number) => boolean;
+  ground: (x: number, y: number) => Ground;
+  onStep: (t: Tile) => void;
+};
+
+/** Tiles per second (ADV-3.1). Running diagonally still stays under the server's 5 steps/s. */
+const WALK = 2.2;
+const RUN = 3.4;
+const RADIUS = 0.22;
+const TRAP_S = 2.5;
 
 /** High on a desktop-class device, lighter on phones (ADV-4.3). */
 export const qualityTier = (): Quality => {
@@ -380,38 +406,6 @@ const landmarkModel = (type: LandmarkType): Group => {
   return g;
 };
 
-const sailorModel = (): Group => {
-  const g = new Group();
-  const body = new Mesh(
-    new CylinderGeometry(0.12, 0.15, 0.36, 8),
-    lambert(COL.coat)
-  );
-  body.position.y = 0.2;
-  const head = new Mesh(
-    new SphereGeometry(0.11, 10, 8),
-    lambert(COL.skin, { flat: false })
-  );
-  head.position.y = 0.48;
-  const brim = new Mesh(
-    new CylinderGeometry(0.17, 0.17, 0.02, 12),
-    lambert(COL.ink)
-  );
-  brim.position.y = 0.56;
-  const hat = new Mesh(new ConeGeometry(0.11, 0.16, 8), lambert(COL.ink));
-  hat.position.y = 0.64;
-  const scarf = new Mesh(
-    new TorusGeometry(0.11, 0.025, 4, 10),
-    lambert(COL.hibiscus)
-  );
-  scarf.rotation.x = Math.PI / 2;
-  scarf.position.y = 0.38;
-  g.add(body, head, brim, hat, scarf);
-  g.traverse((o) => {
-    o.castShadow = true;
-  });
-  return g;
-};
-
 const chestModel = (open: boolean, ghost: boolean): Group => {
   const g = new Group();
   const m = (c: number): MeshLambertMaterial =>
@@ -511,6 +505,7 @@ export const createIsland3D = (
   scene.add(sun);
   scene.add(sun.target);
   const wind: Wind = { value: 0 };
+  const sunDir = new Vector3(-0.55, 0.72, 0.42).normalize();
   let sea: Sea | null = null;
   let tide = 0;
   let sky: { group: Group; tick: (t: number) => void } | null = null;
@@ -523,10 +518,22 @@ export const createIsland3D = (
   scene.add(world);
   const dynamic = new Group();
   scene.add(dynamic);
-  const sailor = sailorModel();
-  sailor.scale.setScalar(1.35);
+  const explorer = createExplorer();
+  const sailor = explorer.root;
+  sailor.scale.setScalar(0.95);
   sailor.visible = false;
   scene.add(sailor);
+  // Free movement state (ADV-3).
+  let drv: Drive | null = null;
+  const pos = { x: 0, y: 0 };
+  let tileNow: Tile = { x: 0, y: 0 };
+  const stick = { x: 0, y: 0, run: false };
+  let path: Tile[] = [];
+  let trapped = 0;
+  let held: Pose | null = null;
+  let heading = 0;
+  let lastT = 0;
+  let zoomNow = 1;
 
   const footGeo = new CircleGeometry(0.05, 6);
   footGeo.rotateX(-Math.PI / 2);
@@ -609,6 +616,7 @@ export const createIsland3D = (
     sun.color.copy(look.sun);
     sun.intensity = look.sunPower;
     sun.position.copy(look.sunDir).multiplyScalar(40);
+    sunDir.copy(look.sunDir);
     sky = createSky(look, next.seed, quality === 'high' ? 7 : 3);
     env.add(sky.group);
     sea = createSea(h, {
@@ -829,11 +837,162 @@ export const createIsland3D = (
       );
     } else wantTarget = new Vector3(0, 0.4, 0.5);
     tilt = zoom <= 0 ? tiltWide : tiltClose;
+    zoomNow = zoom;
+    if (drv !== null) {
+      // Follow camera: close and a little lower, so the island feels big around you.
+      wantDistance = (aspect < 1 ? 11.5 : 9.5) / Math.max(0.6, zoom);
+      tilt = (46 * Math.PI) / 180;
+      const w = toWorld(pos);
+      wantTarget = new Vector3(w.x, 0.6, w.z);
+    }
     if (!snapped || opts.reducedMotion) {
       target.copy(wantTarget);
       distance = wantDistance;
       snapped = true;
     }
+  };
+
+  // --- Free movement (ADV-3.1 – ADV-3.3) ---
+  let curPose: Pose = 'idle';
+  let curSpeed = 0;
+  const tileOf = (p: { x: number; y: number }): Tile => ({
+    x: Math.round(p.x),
+    y: Math.round(p.y),
+  });
+  /** Would a circle at (x, y) overlap any blocked tile? */
+  const hits = (x: number, y: number): boolean => {
+    if (drv === null) return false;
+    for (let ty = Math.round(y - RADIUS); ty <= Math.round(y + RADIUS); ty++)
+      for (
+        let tx = Math.round(x - RADIUS);
+        tx <= Math.round(x + RADIUS);
+        tx++
+      ) {
+        if (!drv.blocked(tx, ty)) continue;
+        // Closest point of the tile square to the circle centre.
+        const cx = Math.max(tx - 0.5, Math.min(x, tx + 0.5));
+        const cy = Math.max(ty - 0.5, Math.min(y, ty + 0.5));
+        if ((cx - x) ** 2 + (cy - y) ** 2 < RADIUS * RADIUS) return true;
+      }
+    return false;
+  };
+  /** Shortest 4-directional path through tiles that aren't blocked (BFS; the island is small). */
+  const route = (from: Tile, to: (t: Tile) => boolean): Tile[] => {
+    if (drv === null) return [];
+    const key = (t: Tile): number => t.y * W + t.x;
+    const prev = new Map<number, number>([[key(from), -1]]);
+    const queue: Tile[] = [from];
+    for (let q = 0; q < queue.length && q < W * H; q++) {
+      const c = queue[q];
+      if (c === undefined) break;
+      if (q > 0 && to(c)) {
+        const out: Tile[] = [];
+        let k = key(c);
+        while (k !== key(from) && k >= 0) {
+          out.unshift({ x: k % W, y: Math.floor(k / W) });
+          k = prev.get(k) ?? -1;
+        }
+        return out;
+      }
+      for (const [dx, dy] of [
+        [1, 0],
+        [-1, 0],
+        [0, 1],
+        [0, -1],
+      ] as const) {
+        const n = { x: c.x + dx, y: c.y + dy };
+        if (n.x < 0 || n.y < 0 || n.x >= W || n.y >= H) continue;
+        if (prev.has(key(n)) || drv.blocked(n.x, n.y)) continue;
+        prev.set(key(n), key(c));
+        queue.push(n);
+      }
+    }
+    return [];
+  };
+  /** Report the tile change as 4-directional steps (a diagonal goes through an open neighbour). */
+  const stepTo = (next: Tile): void => {
+    if (drv === null) return;
+    const a = tileNow;
+    if (a.x === next.x && a.y === next.y) return;
+    const d = Math.abs(a.x - next.x) + Math.abs(a.y - next.y);
+    let steps: Tile[];
+    if (d === 1) steps = [next];
+    else if (d === 2 && a.x !== next.x && a.y !== next.y) {
+      const m1 = { x: next.x, y: a.y };
+      const m2 = { x: a.x, y: next.y };
+      steps = !drv.blocked(m1.x, m1.y)
+        ? [m1, next]
+        : !drv.blocked(m2.x, m2.y)
+          ? [m2, next]
+          : [];
+    } else steps = route(a, (t) => t.x === next.x && t.y === next.y);
+    if (steps.length === 0) {
+      // Can't legally get there: stay on the old tile.
+      pos.x = a.x;
+      pos.y = a.y;
+      return;
+    }
+    for (const st of steps) drv.onStep(st);
+    tileNow = next;
+    if (drv.ground(next.x, next.y) === 'quicksand') trapped = TRAP_S;
+  };
+  const move = (dt: number): void => {
+    if (drv === null || dt <= 0) return;
+    const here = tileOf(pos);
+    // The tide reached you: wade back up the beach.
+    if (drv.blocked(here.x, here.y) && path.length === 0)
+      path = route(here, (t) => !(drv?.blocked(t.x, t.y) ?? true));
+    if (held !== null) {
+      curPose = held;
+      curSpeed = 0;
+      return;
+    }
+    if (trapped > 0) {
+      trapped -= dt;
+      curPose = 'stuck';
+      curSpeed = 0;
+      return;
+    }
+    let vx = stick.x;
+    let vy = stick.y;
+    let mag = Math.hypot(vx, vy);
+    if (mag > 0.05) path = [];
+    else if (path.length > 0) {
+      const goal = path[0];
+      if (goal !== undefined) {
+        vx = goal.x - pos.x;
+        vy = goal.y - pos.y;
+        const dist = Math.hypot(vx, vy);
+        if (dist < 0.08) {
+          path.shift();
+          vx = 0;
+          vy = 0;
+        } else {
+          vx /= dist;
+          vy /= dist;
+        }
+        mag = path.length > 6 ? 1 : 0.6;
+      }
+    }
+    mag = Math.min(1, mag);
+    if (mag < 0.05) {
+      curPose = 'idle';
+      curSpeed = 0;
+      return;
+    }
+    const running = stick.run || mag > 0.75 || path.length > 6;
+    const g = drv.ground(here.x, here.y);
+    const speed = (running ? RUN : WALK) * (g === 'open' ? 1 : 0.5);
+    const len = Math.hypot(vx, vy) || 1;
+    const sx = (vx / len) * speed * dt * Math.max(mag, 0.35);
+    const sy = (vy / len) * speed * dt * Math.max(mag, 0.35);
+    // Slide along walls: try each axis on its own.
+    if (!hits(pos.x + sx, pos.y)) pos.x += sx;
+    if (!hits(pos.x, pos.y + sy)) pos.y += sy;
+    heading = Math.atan2(vx, vy);
+    curPose = running ? 'run' : 'walk';
+    curSpeed = speed;
+    stepTo(tileOf(pos));
   };
 
   const ray = new Raycaster();
@@ -877,6 +1036,14 @@ export const createIsland3D = (
       camera.updateProjectionMatrix();
     }
     const t = now / 1000;
+    const dt = Math.min(0.05, lastT === 0 ? 0 : t - lastT);
+    lastT = t;
+    if (drv !== null) {
+      move(dt);
+      const w = toWorld(pos);
+      wantTarget = new Vector3(w.x, 0.6, w.z);
+      if (opts.reducedMotion) target.copy(wantTarget);
+    }
     if (!opts.reducedMotion) {
       target.lerp(wantTarget, 0.16);
       distance += (wantDistance - distance) * 0.16;
@@ -901,26 +1068,19 @@ export const createIsland3D = (
     // Keep the sun's shadow box centred on what the camera is looking at.
     if (sun.target.position.distanceToSquared(target) > 1) {
       sun.target.position.copy(target);
-      sun.position
-        .copy(target)
-        .addScaledVector(
-          sun.position.clone().sub(sun.target.position).normalize(),
-          40
-        );
+      sun.position.copy(target).addScaledVector(sunDir, 40);
     }
 
     const s = current;
     if (s !== null) {
-      if (s.sailor !== null) {
-        const sx = s.sailor.x;
-        const sy = s.sailor.y;
-        const wpos = toWorld({ x: sx, y: sy });
+      const at = drv !== null ? pos : s.sailor;
+      if (at !== null) {
+        const wpos = toWorld(at);
         sailor.visible = true;
-        sailor.position.set(
-          wpos.x,
-          topAt(Math.round(sx), Math.round(sy)),
-          wpos.z
-        );
+        const ground = heights?.at(wpos.x, wpos.z) ?? 0;
+        sailor.position.set(wpos.x, Math.max(ground, seaY() - 0.25), wpos.z);
+        sailor.rotation.y = heading;
+        explorer.animate(dt, curPose, curSpeed);
       } else sailor.visible = false;
       // Sand puffs: grains thrown out over 300 ms.
       dispose(dynamic);
@@ -959,6 +1119,37 @@ export const createIsland3D = (
       tide = level;
       sea?.setLevel(seaLevelFor(level));
     },
+    drive: (d) => {
+      drv = d;
+      path = [];
+      trapped = 0;
+      held = null;
+      if (d !== null) {
+        pos.x = d.start.x;
+        pos.y = d.start.y;
+        tileNow = d.start;
+        heading = Math.PI;
+      }
+      if (current !== null) update(current, zoomNow, null);
+    },
+    input: (x, y, run) => {
+      stick.x = x;
+      stick.y = y;
+      stick.run = run;
+    },
+    goTo: (t) => {
+      if (drv === null) return;
+      path = route(tileOf(pos), (c) => c.x === t.x && c.y === t.y);
+    },
+    pose: (p) => {
+      held = p;
+      if (p !== null) {
+        path = [];
+        // Face the camera for the big moments.
+        if (p === 'celebrate' || p === 'dejected') heading = 0;
+      }
+    },
+    position: () => (drv === null ? null : { x: pos.x, y: pos.y }),
     dispose: () => {
       alive = false;
       cancelAnimationFrame(frame);

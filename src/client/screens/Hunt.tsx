@@ -15,7 +15,18 @@ import {
   hazardsFor,
   stepSeconds,
 } from '../../shared/hazards.ts';
+import { walkable } from '../../shared/path.ts';
+import {
+  HUNT_SECONDS,
+  TIDE_WAVES,
+  coastDistance,
+  flooded,
+  tideLevel,
+} from '../../shared/tide.ts';
+import { W as GRID_W } from '../../shared/types.ts';
 import type { Tile } from '../../shared/types.ts';
+import { Joystick } from '../components/Joystick.tsx';
+import type { Island3D } from '../island/three/island3d.ts';
 import { useApp } from '../app-context.ts';
 import { ChartView } from '../components/ChartView.tsx';
 import { Hint } from '../components/Hint.tsx';
@@ -32,6 +43,9 @@ import { toast } from '../lib/platform.ts';
 import { play } from '../lib/sound.ts';
 
 type Props = { start: HuntStartResponse; chart: ChartPublic; slot: PickSlot };
+
+const clock = (s: number): string =>
+  `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, '0')}`;
 
 export const Hunt = ({ start, chart }: Props) => {
   const app = useApp();
@@ -51,6 +65,15 @@ export const Hunt = ({ start, chart }: Props) => {
   const [walked, setWalked] = useState(false);
   const [puffs, setPuffs] = useState<{ at: Tile; t: number }[]>([]);
   const walker = useWalker(start.at);
+  // The 3D renderer, once running: the explorer then moves freely (ADV-3).
+  const [h3d, setH3d] = useState<Island3D | null>(null);
+  const coast = useMemo(() => coastDistance(island), [island]);
+  const tideRef = useRef(0);
+  const [left, setLeft] = useState(HUNT_SECONDS);
+  const coarse = useMemo(
+    () => window.matchMedia?.('(pointer: coarse)').matches ?? false,
+    []
+  );
 
   // Steps the server hasn't confirmed yet, flushed in order.
   const pending = useRef<Tile[]>([]);
@@ -111,21 +134,127 @@ export const Hunt = ({ start, chart }: Props) => {
     return () => window.clearInterval(id);
   }, [flush]);
 
+  const onStep = useCallback(
+    (t: Tile) => {
+      pending.current.push(t);
+      setSteps((n) => n + 1);
+      setSeen((m) => reveal(m, [t], r));
+      setPrints((p) => [...p.slice(-120), { ...t, t: performance.now() }]);
+      setAt(t);
+    },
+    [r]
+  );
+  const onStepRef = useRef(onStep);
+  useEffect(() => {
+    onStepRef.current = onStep;
+  });
   const go = useCallback(
     (route: Tile[]) => {
       if (!walked) markHintSeen('hunt');
       setWalked(true);
-      void walker.walk(route, at, (t) => {
-        pending.current.push(t);
-        setSteps((n) => n + 1);
-        setSeen((m) => reveal(m, [t], r));
-        setPrints((p) => [...p.slice(-120), { ...t, t: performance.now() }]);
-        setAt(t);
-      });
+      void walker.walk(route, at, onStep);
     },
-    [walker, at, r, walked]
+    [walker, at, walked, onStep]
   );
   const input = useRoute(island.terrain, at, walker.busy || busy, go);
+
+  // Free movement in 3D: the renderer walks the explorer and hands us each tile step.
+  const walkedRef = useRef(false);
+  useEffect(() => {
+    if (h3d === null) return;
+    h3d.drive({
+      start: at,
+      blocked: (x, y) =>
+        !walkable(island.terrain, x, y) ||
+        flooded(coast, { x, y }, tideRef.current),
+      ground: (x, y) => {
+        const i = y * GRID_W + x;
+        return hz.quicksand.has(i)
+          ? 'quicksand'
+          : hz.thicket.has(i)
+            ? 'thicket'
+            : 'open';
+      },
+      onStep: (t) => {
+        if (!walkedRef.current) {
+          walkedRef.current = true;
+          markHintSeen('roam');
+          setWalked(true);
+        }
+        onStepRef.current(t);
+      },
+    });
+    return () => h3d.drive(null);
+    // Driving starts once per renderer; `at` is only its starting tile.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [h3d]);
+
+  // Keys in 3D: hold to move, Shift to run.
+  useEffect(() => {
+    if (h3d === null) return;
+    const down = new Set<string>();
+    const push = (): void => {
+      const x =
+        (down.has('arrowright') || down.has('d') ? 1 : 0) -
+        (down.has('arrowleft') || down.has('a') ? 1 : 0);
+      const y =
+        (down.has('arrowdown') || down.has('s') ? 1 : 0) -
+        (down.has('arrowup') || down.has('w') ? 1 : 0);
+      const len = Math.hypot(x, y) || 1;
+      h3d.input(x / len, y / len, down.has('shift'));
+    };
+    const keys = [
+      'arrowup',
+      'arrowdown',
+      'arrowleft',
+      'arrowright',
+      'w',
+      'a',
+      's',
+      'd',
+      'shift',
+    ];
+    const on = (e: KeyboardEvent): void => {
+      const k = e.key.toLowerCase();
+      if (!keys.includes(k)) return;
+      if (
+        e.target instanceof HTMLElement &&
+        /INPUT|TEXTAREA|SELECT/.test(e.target.tagName)
+      )
+        return;
+      e.preventDefault();
+      if (e.type === 'keydown') down.add(k);
+      else down.delete(k);
+      push();
+    };
+    window.addEventListener('keydown', on);
+    window.addEventListener('keyup', on);
+    return () => {
+      window.removeEventListener('keydown', on);
+      window.removeEventListener('keyup', on);
+    };
+  }, [h3d]);
+
+  // The tide (ADV-1, ADV-4.2): each wave takes 3 s to roll in; the server ends the hunt at 150 s.
+  const outOfTime = useRef(false);
+  const endByTide = useRef<() => Promise<void>>(async () => undefined);
+  useEffect(() => {
+    const id = window.setInterval(() => {
+      if (born.current === 0) return;
+      const el = (performance.now() - born.current) / 1000;
+      tideRef.current = tideLevel(el);
+      let smooth = 0;
+      for (const [f] of TIDE_WAVES)
+        smooth += Math.max(0, Math.min(1, (el - f * HUNT_SECONDS) / 3));
+      h3d?.setTide(smooth);
+      setLeft(Math.max(0, HUNT_SECONDS - el));
+      if (el >= HUNT_SECONDS && !outOfTime.current) {
+        outOfTime.current = true;
+        void endByTide.current();
+      }
+    }, 200);
+    return () => window.clearInterval(id);
+  }, [h3d]);
 
   const finish = (rev: Reveal, finalHoles: Tile[]): void => {
     app.setLastHunt({ chart, reveal: rev });
@@ -149,7 +278,17 @@ export const Hunt = ({ start, chart }: Props) => {
     setError(null);
     try {
       await flushAll();
+      if (tideRef.current > 0 && flooded(coast, at, tideRef.current)) {
+        setBusy(false);
+        toast(copy.hunt.tideCovered);
+        return;
+      }
       play('dig');
+      h3d?.pose('dig');
+      await new Promise((ok) =>
+        window.setTimeout(ok, reducedMotion() ? 0 : 1100)
+      );
+      h3d?.pose(null);
       if (!reducedMotion())
         setPuffs((p) => [...p.slice(-3), { at, t: performance.now() }]);
       const res = await post<DigResponse>('/hunt/dig', {
@@ -191,6 +330,10 @@ export const Hunt = ({ start, chart }: Props) => {
     }
   };
 
+  useEffect(() => {
+    endByTide.current = giveUp;
+  });
+
   const report = async (): Promise<void> => {
     try {
       await post('/chart/report', { chartId: chart.id });
@@ -202,14 +345,14 @@ export const Hunt = ({ start, chart }: Props) => {
   };
 
   useKeys({
-    ArrowUp: () => input.step(0, -1),
-    ArrowDown: () => input.step(0, 1),
-    ArrowLeft: () => input.step(-1, 0),
-    ArrowRight: () => input.step(1, 0),
-    w: () => input.step(0, -1),
-    s: () => input.step(0, 1),
-    a: () => input.step(-1, 0),
-    d: () => input.step(1, 0),
+    ArrowUp: () => h3d === null && input.step(0, -1),
+    ArrowDown: () => h3d === null && input.step(0, 1),
+    ArrowLeft: () => h3d === null && input.step(-1, 0),
+    ArrowRight: () => h3d === null && input.step(1, 0),
+    w: () => h3d === null && input.step(0, -1),
+    s: () => h3d === null && input.step(0, 1),
+    a: () => h3d === null && input.step(-1, 0),
+    d: () => h3d === null && input.step(1, 0),
     Enter: () => void input.confirm(),
     ' ': () => void dig(),
     m: () => setChartOpen((o) => !o),
@@ -272,16 +415,36 @@ export const Hunt = ({ start, chart }: Props) => {
           <span className="tabular text-seafoam">
             {fmt(copy.hunt.steps, { n: steps })}
           </span>
-          <span className="ml-auto" aria-live="polite" />
+          <span
+            className={`ml-auto tabular font-semibold ${left <= 30 ? 'rounded bg-hibiscus px-1.5 text-paper' : 'text-sun'}`}
+            role="timer"
+            aria-label={fmt(copy.hunt.timeLeft, { t: clock(left) })}
+          >
+            {clock(left)}
+          </span>
+          <span aria-live="polite" />
         </div>
         <div className="relative min-h-0 flex-1">
           <IslandCanvas
             scene={scene}
             zoom={zoom}
             focus={walker.pos}
-            onTap={(t) => (walker.busy ? walker.skip() : input.onTap(t))}
+            onTap={(t) =>
+              h3d !== null
+                ? h3d.goTo(t)
+                : walker.busy
+                  ? walker.skip()
+                  : input.onTap(t)
+            }
+            onHandle={setH3d}
             label={`${island.name}. ${fmt(copy.hunt.shovels, { n: shovels })}`}
           />
+          {h3d !== null && coarse && (
+            <Joystick
+              label={copy.hunt.stick}
+              onMove={(x, y) => h3d.input(x, y, false)}
+            />
+          )}
           <button
             type="button"
             onClick={() => setChartOpen(true)}
@@ -298,7 +461,11 @@ export const Hunt = ({ start, chart }: Props) => {
           </button>
           <div className="absolute left-2 right-28 top-2 flex flex-col gap-2 sm:right-36 lg:right-2">
             {/* One hint at a time (UI-4.4): walking retires the walk hint, then digging is next. */}
-            {walked ? <Hint k="dig" /> : <Hint k="hunt" />}
+            {walked ? (
+              <Hint k="dig" />
+            ) : (
+              <Hint k={h3d !== null ? 'roam' : 'hunt'} />
+            )}
             {error !== null && (
               <button
                 type="button"
