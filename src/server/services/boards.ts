@@ -161,6 +161,8 @@ const hallDay = async (kv: Kv, day: string): Promise<HallDay | null> => {
     day,
     dayNumber: dayNumber(day),
     island: rec.name !== '' ? rec.name : islandOf(rec).name,
+    seed: rec.seed,
+    modifier: rec.modifier,
     top: await Promise.all(top.map((c) => toPublic(kv, c))),
     cursed: cursed === null ? null : await toPublic(kv, cursed),
   };

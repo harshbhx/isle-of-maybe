@@ -59,6 +59,7 @@ const charted = async (
 
 test('DAY-5.1 the Dispatch lists your charts from the last 3 days with live counts', async () => {
   const kv = new FakeKv();
+  for (const d of [1, 3, 4]) await postDay(kv, NOW - d * DAY_MS);
   await charted(kv, 1, 'b1', 4);
   await charted(kv, 3, 'b3', 1, 'shallow');
   await charted(kv, 4, 'b4', 9);
@@ -81,11 +82,13 @@ test('DAY-5.1 the Dispatch lists your charts from the last 3 days with live coun
     next: { tier: 'navigator', at: 25 },
   });
   assert.equal(JSON.stringify(d).includes('chest'), false);
+  assert.ok(b1.island.seed.length > 0 && b1.pieces.length > 0);
   assert.deepEqual((await dispatchFor(kv, anon, DAY, 0)).charts, []);
 });
 
 test('DAY-5.1 init carries the streak and the Dispatch', async () => {
   const kv = new FakeKv();
+  await postDay(kv, NOW - DAY_MS);
   await postDay(kv);
   await charted(kv, 1, 'b1', 2);
   await markStreak(kv, bob.id, NOW - DAY_MS);
@@ -107,4 +110,29 @@ test('DAY-5.1 tier progress names the next tier and its threshold', () => {
     next: { tier: 'cartographer', at: 75 },
   });
   assert.equal(tierProgress(500).next, null);
+});
+
+test('CHART-4.1 init gives your own chest, grade and chart stats to you and nobody else', async () => {
+  const kv = new FakeKv();
+  await postDay(kv);
+  await kv.hSet(K.userDay(bob.id, DAY), {
+    buried: '1',
+    chestX: '20',
+    chestY: '21',
+    chartId: 'bobs',
+    grade: 'steady',
+  });
+  await addChart(kv, { id: 'bobs', author: bob });
+  await kv.hSet(K.chartStats('bobs'), { attempts: '4', finds: '1' });
+  const mine = await initFor(kv, bob, DAY, NOW);
+  assert.deepEqual(mine.user.chest?.at, { x: 20, y: 21 });
+  assert.equal(mine.user.chest?.grade, 'steady');
+  assert.equal(mine.user.chest?.attempts, 4);
+  assert.equal((await initFor(kv, anon, DAY, NOW)).user.chest, null);
+  assert.equal(
+    JSON.stringify(
+      await initFor(kv, { id: 't2_eve', name: 'eve', loggedIn: true }, DAY, NOW)
+    ).includes('"x":20,"y":21'),
+    false
+  );
 });

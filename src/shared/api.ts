@@ -1,6 +1,6 @@
 // Request and response types shared by the client and the /api routes (docs/05-ARCHITECTURE.md §4).
 import type { Modifier } from './day.ts';
-import type { InkCheck } from './chart.ts';
+import type { Grade, InkCheck } from './chart.ts';
 import type { Tier, TierProgress } from './scoring.ts';
 import type { ChartPiece, Depth, Tile } from './types.ts';
 
@@ -36,6 +36,18 @@ export type UserState = {
   tier: Tier;
   /** Consecutive days with a finished hunt, ending today or yesterday (DAY-4.2). */
   streak: number;
+  /** Your own chest on this island. Only its author ever gets its position (CHART-4.1). */
+  chest: MyChestState | null;
+};
+
+export type MyChestState = {
+  at: Tile;
+  depth: Depth;
+  /** Null until the chart is submitted. */
+  grade: Grade | null;
+  /** How your chart is doing today (W9: "n sailors picked up your chart"). */
+  attempts: number;
+  finds: number;
 };
 
 export type InitResponse = {
@@ -63,6 +75,9 @@ export type DispatchChart = {
   cursedVotes: number;
   /** Gold you earned from finders of this chart. */
   salvage: number;
+  /** That day's island and your chart, for the thumbnail (W2). */
+  island: { seed: string; modifier: Modifier; name: string };
+  pieces: ChartPiece[];
 };
 
 /** Newest first. Empty when you have no chart from the last 3 days. */
@@ -142,6 +157,9 @@ export type HallDay = {
   day: string;
   dayNumber: number;
   island: string;
+  /** That day's frozen seed and modifier, so the client can draw its coastline. */
+  seed: string;
+  modifier: Modifier;
   top: ChartPublic[];
   /** Lowest find rate among charts with at least 5 attempts (COM-4.4). */
   cursed: ChartPublic | null;
