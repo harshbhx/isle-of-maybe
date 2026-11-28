@@ -12,6 +12,7 @@ node --experimental-strip-types tools/assets/make-art.ts && python3 tools/assets
 | `featuring-1920x1080.png` | Featuring image / presentation title slide |
 | `tile-1080x1080.png` | Tile image: logo + wordmark |
 | `devpost-gallery-1500x1000.png` | Devpost gallery cover (3:2) |
+| `gallery-0-hunt.gif`, `gallery-0-chart.gif` | Animated Devpost images: walking the 3D island as the cloud lifts; charting from memory and the Ink check |
 | `gallery-1-loop.png` … `gallery-5-fair.png` | Devpost gallery slides from a real playthrough (`python3 tools/assets/gallery.py`); order and alt text in `docs/18-SUBREDDIT-KIT.md` §4 |
 | `subreddit-banner-1920x384.png`, `subreddit-banner-mobile-1600x480.png` | r/IsleOfMaybe header images (left quarter kept plain for Reddit's icon and name) |
 | `../img/screens/*.png` | Gameplay screenshots for the gallery and slides |
