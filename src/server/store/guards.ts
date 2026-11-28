@@ -5,7 +5,12 @@ import {
   type ChartPiece,
   type Tile,
 } from '../../shared/types.ts';
-import { VOTES, type Vote } from '../../shared/api.ts';
+import {
+  BOARD_KINDS,
+  VOTES,
+  type BoardKind,
+  type Vote,
+} from '../../shared/api.ts';
 import { ApiError } from './errors.ts';
 
 export const isRecord = (v: unknown): v is Record<string, unknown> =>
@@ -118,4 +123,10 @@ export const reqVote = (body: Record<string, unknown>, key: string): Vote => {
   if (v === undefined)
     throw new ApiError('bad_request', `${key} must be true or cursed`);
   return v;
+};
+
+export const asBoardKind = (v: string | undefined): BoardKind => {
+  const k = BOARD_KINDS.find((x) => x === v);
+  if (k === undefined) throw new ApiError('bad_request', 'unknown board');
+  return k;
 };

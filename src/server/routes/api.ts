@@ -1,5 +1,7 @@
 // Public API for the game client. Every route lives under /api (Devvit Web requirement).
 import { Hono } from 'hono';
+import { utcDay } from '../../shared/day.ts';
+import { board, hall } from '../services/boards.ts';
 import { buryChest, seenFor, submitChart } from '../services/bury.ts';
 import { pickCharts } from '../services/charts.ts';
 import { rateChart } from '../services/rating.ts';
@@ -13,6 +15,7 @@ import {
 } from '../services/hunts.ts';
 import { initFor } from '../services/init.ts';
 import {
+  asBoardKind,
   reqBody,
   reqInt,
   reqString,
@@ -153,3 +156,11 @@ api.post('/chart', (c) =>
     );
   })
 );
+
+api.get('/boards/:kind', (c) =>
+  handle(c, async () =>
+    board(kv, asBoardKind(c.req.param('kind')), await postDay(), currentActor())
+  )
+);
+
+api.get('/hall', (c) => handle(c, async () => hall(kv, utcDay(Date.now()))));
