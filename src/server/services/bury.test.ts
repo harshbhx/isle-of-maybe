@@ -4,12 +4,12 @@ import { walkable } from '../../shared/path.ts';
 import { seenFromHex, hasSeen } from '../../shared/seen.ts';
 import { idx, type ChartPiece, type Tile } from '../../shared/types.ts';
 import { ApiError } from '../store/errors.ts';
-import { asPiece } from '../store/guards.ts';
+import { asPiece, optNote } from '../store/guards.ts';
 import { K } from '../store/keys.ts';
 import { FakeKv } from '../testing/fake-kv.ts';
 import { DAY, NOW, alice, anon, postDay } from '../testing/fixtures.ts';
 import { buryChest, seenFor, submitChart } from './bury.ts';
-import { pickCharts } from './charts.ts';
+import { pickCharts, readChart } from './charts.ts';
 import { requireDay } from './island.ts';
 import { addSeen } from './seen.ts';
 
@@ -190,4 +190,16 @@ test('CHART-4.1 charts expire in 30 days and pickers never see the chest', async
   const json = JSON.stringify(pick);
   assert.ok(json.includes('"c1"'));
   assert.equal(json.includes('chest'), false);
+});
+
+test('CHART-2.7 a chart may carry one margin note from the fixed list', async () => {
+  const { kv, spot } = await setup();
+  await buryChest(kv, alice, DAY, spot, NOW);
+  await submitChart(kv, alice, DAY, chartFor(spot), 'c1', NOW, 'trust');
+  assert.equal((await readChart(kv, 'c1'))?.note, 'trust');
+  assert.throws(
+    () => optNote({ note: 'meet me at the docs' }, 'note'),
+    code('bad_request')
+  );
+  assert.equal(optNote({}, 'note'), null);
 });

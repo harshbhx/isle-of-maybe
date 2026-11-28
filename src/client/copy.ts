@@ -2,10 +2,13 @@
 // `{name}` placeholders are filled with fmt().
 import type { Grade } from '../shared/chart.ts';
 import type { Modifier } from '../shared/day.ts';
+import { NOTES } from '../shared/notes.ts';
 import type { Tier } from '../shared/scoring.ts';
 import type { Depth, LandmarkType } from '../shared/types.ts';
 
+/** Margin-note phrases live in src/shared/notes.ts so the server can validate them (CHART-2.7). */
 export const copy = {
+  notes: NOTES,
   splash: {
     title: 'Isle of Maybe',
     tagline: 'Bury it. Chart it. Trust a stranger’s map.',
@@ -107,6 +110,8 @@ export const copy = {
     clear: 'Clear',
     remove: 'Remove',
     stamps: 'Stamps',
+    note: 'Margin note',
+    noNote: 'No note',
   },
   ink: {
     sharp: 'Sharp',

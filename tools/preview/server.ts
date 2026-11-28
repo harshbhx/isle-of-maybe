@@ -110,6 +110,7 @@ for (const [i, name] of sailors.entries()) {
     createdAt: String(now),
     hidden: '0',
     captain: '0',
+    ...(i === 0 ? { note: 'closer' } : {}),
   });
   const attempts = [9, 0, 4, 2][i] ?? 0;
   const finds = [7, 0, 1, 2][i] ?? 0;

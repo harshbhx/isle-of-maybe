@@ -86,6 +86,7 @@ test('HUNT-1.5 picker responses carry only public chart fields, never the chest'
     'depth',
     'finds',
     'id',
+    'note',
     'pieces',
     'trueVotes',
   ];
