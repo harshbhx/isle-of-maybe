@@ -227,6 +227,14 @@ const endHunt = async (
     await hIncrTtl(kv, K.dayCounts(hunt.day), 'found', 1, TTL.dayCounts);
 
   if (actor.loggedIn) {
+    // Unlocks burying on this island (CHART-1.7).
+    await hIncrTtl(
+      kv,
+      K.userDay(actor.id, hunt.day),
+      'finished',
+      1,
+      TTL.userDay
+    );
     await hSetTtl(
       kv,
       K.userHunted(actor.id),
