@@ -17,4 +17,4 @@
 - [x] T104 (#189) Chart editor: coach strip, labels, loupe, haptics — ADV-9.3, ADV-9.4
 - [x] T105 (#190) Motion components and the UX audit pass — ADV-9.5
 - [x] T107 (#205) Two-way ghost toggle and first-hunt notice — ADV-6.8
-- [ ] T109 (#212) Daily biomes — ADV-10.1 – ADV-10.3
+- [x] T109 (#212) Daily biomes — ADV-10.1 – ADV-10.3
