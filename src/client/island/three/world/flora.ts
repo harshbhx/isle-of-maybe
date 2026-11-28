@@ -1,5 +1,6 @@
 // Plants and stone (ADV-4.1): curved palms along the beaches, broadleaf jungle, grass tufts and
-// hibiscus on the meadows, cliff stacks on rock. All instanced, all swaying in one shared wind.
+// hibiscus on the meadows, cliff stacks on rock, dressed for the day's biome (ADV-10.2): pines in
+// Frost, stilt roots in Mangrove, a reef in Coral. All instanced, all swaying in one shared wind.
 import {
   BufferGeometry,
   Color,
@@ -30,6 +31,7 @@ import {
   idx,
   type Island,
 } from '../../../../shared/types.ts';
+import type { BiomeLook } from './biome.ts';
 import type { Heights } from './heights.ts';
 
 export type Wind = { value: number };
@@ -94,7 +96,7 @@ const merged = (parts: BufferGeometry[]): BufferGeometry => {
 };
 
 /** A palm: a curved, ringed trunk and a crown of drooping fronds. Origin at the foot. */
-const palmGeometry = (): BufferGeometry => {
+const palmGeometry = (look: BiomeLook): BufferGeometry => {
   const parts: BufferGeometry[] = [];
   const segs = 6;
   let x = 0;
@@ -105,7 +107,9 @@ const palmGeometry = (): BufferGeometry => {
     const lean = 0.05 + i * 0.035;
     seg.rotateZ(-lean);
     seg.translate(x + Math.sin(lean) * 0.21, y + 0.21, 0);
-    parts.push(paint(seg, i % 2 === 0 ? 0x8b6a45 : 0x7a5b3a, 0.3));
+    parts.push(
+      paint(seg, i % 2 === 0 ? look.palmTrunk[0] : look.palmTrunk[1], 0.3)
+    );
     x += Math.sin(lean) * 0.42;
     y += Math.cos(lean) * 0.42;
   }
@@ -120,7 +124,9 @@ const palmGeometry = (): BufferGeometry => {
     leaf.rotateZ(-1.15 - (f % 2) * 0.25);
     leaf.rotateY(a);
     leaf.translate(top.x, top.y, top.z);
-    parts.push(paint(leaf, f % 3 === 0 ? 0x3f9a3c : 0x2f8636, 0));
+    parts.push(
+      paint(leaf, f % 3 === 0 ? look.palmLeaf[0] : look.palmLeaf[1], 0)
+    );
   }
   for (let k = 0; k < 3; k++) {
     const nut = new SphereGeometry(0.07, 6, 4);
@@ -134,15 +140,68 @@ const palmGeometry = (): BufferGeometry => {
   return merged(parts);
 };
 
+/** A pine: a straight trunk under three stacked cones (Frost). */
+const pineGeometry = (look: BiomeLook): BufferGeometry => {
+  const trunk = new CylinderGeometry(0.05, 0.08, 0.6, 6);
+  trunk.translate(0, 0.3, 0);
+  const parts = [paint(trunk, look.treeTrunk, 0.3)];
+  const tiers: [number, number, number][] = [
+    [0.5, 0.62, 0.75],
+    [0.4, 0.55, 1.15],
+    [0.28, 0.48, 1.5],
+  ];
+  tiers.forEach(([r, h, y], i) => {
+    const cone = new ConeGeometry(r, h, 7, 1);
+    cone.translate(0, y, 0);
+    parts.push(paint(cone, look.treeLeaves[i % 3] ?? look.treeLeaves[0], 0.2));
+    // Snow caught on each tier.
+    const cap = new ConeGeometry(r * 0.55, h * 0.4, 7, 1);
+    cap.translate(0, y + h * 0.3, 0);
+    parts.push(paint(cap, 0xf4f8fa, 0));
+  });
+  return merged(parts);
+};
+
+/** A mangrove: a crown held up on arching stilt roots (Mangrove). */
+const mangroveGeometry = (look: BiomeLook): BufferGeometry => {
+  const trunk = new CylinderGeometry(0.06, 0.08, 0.6, 6);
+  trunk.translate(0, 0.62, 0);
+  const parts = [paint(trunk, look.treeTrunk, 0.2)];
+  for (let r = 0; r < 5; r++) {
+    const a = (r / 5) * Math.PI * 2;
+    const root = new CylinderGeometry(0.025, 0.035, 0.62, 4);
+    root.translate(0, 0.31, 0);
+    root.rotateZ(0.55);
+    root.rotateY(a);
+    root.translate(0, 0.05, 0);
+    parts.push(paint(root, look.treeTrunk, 0.4));
+  }
+  const crowns: [number, number, number, number][] = [
+    [0, 1.1, 0, 0.6],
+    [0.32, 1.0, 0.15, 0.42],
+    [-0.3, 1.02, -0.12, 0.44],
+  ];
+  crowns.forEach(([cx, cy, cz, r], i) => {
+    const blob = new IcosahedronGeometry(r, 1);
+    blob.scale(1.15, 0.6, 1.15);
+    blob.translate(cx, cy, cz);
+    parts.push(paint(blob, look.treeLeaves[i % 3] ?? look.treeLeaves[0], 0));
+  });
+  return merged(parts);
+};
+
 /** A broadleaf jungle tree: short trunk, three overlapping crowns. */
-const treeGeometry = (): BufferGeometry => {
+const treeGeometry = (look: BiomeLook): BufferGeometry => {
+  if (look.tree === 'pine') return pineGeometry(look);
+  if (look.tree === 'mangrove') return mangroveGeometry(look);
   const trunk = new CylinderGeometry(0.07, 0.11, 0.9, 6);
   trunk.translate(0, 0.45, 0);
-  const parts = [paint(trunk, 0x6a4a2c, 0.3)];
+  const parts = [paint(trunk, look.treeTrunk, 0.3)];
+  const [c0, c1, c2] = look.treeLeaves;
   const crowns: [number, number, number, number, number][] = [
-    [0, 1.05, 0, 0.55, 0x2c7a35],
-    [0.28, 0.9, 0.12, 0.42, 0x2f8a3a],
-    [-0.22, 0.95, -0.18, 0.45, 0x256b2e],
+    [0, 1.05, 0, 0.55, c0],
+    [0.28, 0.9, 0.12, 0.42, c1],
+    [-0.22, 0.95, -0.18, 0.45, c2],
   ];
   for (const [cx, cy, cz, r, c] of crowns) {
     const blob = new IcosahedronGeometry(r, 1);
@@ -154,7 +213,7 @@ const treeGeometry = (): BufferGeometry => {
 };
 
 /** A grass tuft: five thin blades. */
-const tuftGeometry = (): BufferGeometry => {
+const tuftGeometry = (look: BiomeLook): BufferGeometry => {
   const parts: BufferGeometry[] = [];
   for (let b = 0; b < 5; b++) {
     const blade = new ConeGeometry(0.025, 0.28 + (b % 3) * 0.06, 3, 1);
@@ -162,17 +221,17 @@ const tuftGeometry = (): BufferGeometry => {
     blade.rotateZ((b - 2) * 0.22);
     blade.rotateY(b * 1.3);
     blade.translate(Math.cos(b * 2.4) * 0.05, 0, Math.sin(b * 2.4) * 0.05);
-    parts.push(paint(blade, b % 2 === 0 ? 0x5aa844 : 0x79c45a, 0.35));
+    parts.push(paint(blade, b % 2 === 0 ? look.tuft[0] : look.tuft[1], 0.35));
   }
   return merged(parts);
 };
 
 /** A hibiscus shrub: a leafy mound with a few red flowers. */
-const shrubGeometry = (): BufferGeometry => {
+const shrubGeometry = (look: BiomeLook): BufferGeometry => {
   const bush = new IcosahedronGeometry(0.26, 1);
   bush.scale(1.2, 0.8, 1.1);
   bush.translate(0, 0.18, 0);
-  const parts = [paint(bush, 0x2f7d34)];
+  const parts = [paint(bush, look.bush)];
   for (let f = 0; f < 4; f++) {
     const fl = new SphereGeometry(0.06, 5, 4);
     fl.translate(
@@ -180,13 +239,13 @@ const shrubGeometry = (): BufferGeometry => {
       0.28 + (f % 2) * 0.06,
       Math.sin(f * 1.7) * 0.2
     );
-    parts.push(paint(fl, f % 2 === 0 ? 0xd42a4a : 0xffb21e));
+    parts.push(paint(fl, f % 2 === 0 ? look.flowers[0] : look.flowers[1]));
   }
   return merged(parts);
 };
 
 /** A cliff stack for rock tiles. */
-const cliffGeometry = (): BufferGeometry => {
+const cliffGeometry = (look: BiomeLook): BufferGeometry => {
   const parts: BufferGeometry[] = [];
   const blocks: [number, number, number, number, number][] = [
     [0, 0.35, 0, 0.55, 1.3],
@@ -197,8 +256,30 @@ const cliffGeometry = (): BufferGeometry => {
     const g = new DodecahedronGeometry(r, 0);
     g.scale(1, sy, 0.9);
     g.translate(x, y, z);
-    parts.push(paint(g, x === 0 ? 0xb3a796 : 0xa39684, 0.15));
+    parts.push(paint(g, x === 0 ? look.cliff[0] : look.cliff[1], 0.15));
   }
+  return merged(parts);
+};
+
+/** A reef head: branching pink and orange coral on a pale stone (Coral). */
+const coralGeometry = (): BufferGeometry => {
+  const parts: BufferGeometry[] = [];
+  const base = new DodecahedronGeometry(0.22, 0);
+  base.scale(1.2, 0.45, 1);
+  parts.push(paint(base, 0xd9cdb5, 0.2));
+  const tints = [0xff7a8a, 0xff9f43, 0xc86bfa, 0xff6f61];
+  for (let b = 0; b < 6; b++) {
+    const arm = new CylinderGeometry(0.02, 0.04, 0.32 + (b % 3) * 0.08, 5);
+    arm.translate(0, 0.18, 0);
+    arm.rotateZ((b - 2.5) * 0.25);
+    arm.rotateY(b * 1.1);
+    arm.translate(Math.cos(b * 2.1) * 0.09, 0.05, Math.sin(b * 2.1) * 0.09);
+    parts.push(paint(arm, tints[b % 4] ?? 0xff7a8a, 0.25));
+  }
+  const fan = new SphereGeometry(0.1, 6, 4);
+  fan.scale(1.3, 0.8, 0.4);
+  fan.translate(-0.08, 0.2, 0.04);
+  parts.push(paint(fan, 0xffd166, 0.1));
   return merged(parts);
 };
 
@@ -211,7 +292,8 @@ export const createFlora = (
   island: Island,
   heights: Heights,
   wind: Wind,
-  density: number
+  density: number,
+  look: BiomeLook
 ): Flora => {
   const coast = coastDistance(island);
   const hz = hazardsFor(island);
@@ -220,6 +302,7 @@ export const createFlora = (
   const tufts: Matrix4[] = [];
   const shrubs: Matrix4[] = [];
   const cliffs: Matrix4[] = [];
+  const reef: Matrix4[] = [];
   const tmp = new Object3D();
   const put = (
     out: Matrix4[],
@@ -248,6 +331,34 @@ export const createFlora = (
       const dock =
         Math.max(Math.abs(x - island.dock.x), Math.abs(y - island.dock.y)) <= 1;
       if (code === LANDMARK || dock) continue;
+      if (k === 'water') {
+        // Coral reefs grow in the shallows just off the beach.
+        if (look.ambient !== 'reef' || r1 > 0.55) continue;
+        let nearLand = false;
+        for (let dy = -2; dy <= 2 && !nearLand; dy++)
+          for (let dx = -2; dx <= 2 && !nearLand; dx++) {
+            const nx = x + dx;
+            const ny = y + dy;
+            nearLand =
+              nx >= 0 &&
+              ny >= 0 &&
+              nx < W &&
+              ny < H &&
+              tileKind(island, nx, ny) !== 'water';
+          }
+        const bed = heights.at(w.x, w.z);
+        // Big enough that the heads break the surface, as reefs do at low water.
+        if (nearLand && bed < 0.05 && bed > -1.2)
+          put(
+            reef,
+            w.x + (r2 - 0.5) * 0.6,
+            w.z + (r3 - 0.5) * 0.6,
+            1.6 + r2 * 0.9,
+            r3 * 6,
+            0
+          );
+        continue;
+      }
       if (k === 'jungle') {
         const n = 2 + Math.floor(r1 * 2);
         for (let t = 0; t < n; t++)
@@ -272,7 +383,8 @@ export const createFlora = (
         const d = coast[i] ?? 0;
         if (d >= 3 && r1 < 0.16 * density + 0.04)
           put(
-            palms,
+            // Biomes with fewer palms put their own trees on the upper beach instead.
+            r3 < look.palms ? palms : trees,
             w.x + (r2 - 0.5) * 0.5,
             w.z + (r3 - 0.5) * 0.5,
             0.85 + r2 * 0.45,
@@ -296,7 +408,7 @@ export const createFlora = (
           );
         } else if (r1 < 0.06) {
           put(
-            palms,
+            r3 < look.palms ? palms : trees,
             w.x + (r2 - 0.5) * 0.5,
             w.z + (r3 - 0.5) * 0.5,
             0.9 + r2 * 0.4,
@@ -344,10 +456,11 @@ export const createFlora = (
     mesh.computeBoundingSphere();
     meshes.push(mesh);
   };
-  make(palmGeometry(), palms, 1, true);
-  make(treeGeometry(), trees, 2.5, true);
-  make(tuftGeometry(), tufts, 0.35, false);
-  make(shrubGeometry(), shrubs, 3, true);
-  make(cliffGeometry(), cliffs, 0, true);
+  make(palmGeometry(look), palms, 1, true);
+  make(treeGeometry(look), trees, look.tree === 'pine' ? 4 : 2.5, true);
+  make(tuftGeometry(look), tufts, 0.35, false);
+  make(shrubGeometry(look), shrubs, 3, true);
+  make(cliffGeometry(look), cliffs, 0, true);
+  make(coralGeometry(), reef, 0, false);
   return { meshes, materials };
 };

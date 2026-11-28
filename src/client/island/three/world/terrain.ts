@@ -1,31 +1,35 @@
 // The sculpted ground mesh (ADV-4.1): one smooth surface over the island and the sea floor,
-// coloured by what each spot is (wet and dry sand, grass, jungle floor, cliff rock) and by slope.
+// coloured by what each spot is (wet and dry sand, grass, jungle floor, cliff rock) and by slope,
+// in the day's biome palette (ADV-10.2).
 import { BufferAttribute, BufferGeometry, Color } from 'three';
 import { hash32 } from '../../../../shared/rng.ts';
 import { toTile } from '../../../../shared/relief.ts';
 import { tileKind } from '../../../../shared/relief.ts';
 import type { Island } from '../../../../shared/types.ts';
+import type { GroundPalette } from './biome.ts';
 import { ORIGIN, SAMPLES, STEP, type Heights } from './heights.ts';
 
-export const GROUND = {
-  seabedDeep: new Color(0x1d5f63),
-  seabed: new Color(0xc9b27a),
-  wetSand: new Color(0xd6bb7f),
-  sand: new Color(0xf0d9a0),
-  drySand: new Color(0xf6e4b5),
-  grass: new Color(0x6cbf55),
-  grassDark: new Color(0x4f9f42),
-  grassLight: new Color(0x8fd36a),
-  jungleFloor: new Color(0x3c6b2c),
-  rock: new Color(0x8d8379),
-  rockDark: new Color(0x6c635b),
-  pondBed: new Color(0x5c8f86),
-};
+const toColors = (p: GroundPalette): Record<keyof GroundPalette, Color> => ({
+  seabedDeep: new Color(p.seabedDeep),
+  seabed: new Color(p.seabed),
+  wetSand: new Color(p.wetSand),
+  sand: new Color(p.sand),
+  drySand: new Color(p.drySand),
+  grass: new Color(p.grass),
+  grassDark: new Color(p.grassDark),
+  grassLight: new Color(p.grassLight),
+  jungleFloor: new Color(p.jungleFloor),
+  rock: new Color(p.rock),
+  rockDark: new Color(p.rockDark),
+  pondBed: new Color(p.pondBed),
+});
 
 export const buildTerrainGeometry = (
   island: Island,
-  heights: Heights
+  heights: Heights,
+  palette: GroundPalette
 ): BufferGeometry => {
+  const GROUND = toColors(palette);
   const n = SAMPLES;
   const pos = new Float32Array(n * n * 3);
   const col = new Float32Array(n * n * 3);

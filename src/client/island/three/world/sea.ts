@@ -133,7 +133,14 @@ void main() {
 
 export const createSea = (
   heights: Heights,
-  opts: { size: number; segments: number; calm: boolean; sunDir: Vector3 }
+  opts: {
+    size: number;
+    segments: number;
+    calm: boolean;
+    sunDir: Vector3;
+    /** The day's biome water (ADV-10.2); tropical when absent. */
+    colors?: { deep: number; mid: number; shallow: number };
+  }
 ): Sea => {
   const n = SAMPLES;
   const bytes = new Uint8Array(n * n);
@@ -156,9 +163,9 @@ export const createSea = (
     uHeight: { value: tex },
     uHMap: { value: [heights.min, range] },
     uGrid: { value: [ORIGIN, (n - 1) * STEP] },
-    uDeep: { value: linear(0x0b4f63) },
-    uMid: { value: linear(0x138f97) },
-    uShallow: { value: linear(0x5fd6c6) },
+    uDeep: { value: linear(opts.colors?.deep ?? 0x0b4f63) },
+    uMid: { value: linear(opts.colors?.mid ?? 0x138f97) },
+    uShallow: { value: linear(opts.colors?.shallow ?? 0x5fd6c6) },
     uFoam: { value: linear(0xfffaf0) },
     uSky: { value: linear(0xbfe6f2) },
     uSunDir: { value: opts.sunDir.clone().normalize() },

@@ -16,6 +16,7 @@ import {
   Vector3,
 } from 'three';
 import { hash32 } from '../../../../shared/rng.ts';
+import { BIOME_LOOKS, type BiomeLook } from './biome.ts';
 
 export type SkyLook = {
   zenith: Color;
@@ -29,10 +30,13 @@ export type SkyLook = {
 };
 
 /**
- * Daytime by default; Lantern night is a warm dusk. The sun sits low in the west-south-west so
+ * Daytime in the biome's colours by default; Lantern night is a warm dusk on every biome. The sun sits low in the west-south-west so
  * shadows read from the usual camera angle.
  */
-export const skyLook = (lantern: boolean): SkyLook =>
+export const skyLook = (
+  lantern: boolean,
+  tint: BiomeLook['sky'] = BIOME_LOOKS.tropical.sky
+): SkyLook =>
   lantern
     ? {
         zenith: new Color(0x26345f),
@@ -45,14 +49,14 @@ export const skyLook = (lantern: boolean): SkyLook =>
         far: new Color(0x2e5d73),
       }
     : {
-        zenith: new Color(0x3d9fd6),
-        horizon: new Color(0xd8f0ef),
+        zenith: new Color(tint.zenith),
+        horizon: new Color(tint.horizon),
         sun: new Color(0xfff1d0),
         sunDir: new Vector3(-0.55, 0.72, 0.42).normalize(),
         sunPower: 3.0,
-        hemiSky: new Color(0xcfeefc),
+        hemiSky: new Color(tint.hemiSky),
         hemiGround: new Color(0x8a7a52),
-        far: new Color(0x2a8e9b),
+        far: new Color(tint.far),
       };
 
 export const createSky = (
