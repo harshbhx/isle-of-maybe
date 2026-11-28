@@ -21,7 +21,8 @@
     "redis": true,
     "reddit": {
       "enable": true
-    }
+    },
+    "realtime": true
   },
   "scheduler": {
     "tasks": {
