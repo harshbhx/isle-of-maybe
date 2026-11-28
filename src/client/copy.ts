@@ -116,6 +116,14 @@ export const copy = {
   },
   chart: {
     title: 'Chart it',
+    coachTitle: 'How to chart it',
+    coach: [
+      'Stamp what you remember',
+      'Draw the path from the dock',
+      'Mark the X',
+      'Check it and submit',
+    ],
+    coachDone: 'Got it, hide this',
     budget: '{s} of 6 stamps · {p} of 8 path steps',
     needX: 'Every chart needs an X.',
     submit: 'Submit chart',
