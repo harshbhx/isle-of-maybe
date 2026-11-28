@@ -1,5 +1,6 @@
 // Every user-facing string in the client, verbatim from docs/06-COPY.md (UI-4.2).
-// `{name}` placeholders are filled with fmt().
+// `{name}` placeholders and `{n:one|many}` word choices are filled with fmt().
+import { fillTemplate } from '../shared/template.ts';
 import type { Grade } from '../shared/chart.ts';
 import type { Modifier } from '../shared/day.ts';
 import { NOTES } from '../shared/notes.ts';
@@ -19,7 +20,7 @@ export const copy = {
       'Bury yours, chart it',
     ],
     day: 'Day {n} · {island}',
-    counts: '{buried} chests buried · {found} found',
+    counts: '{buried} {buried:chest|chests} buried · {found} found',
     yourChart: 'Your chart from Day {n}: {finds} found',
     first: 'Be the first to bury a chest today.',
     cta: 'Set sail',
@@ -52,7 +53,7 @@ export const copy = {
     captainNote: 'The island’s own chart. Old, but honest-ish.',
     challenged: 'u/{name} challenged you to find their chest',
     follow: 'Follow this chart',
-    attempts: '{n} sailors tried · {f} found',
+    attempts: '{n} {n:sailor|sailors} tried · {f} found',
     fresh0: 'New · nobody has tried it yet',
     empty: 'Be the first to bury a chest today.',
     none: 'You’ve hunted every chart you can today.',
@@ -62,8 +63,8 @@ export const copy = {
   hunt: {
     dig: 'Dig',
     giveup: 'Give up',
-    shovels: '{n} shovels left',
-    steps: '{n} steps',
+    shovels: '{n} {n:shovel|shovels} left',
+    steps: '{n} {n:step|steps}',
     miss1: 'Just sand.',
     miss2: 'More sand. The map looks smug.',
     chartOpen: 'Chart',
@@ -78,9 +79,9 @@ export const copy = {
     found: 'You found u/{name}’s chest!',
     foundCaptain: 'You found the Old Captain’s chest!',
     gold: '+{gold} gold',
-    missed: 'The map was {d} paces off.',
-    missedClose: 'So close. {d} paces.',
-    missedFar: '{d} paces. Was this map drawn upside down?',
+    missed: 'The map was {d} {d:pace|paces} off.',
+    missedClose: 'So close. {d} {d:pace|paces}.',
+    missedFar: '{d} {d:pace|paces}. Was this map drawn upside down?',
     rate: 'Rate this chart',
     true: 'True map',
     cursed: 'Cursed map',
@@ -125,15 +126,15 @@ export const copy = {
     steady: 'Steady',
     wobbly: 'Wobbly',
     cursed: 'Cursed',
-    line: 'Your X is {d} paces off. Tomorrow you’ll see how real sailors did.',
+    line: 'Your X is {d} {d:pace|paces} off. Tomorrow you’ll see how real sailors did.',
     lineSharp: 'Right on the money. Tomorrow you’ll see how real sailors did.',
     continue: 'Continue',
   } satisfies Record<Grade, string> & Record<string, string>,
   result: {
-    found: 'Found u/{name}’s chest · {steps} steps',
+    found: 'Found u/{name}’s chest · {steps} {steps:step|steps}',
     missed: 'Missed u/{name}’s chest',
     yourChest: 'Your chest: {depth} · Ink: {grade}',
-    live: '{n} sailors picked up your chart',
+    live: '{n} {n:sailor|sailors} picked up your chart',
     again: 'Hunt another chart ({n} left)',
     share: 'Share my chart',
     challenge: 'Challenge a friend',
@@ -161,8 +162,8 @@ export const copy = {
   },
   resultLine: {
     day: 'Isle of Maybe · Day {n}',
-    found: 'Found a chest with {n} shovels',
-    missed: 'Missed after {n} shovels',
+    found: 'Found a chest with {n} {n:shovel|shovels}',
+    missed: 'Missed after {n} {n:shovel|shovels}',
     chest: 'Buried a {depth} chest',
     grade: 'Ink: {grade}',
   },
@@ -173,7 +174,7 @@ export const copy = {
     sample: 'Tomorrow, this is where you’ll learn how your chart did.',
     sampleTitle: 'Sample',
     tier: '{tier} · {finds} / {next} finds',
-    tierTop: '{tier} · {finds} finds',
+    tierTop: '{tier} · {finds} {finds:find|finds}',
     cta: 'Today’s island →',
   },
   tier: {
@@ -196,7 +197,7 @@ export const copy = {
   },
   crew: {
     label: 'Crew goal',
-    goal: 'Crew goal: {found} of {target} chests found today',
+    goal: 'Crew goal: {found} of {target} {target:chest|chests} found today',
     met: 'Crew goal met! Tomorrow is Lantern night.',
   },
   practice: {
@@ -245,7 +246,4 @@ export const copy = {
 export const fmt = (
   template: string,
   vars: Record<string, string | number>
-): string =>
-  template.replace(/\{(\w+)\}/g, (m, k: string) =>
-    k in vars ? String(vars[k]) : m
-  );
+): string => fillTemplate(template, vars);
