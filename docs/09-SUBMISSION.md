@@ -25,7 +25,7 @@
 Treasure maps are the oldest user-generated content: one person draws, another trusts. Most daily games are you against a puzzle. We wanted a daily game where you play *for* strangers: your map is somebody else's puzzle tomorrow. Reddit is the only place with enough strangers, every day, to make that work. (Small map-drawing jam games like Captain Peggles showed the loop is fun; we rebuilt it around a shared daily island and a whole community.)
 
 **What it does**
-- Every day there's a new island, the same for everyone.
+- Every day there's a new 3D island, the same for everyone, under low cloud that lifts where you walk. The map you follow, and the one you draw, are flat ink on paper: the gap between the real island and a remembered map is the game.
 - You pick one of three maps drawn by other players (or the Old Captain's), walk the fogged island and dig with three shovels.
 - Then you bury your own chest, but only where you've been, and draw a map to it from memory with a small ink kit: landmark stamps, a dotted path and one X.
 - An instant Ink check grades your map. Tomorrow's Dispatch tells you how many sailors found your chest.
@@ -36,7 +36,7 @@ Treasure maps are the oldest user-generated content: one person draws, another t
 - The post itself says what the game is ("Follow a stranger's map to buried gold. Then bury yours.") over today's coastline. On a wide screen the map sits beside the island, so you read and walk at the same time. The result card ends with one optional invitation to join the crew.
 
 **How we built it**
-Devvit Web: React client, Canvas 2D island, SVG chart editor; Hono server; Redis for everything; the scheduler posts a new island at 00:00 UTC with a sticky comment for chart shares. The island is generated from a daily seed by shared TypeScript that runs on both client and server, so the server re-checks every step and dig: the chest's location never reaches your device until the hunt ends. Charts are structured data, not freehand images, which keeps them safe to show to strangers and lets the game grade them. Even the share image is drawn on the server (a small PNG encoder in plain TypeScript), so nobody can post an arbitrary picture through the app. We red-teamed our own server with break tests (parallel requests, crafted steps, scraping) and fixed five bugs before launch; an automated QA run and an accessibility scan (0 violations, fully keyboard-playable) gate every upload.
+Devvit Web: React client, a three.js 3D island (lazy-loaded only in the game, with a Canvas 2D fallback for phones without WebGL), SVG chart editor; Hono server; Redis for everything; the scheduler posts a new island at 00:00 UTC with a sticky comment for chart shares. The island is generated from a daily seed by shared TypeScript that runs on both client and server, so the server re-checks every step and dig: the chest's location never reaches your device until the hunt ends. Charts are structured data, not freehand images, which keeps them safe to show to strangers and lets the game grade them. Even the share image is drawn on the server (a small PNG encoder in plain TypeScript), so nobody can post an arbitrary picture through the app. We red-teamed our own server with break tests (parallel requests, crafted steps, scraping) and fixed five bugs before launch; an automated QA run and an accessibility scan (0 violations, fully keyboard-playable) gate every upload.
 
 **Challenges**
 Making a two-part loop easy: we made you *use* a stranger's map before you draw one, so you learn by doing. Making it fair: bury-where-you've-been, depth multipliers and the Ink check. Making it work with few players: Old Captain charts and a "fresh chart" slot that gives every new map exposure.
@@ -50,7 +50,7 @@ Making a two-part loop easy: we made you *use* a stranger's map before you draw 
 **What's next**
 Storm days that move a landmark at noon (so morning maps go wrong), seasonal islands, and letting subreddits run their own archipelago.
 
-**Built with:** devvit, devvit-web, react, typescript, hono, redis, canvas, svg, vite, tailwindcss
+**Built with:** devvit, devvit-web, react, typescript, three.js, webgl, hono, redis, canvas, svg, vite, tailwindcss
 
 ## 3. App README.md (in the repo root — required)
 

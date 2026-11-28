@@ -74,3 +74,31 @@ Scores out of 10, before → after this pass.
 | this PR | `npm run qa` adds J1, J2, J4 (17/17); axe re-run on the new splash and wide hunt (0 violations); screenshots, QA report, laptop prompt and Devpost draft updated |
 
 Before → after, as a judge first sees it (390 × 512 splash, 390 × 844 hunt, 1280 × 800 hunt): `docs/img/screens/01-splash.png`, `05-hunt.png`, `12-hunt-wide.png`.
+
+## 6. Second pass: 3D island and the new identity (28 Nov, later)
+
+Harsh asked for a real 3D game, non-generic colours and better banners. He picked true 3D (three.js) and the Tropical day palette (D12 amended, D24, D25).
+
+| Criterion | After pass 1 | After pass 2 | What moved it |
+|---|---|---|---|
+| Delightful UX | 8.5 | 9 | A chunky 3D island with cloud that lifts where you walk, next to a flat paper map: the game's idea becomes visible in the first screen. Trees and boulders show what blocks the way. |
+| Polish | 8.5 | 8.5 | Silent 2D fallback, reduced-motion stills, QA covers both renderers (J7, J9). Not higher until the 3D runs smoothly on real phones in the Reddit app (J8). |
+| Reddity | 8 | 8 | Unchanged: depends on tester maps during judging (J6). |
+| Daily Content | 8 | 8.5 | Each day's island now looks different at a glance (jungle days fill with trees, low tide spreads sand), and the subreddit banner is a chart of the real first week. |
+
+New risks and how they're covered:
+- **WebGL in the Reddit webview or on a weak phone:** IslandCanvas falls back to 2D on any failure or context loss (UI-3.5). The laptop agent checks J8 on real phones.
+- **Load:** three.js is one lazy chunk (~140 KB gzip) loaded only when the game opens. The feed post doesn't load it.
+- **Slop check (design):**
+  - No gradients or glow: the frame is a flat lagoon colour with a faint wave line.
+  - Cards are sun-bleached paper with a hard offset shadow.
+  - Headlines are one colour.
+  - The banner is a sea chart of the game's own islands, not a stock illustration.
+
+| PR | Change |
+|---|---|
+| #151 | Spec: three.js island, Tropical day, logo |
+| #152 | Palette across client, charts and share image; logo; icon, tile, banners, featuring image and cover as a sea chart of the launch-week islands |
+| #153 | The 3D island with the 2D fallback; QA J7, J9 |
+| T87 | Devpost GIFs and slides in 3D, refreshed screenshots, this scorecard, laptop prompt and the Chrome runbook |
+

@@ -53,7 +53,7 @@ Regenerate any image:
 - **Banner (desktop):** `docs/assets/subreddit-banner-1920x384.png`. The left quarter stays plain because Reddit puts the icon and name there.
 - **Banner (mobile):** `docs/assets/subreddit-banner-mobile-1600x480.png`
 - **Icon:** `docs/assets/icon-256.png`
-- **Base colour:** #14202B (night). **Highlight:** #E8B341 (gold).
+- **Base colour:** #0A6468 (lagoon). **Highlight:** #FFB21E (mango).
 
 **Post flair** (moderators only, except Feedback and Bug)
 | Flair | Use |
@@ -94,11 +94,13 @@ Regenerate any image:
 
 | Order | File | Caption / alt text |
 |---|---|---|
-| Cover | `devpost-gallery-1500x1000.png` | Isle of Maybe: bury it, chart it, trust a stranger's map. |
-| 1 | `gallery-1-loop.png` | Pick a map another redditor drew from memory, walk the fog, dig with three shovels. |
-| 2 | `gallery-2-chart.png` | Bury your own chest and chart it from memory; the Ink check grades it on the spot. |
-| 3 | `gallery-3-tomorrow.png` | Tomorrow's Dispatch shows who found your chest; share your chart as a comment. |
-| 4 | `gallery-4-desktop.png` | On desktop the map sits beside the island; fully playable by keyboard. |
-| 5 | `gallery-5-fair.png` | The server decides every dig; maps use a fixed stamp kit; player content expires in 30 days. |
+| Cover | `devpost-gallery-1500x1000.png` | Isle of Maybe: a sea chart of the first week's islands, with the question-mark logo. |
+| 1 | `gallery-0-hunt.gif` (animated) | Walking a new 3D island: the cloud lifts where the sailor walks; three shovels. |
+| 2 | `gallery-0-chart.gif` (animated) | Charting from memory on paper, then the Ink check lays the map over the real island. |
+| 3 | `gallery-1-loop.png` | Pick a stranger's map, walk the island, dig. |
+| 4 | `gallery-2-chart.png` | Bury your chest, chart it from memory, Ink check, result card. |
+| 5 | `gallery-3-tomorrow.png` | Tomorrow's Dispatch shows who found your chest; share your chart as a comment. |
+| 6 | `gallery-4-desktop.png` | On desktop the paper map sits beside the 3D island; fully playable by keyboard. |
+| 7 | `gallery-5-fair.png` | The server decides every dig; maps use a fixed stamp kit; player content expires in 30 days. |
 
-The gallery shows the local preview set to 9 Dec (Day 5), played with the shipped client. Once the game runs on Reddit, a real screenshot of the daily post can replace slide 5's splash. Keep the rest: they show the same screens.
+Every image comes from the shipped client in the local preview set to 9 Dec (Day 5), rebuilt by `python3 tools/assets/gallery.py` (slides and GIFs). Devpost takes PNG and GIF up to 5 MB; ours are 0.1–0.5 MB. Once the game runs on Reddit, a real screenshot of the daily post can replace slide 7's splash.

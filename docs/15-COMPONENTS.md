@@ -1,9 +1,9 @@
 # 15 — Components
 
-The component kit for the client. It maps the design (`03-DESIGN.md`) and the wireframes (`04-WIREFRAMES.md`) onto files, so an agent can build any screen from parts that already exist. No UI libraries: React + Tailwind tokens + SVG + Canvas 2D (AGENTS.md §2).
+The component kit for the client. It maps the design (`03-DESIGN.md`) and the wireframes (`04-WIREFRAMES.md`) onto files, so an agent can build any screen from parts that already exist. No UI libraries: React + Tailwind tokens + SVG + three.js for the 3D island, with Canvas 2D as its fallback (AGENTS.md §2).
 
 ## Tokens and type
-`src/client/index.css`. Tailwind 4 `@theme` holds every colour token from §3 (`bg-parchment`, `text-ink`, `text-seal`, `bg-night`, `text-gold`…), `font-display` (IM Fell English SC) and `font-body` (Atkinson Hyperlegible). Both fonts are bundled from `@fontsource/*` WOFF2 files; nothing loads from the network. `.parchment` is the card material and `.torn` is the torn top edge (`assets/torn-edge.svg`). The motion classes `anim-rise`, `anim-thud` and `anim-fade` animate only transform and opacity and turn into fades under reduced motion.
+`src/client/index.css`. Tailwind 4 `@theme` holds every Tropical day token from §3 (`bg-paper`, `text-ink`, `text-hibiscus`, `bg-lagoon`, `bg-mango`, `text-sun`, `text-foam`…), `font-display` (IM Fell English SC) and `font-body` (Atkinson Hyperlegible). Both fonts are bundled from `@fontsource/*` WOFF2 files; nothing loads from the network. `.parchment` is the card material and `.torn` is the torn top edge (`assets/torn-edge.svg`). The motion classes `anim-rise`, `anim-thud` and `anim-fade` animate only transform and opacity and turn into fades under reduced motion.
 
 ## Kit (`src/client/components/ui.tsx`)
 | Component | Use | Wireframe |
@@ -20,6 +20,8 @@ The component kit for the client. It maps the design (`03-DESIGN.md`) and the wi
 | Icons | `CoinIcon`, `FlameIcon`, `ShovelIcon`: original glyphs, no emoji in the UI chrome. | W1, W4 |
 
 ## Ink (`Glyph.tsx`, `ChartView.tsx`)
+- `Logo`: the question-mark island mark (`src/shared/logo.ts`), on the splash; the same paths draw the app icon and banners.
+- `IslandCanvas`: picks the 3D island when WebGL works, the 2D one otherwise; `flat` forces the straight-down 2D view (Ink check).
 - `Glyph`: one landmark, X, dock or compass from `src/shared/glyphs.ts`; with `fill`, the island colour version. The server's share image uses the same strokes.
 - `ChartView`: a 400×400 parchment with hatched sea, the shoreline (`coastPath`, marching squares + smoothing from `src/shared/coast.ts`), dock, compass, depth dots, then `Pieces` (dashed path, stamps, the X in seal red). It has props for the Old Captain seal (`captain`), an empty parchment (`bare`, for the editor) and children (editor handles, reveal markers).
 - `lib/geom.ts`: tile ↔ chart pixel helpers shared by both.
@@ -35,7 +37,7 @@ The component kit for the client. It maps the design (`03-DESIGN.md`) and the wi
 | W1 Splash | `splash.tsx` | Title, Banner, counts, gold Button → `openGame` |
 | W2 Dispatch | `screens/Dispatch.tsx` | Card per chart + ChartView thumb, tier bar |
 | W3 Pick | `screens/Pick.tsx` | Swipeable cards (ChartView, slot label, DepthDots, stats) |
-| W4 Hunt | `screens/Hunt.tsx` + `island/` | Canvas island, chart overlay toggle, Dig, shovels, steps |
+| W4 Hunt | `screens/Hunt.tsx` + `island/` | 3D island (`island/three/island3d.ts`, 2D fallback), chart thumbnail or side panel, Dig, shovels, steps |
 | W5 Reveal | `screens/Reveal.tsx` | Island with X vs chest, rating buttons (icon + word) |
 | W6 Bury | `screens/Bury.tsx` | Canvas with seen tiles lit, depth preview |
 | W7 Chart editor | `screens/ChartEditor.tsx` | ChartView `bare` + stamp tray, path and X tools, undo, budget |
