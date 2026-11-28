@@ -57,7 +57,6 @@ import {
   type Cinematic,
   type Stamp,
 } from './world/cinematic.ts';
-import { hazardsFor } from '../../../shared/hazards.ts';
 import { createSea, type Sea } from './world/sea.ts';
 import { createSky, skyLook } from './world/sky.ts';
 import { buildTerrainGeometry } from './world/terrain.ts';
@@ -529,6 +528,9 @@ export const createIsland3D = (
   let birds: { group: Group; tick: (t: number) => void } | null = null;
   let heights: Heights | null = null;
   let quicksandTick: (t: number) => void = () => undefined;
+  // Quicksand shows where a screen passes the hunt's hazards (the hunt does; Practice Cove doesn't).
+  let lastQs: ReadonlySet<number> | null = null;
+  let qsMesh: Object3D | null = null;
   const env = new Group();
   scene.add(env);
 
@@ -691,9 +693,7 @@ export const createIsland3D = (
       }
     const flora = createFlora(next, h, wind, quality === 'high' ? 1 : 0.45);
     for (const m of flora.meshes) world.add(m);
-    const qs = createQuicksand(hazardsFor(next).quicksand, h);
-    quicksandTick = qs.tick;
-    if (qs.mesh !== null) world.add(qs.mesh);
+    lastQs = null;
 
     landmarks = next.landmarks.map((l) => {
       const obj = landmarkModel(l.type);
@@ -795,6 +795,21 @@ export const createIsland3D = (
     for (const l of landmarks)
       l.obj.visible =
         landmarkVisible(s.island, s.seen, s.sailor, l.at) !== 'hidden';
+    const qs = s.hazards?.quicksand ?? null;
+    if (qs !== lastQs && heights !== null) {
+      lastQs = qs;
+      if (qsMesh !== null) {
+        world.remove(qsMesh);
+        dispose(qsMesh);
+        qsMesh = null;
+      }
+      if (qs !== null) {
+        const made = createQuicksand(qs, heights);
+        quicksandTick = made.tick;
+        qsMesh = made.mesh;
+        if (qsMesh !== null) world.add(qsMesh);
+      }
+    }
     refreshHoles(s.holes);
     refreshMarkers(s);
     // Seen from high above (reveal), markers grow so the X and the chest read at a glance.

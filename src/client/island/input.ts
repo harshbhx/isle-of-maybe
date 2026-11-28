@@ -85,3 +85,59 @@ export const useKeys = (
     return () => window.removeEventListener('keydown', onKey);
   }, [enabled]);
 };
+
+/** Held keys drive the 3D explorer (ADV-3.1): WASD or arrows to walk, Shift to run. */
+export const useDriveKeys = (
+  drive: { input: (x: number, y: number, run: boolean) => void } | null
+): void => {
+  useEffect(() => {
+    if (drive === null) return;
+    const down = new Set<string>();
+    const keys = [
+      'arrowup',
+      'arrowdown',
+      'arrowleft',
+      'arrowright',
+      'w',
+      'a',
+      's',
+      'd',
+      'shift',
+    ];
+    const push = (): void => {
+      const x =
+        (down.has('arrowright') || down.has('d') ? 1 : 0) -
+        (down.has('arrowleft') || down.has('a') ? 1 : 0);
+      const y =
+        (down.has('arrowdown') || down.has('s') ? 1 : 0) -
+        (down.has('arrowup') || down.has('w') ? 1 : 0);
+      const len = Math.hypot(x, y) || 1;
+      drive.input(x / len, y / len, down.has('shift'));
+    };
+    const on = (e: KeyboardEvent): void => {
+      const k = e.key.toLowerCase();
+      if (!keys.includes(k)) return;
+      if (
+        e.target instanceof HTMLElement &&
+        /INPUT|TEXTAREA|SELECT/.test(e.target.tagName)
+      )
+        return;
+      e.preventDefault();
+      if (e.type === 'keydown') down.add(k);
+      else down.delete(k);
+      push();
+    };
+    const blur = (): void => {
+      down.clear();
+      push();
+    };
+    window.addEventListener('keydown', on);
+    window.addEventListener('keyup', on);
+    window.addEventListener('blur', blur);
+    return () => {
+      window.removeEventListener('keydown', on);
+      window.removeEventListener('keyup', on);
+      window.removeEventListener('blur', blur);
+    };
+  }, [drive]);
+};

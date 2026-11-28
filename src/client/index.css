@@ -237,3 +237,34 @@
   letter-spacing: -0.02em;
 }
 
+
+/* Coach pointer (ADV-9.2): a mango ring that breathes around the control the coach means. */
+.coach-target {
+  position: relative;
+}
+.coach-target::after {
+  content: '';
+  position: absolute;
+  inset: -6px;
+  border: 3px solid var(--color-mango);
+  border-radius: 12px;
+  pointer-events: none;
+  animation: coach-pulse 1.4s ease-in-out infinite;
+}
+@keyframes coach-pulse {
+  0%,
+  100% {
+    opacity: 0.35;
+    transform: scale(0.97);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.03);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .coach-target::after {
+    animation: none;
+    opacity: 1;
+  }
+}
