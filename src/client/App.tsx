@@ -28,6 +28,7 @@ import { ChartEditor } from './screens/ChartEditor.tsx';
 import { Dispatch } from './screens/Dispatch.tsx';
 import { Hunt } from './screens/Hunt.tsx';
 import { Pick } from './screens/Pick.tsx';
+import { Practice } from './screens/Practice.tsx';
 import { Result } from './screens/Result.tsx';
 import { Reveal } from './screens/Reveal.tsx';
 
@@ -83,7 +84,9 @@ export const App = () => {
           next.user.chest === null &&
           next.dispatch.charts.length === 0 &&
           flag.get('sampleSeen') === null;
-        if (challenge === null && (news || sample))
+        if (challenge === null && !next.user.practiced)
+          setScreen({ k: 'practice' });
+        else if (challenge === null && (news || sample))
           setScreen({ k: 'dispatch' });
         else if (next.user.huntsLeft === 0 && challenge === null)
           setScreen({ k: 'result' });
@@ -164,6 +167,22 @@ export const App = () => {
           chart={screen.chart}
           reveal={screen.reveal}
           holes={screen.holes}
+        />
+      );
+      break;
+    case 'practice':
+      body = (
+        <Practice
+          onDone={() => {
+            const sample =
+              init.user.loggedIn &&
+              init.user.chest === null &&
+              flag.get('sampleSeen') === null;
+            go({
+              k:
+                init.dispatch.charts.length > 0 || sample ? 'dispatch' : 'pick',
+            });
+          }}
         />
       );
       break;
