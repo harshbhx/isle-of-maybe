@@ -66,3 +66,8 @@ Scope: the 28 Nov rebuild Harsh asked for after playing the game. "Too simple, r
 - **ADV-10.2** THE 3D client SHALL dress the island for its biome: ground and sand colours, plant colours and kinds (palms, broadleaf, pines), sea and sky colours, and one ambient touch each (volcanic smoke, autumn leaves, frost snowfall, mangrove mist, coral birds, tropical clouds). The ambient touch is still under reduced motion, or absent.
 - **ADV-10.3** THE splash and the hunt header SHALL name the biome in one short line (for example "A volcanic isle"), so each day's post reads as new from the feed.
 
+## ADV-11 Feel: weight, turning and footfalls (red team, 29 Nov: "more smoothness and realistic experience")
+- **ADV-11.1** THE explorer SHALL ease into and out of motion, reaching full speed within about 0.12 s and stopping as quickly. It SHALL turn toward its heading along the shortest arc instead of snapping. Neither change makes it faster than the server's pace check allows.
+- **ADV-11.2** THE camera's follow and zoom SHALL be smoothed by elapsed time, not per frame, so they feel the same at 30, 60 and 120 Hz.
+- **ADV-11.3** WHILE the explorer moves, THE 3D client SHALL kick up small puffs from its feet: sand on beaches, dust on grass and earth, and splash rings in shallow water. Running makes more of them. The puffs come from a fixed pool, are absent under reduced motion, and hide at the adaptive quality step that hides the birds.
+

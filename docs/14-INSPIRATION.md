@@ -33,3 +33,26 @@ Reviewed 28 Nov 2026: the hackathon Resources page and every gallery it links to
 - AI-generated content (Never Ending Reddit style): Reddit warns against AI slop; our content is people.
 - Real-time multiplayer (JetOni, Tower Race live): our demo sub is small; async is safer.
 - Collaborative stories: on Reddit's overdone list.
+
+## Round 3 (29 Nov): past Reddit winners and the realism pass
+The Reddit × Phaser "Games with a Hook" hackathon (summer 2026) drew 700+ games. Its write-up of the winners gives these lessons, and what we did about each:
+
+| Lesson from the winners | Who | What we did |
+|---|---|---|
+| Something new every day is what brings people back, and also what puts the game in front of new players | Cattack! (daily packs), Delta-V (track unlocks), Hearthvale (weather changes overnight) | Six seeded **biomes** on top of the weekday weather, so every island looks new from the feed (ADV-10) |
+| Each place should look different | Hearthvale ("each village looks different") | Biome palettes, plants, sea and ambient touches (ADV-10.2) |
+| Players share a map, and anyone nearby joins in | Myndrot (world boss on a shared map) | Live **ghosts** of other hunters, and worn paths (ADV-6), already shipped |
+| Racing other players' recordings, with a loop that shows builders whether anyone beat their circuit | Delta-V | The **Dispatch** tells mapmakers who found their chest; the Hall of Charts (already shipped) |
+| Rich, living art (about 470,000 animated grass blades) | Myndrot | Swaying flora, smoke, snow, leaves, mist, a reef, footfall puffs (ADV-10, ADV-11) |
+| Design for a 30-second session on a phone, with no prior knowledge | All | Practice Cove coach, one hint at a time, the isle title card |
+| Retention hooks work better shown than explained | Hearthvale | Crew goal bar, streaks and the Dispatch are shown, not described |
+
+### Realism and smoothness red team (ADV-11)
+| Finding | Why it matters | Fix |
+|---|---|---|
+| The explorer turned instantly to any new direction | Feels robotic, especially on a keyboard (W then D snaps 90°) | Turns along the shortest arc (ADV-11.1) |
+| Full speed on the first frame, a dead stop on release | No sense of weight | About 0.12 s of easing in and out (ADV-11.1) |
+| Camera smoothing was a fixed amount per frame | Stiffer on 120 Hz phones, laggier on slow ones | Smoothing by elapsed time (ADV-11.2) |
+| Feet made no mark on the world | Running over sand or wading looked weightless | Sand and dust puffs and splash rings from a pooled set (ADV-11.3) |
+| The dig puff built new meshes every frame | Garbage collection hitches on low-end phones | Left as is: it lasts 300 ms per dig. Noted for later |
+
