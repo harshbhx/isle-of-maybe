@@ -114,3 +114,36 @@ export type RateResponse = { trueVotes: number; cursedVotes: number };
 export type ReportRequest = { chartId: string };
 /** Always the same answer, so reporting reveals nothing about other reports. */
 export type ReportResponse = { reported: true };
+
+export type BoardKind = 'trusted' | 'goldDay' | 'goldWeek' | 'cartographers';
+export const BOARD_KINDS: readonly BoardKind[] = [
+  'trusted',
+  'goldDay',
+  'goldWeek',
+  'cartographers',
+];
+
+/** One line of a board. Chart boards also carry the chart's id and counts. */
+export type BoardRow = {
+  rank: number;
+  name: string;
+  value: number;
+  chart?: { id: string; attempts: number; finds: number };
+};
+
+/** Top 10 plus the requesting player's own line, even outside the top 10 (COM-3.2). */
+export type BoardResponse = {
+  kind: BoardKind;
+  rows: BoardRow[];
+  me: BoardRow | null;
+};
+
+export type HallDay = {
+  day: string;
+  dayNumber: number;
+  island: string;
+  top: ChartPublic[];
+  /** Lowest find rate among charts with at least 5 attempts (COM-4.4). */
+  cursed: ChartPublic | null;
+};
+export type HallResponse = { days: HallDay[] };
