@@ -19,7 +19,9 @@
 
 ## 2. Devpost text (draft; Harsh edits the voice)
 
-**Tagline (≤ 200 chars):** Bury a chest, draw a map from memory, and trust a stranger's map to find theirs. A new island every day, and tomorrow you learn how many sailors your map led to gold.
+**Devpost draft:** project 1323868, https://devpost.com/software/isle-of-maybe (DRAFT, 28 Nov). Filled: name, elevator pitch, the story below, built-with tags, the repo link, the cover as thumbnail, and all 8 gallery images with captions. Still empty, because they need Reddit: **Reddit username**, **developers.reddit.com app page**, **link to test post**. The ported-game answer is "No" (with N/A for the original-game link), but this page only saves once the three required fields are filled. Then tick the terms and press **Submit project** (Harsh).
+
+**Tagline (≤ 200 chars, as entered):** A new 3D island every day. Follow a map a stranger drew from memory to their buried chest, then bury yours and chart it. Tomorrow, see how many sailors your map led to gold.
 
 **Inspiration**
 Treasure maps are the oldest user-generated content: one person draws, another trusts. Most daily games are you against a puzzle. We wanted a daily game where you play *for* strangers: your map is somebody else's puzzle tomorrow. Reddit is the only place with enough strangers, every day, to make that work. (Small map-drawing jam games like Captain Peggles showed the loop is fun; we rebuilt it around a shared daily island and a whole community.)
