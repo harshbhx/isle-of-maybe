@@ -1,10 +1,23 @@
-# Isle of Maybe
+<p align="center">
+  <img src="brand/logo/lockup/isle-of-maybe-lockup-horizontal-on-light.svg" width="440" alt="Isle of Maybe">
+</p>
 
-**Bury it. Chart it. Trust a stranger's map.**
+<p align="center"><b>Bury it. Chart it. Trust a stranger's map.</b></p>
 
-A daily treasure-map game that runs inside Reddit posts. Every day there's a new 3D island, the same for everyone. You follow a map another player drew from memory to find their buried chest. Then you bury your own and draw a map for the next sailor. Tomorrow, you find out how many sailors your map led to gold.
+<p align="center">
+  <a href="https://www.reddit.com/r/IsleOfMaybe/">Play on r/IsleOfMaybe</a> ·
+  <a href="https://isle-of-maybe.pages.dev">Website</a> ·
+  <a href="#how-to-play">How to play</a> ·
+  <a href="brand/README.md">Press kit</a>
+</p>
 
-<p>
+A daily treasure-map game that runs inside Reddit posts. Every day there's a new 3D island, the same for everyone. You follow a map another player drew from memory to find their buried chest before the tide comes in. Then you bury your own and draw a map for the next sailor. Tomorrow, you find out how many sailors your map led to gold.
+
+<p align="center">
+  <img src="brand/gifs/isle-of-maybe-find-the-chest.gif" width="720" alt="The explorer cheers as a found chest bursts open, coins flying, the burier's name on its plaque">
+</p>
+
+<p align="center">
   <img src="docs/img/screens/04-pick.png" width="190" alt="Pick a chart drawn by a stranger">
   <img src="docs/img/screens/05-hunt.png" width="190" alt="Walk the 3D island as the explorer, before the tide comes in, and dig">
   <img src="docs/img/screens/06-reveal.png" width="190" alt="See the chart's X against the real chest">
@@ -27,7 +40,11 @@ A daily treasure-map game that runs inside Reddit posts. Every day there's a new
 
 You can hunt up to 3 charts a day and bury one chest. Streaks, gold boards, the **Hall of Charts** and Cartographer tiers (Deckhand to Legend of the Isles) reward coming back and drawing honest maps.
 
-**Every day is a little different.** Monday Clear skies, Tuesday Twins (some landmarks have a double), Wednesday Low tide (a bigger island), Thursday Thick jungle, Friday Sea fog (you see less), Saturday Lantern night (landmarks near you glow through the fog). When the community finds enough chests in a day (the **crew goal**), tomorrow becomes Lantern night as a reward. The top reply under each day's sticky comment **names tomorrow's island**.
+**Every island is a little different.** Each day's island is one of six biomes: Tropical, Volcanic (black sand, a smoking peak), Autumn, Mangrove, Frost or Coral (a reef offshore).
+
+<p align="center"><img src="brand/biomes/isle-of-maybe-six-biomes.webp" width="720" alt="The six biomes: tropical, volcanic, autumn, mangrove, frost and coral islands"></p>
+
+The weekday sets the weather: Monday Clear skies, Tuesday Twins (some landmarks have a double), Wednesday Low tide (a bigger island), Thursday Thick jungle, Friday Sea fog (you see less), Saturday Lantern night (landmarks near you glow through the fog). When the community finds enough chests in a day (the **crew goal**), tomorrow becomes Lantern night as a reward. The top reply under each day's sticky comment **names tomorrow's island**.
 
 ## For moderators
 - Install the app in your subreddit. A new island post appears every day at 00:00 UTC with a sticky comment for chart shares and island names.
@@ -60,8 +77,17 @@ npm run qa         # automated QA matrix and break tests against the preview
 npm run atlas      # the next 30 islands, for reviewing seeds
 npm run deploy     # type check + lint + upload
 ```
+| Folder | What's there |
+|---|---|
+| `src/` | The game: `client/` (React and three.js), `server/` (Hono on Devvit), `shared/` (pure, deterministic rules used by both) |
+| `specs/` | Requirements, design and tasks for every feature. Every PR names its requirement IDs |
+| `docs/` | Product, design, architecture, QA, decisions, the Devpost story |
+| `brand/` | Every logo, icon, glyph, banner, GIF, screen and clip ([guide](brand/README.md)) |
+| `site/` | The website, plain files served by Cloudflare ([how to deploy](docs/SITE.md)) |
+| `tools/` | Preview server and QA, asset, brand and site generators |
+
 - How we work: [`AGENTS.md`](AGENTS.md) and [`specs/README.md`](specs/README.md) (spec → issue → PR → merge).
 - Product, design, architecture, QA: [`docs/`](docs/README.md).
 
 ## Credits
-Fonts: IM Fell English SC and Atkinson Hyperlegible (SIL Open Font License), bundled with the app. Inspired by small map-drawing games such as *Captain Peggles: That Man's Chest*. Built from Reddit's Devvit React template (BSD-3-Clause). Game code, art and writing made for this hackathon by Harsh Bhanushali.
+Fonts: Fraunces, Bricolage Grotesque and IM Fell English SC (SIL Open Font License), bundled with the app. Inspired by small map-drawing games such as *Captain Peggles: That Man's Chest*. Built from Reddit's Devvit React template (BSD-3-Clause). Game code, art and writing made for this hackathon by Harsh Bhanushali.
