@@ -86,7 +86,13 @@ export const createApi = (d: ApiDeps): Hono => {
     handle(c, async () => initFor(kv, d.actor(), await d.postDay(), d.now()))
   );
   api.get('/charts/pick', (c) =>
-    handle(c, async () => pickCharts(kv, d.actor(), await d.postDay()))
+    handle(c, async () => {
+      // A challenge link's chart id is untrusted: shape-checked here, eligibility-checked in pickCharts.
+      const ch = c.req.query('challenge');
+      const challenge =
+        ch !== undefined && /^[\w-]{1,80}$/.test(ch) ? ch : undefined;
+      return pickCharts(kv, d.actor(), await d.postDay(), challenge);
+    })
   );
 
   api.post('/hunt/start', (c) =>

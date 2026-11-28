@@ -118,3 +118,27 @@ test('HUNT-1.1 init returns the post day, island and player state', async () => 
   assert.equal(later.isToday, false);
   await assert.rejects(initFor(kv, alice, '2026-12-01', NOW));
 });
+
+test('HUNT-1.4 a valid challenge chart comes first; an ineligible one is ignored', async () => {
+  const kv = new FakeKv();
+  await postDay(kv);
+  await addChart(kv, { id: 'dared', author: bob, attempts: 50 });
+  await addChart(kv, { id: 'mine', author: alice });
+  const r = await pickCharts(kv, alice, DAY, 'dared');
+  assert.equal(r.charts.length, 3);
+  assert.deepEqual(r.charts[0] && [r.charts[0].slot, r.charts[0].chart.id], [
+    'challenge',
+    'dared',
+  ]);
+  assert.equal(new Set(r.charts.map((c) => c.chart.id)).size, 3);
+  const own = await pickCharts(kv, alice, DAY, 'mine');
+  assert.equal(
+    own.charts.some((c) => c.slot === 'challenge'),
+    false
+  );
+  const captain = await pickCharts(kv, alice, DAY, `cap-${DAY}-0`);
+  assert.equal(
+    captain.charts.some((c) => c.slot === 'challenge'),
+    false
+  );
+});
