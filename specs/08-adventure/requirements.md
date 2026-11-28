@@ -35,3 +35,20 @@ Scope: the 28 Nov rebuild Harsh asked for after playing the game. "Too simple, r
 - **ADV-5.2** WHEN a dig finds the chest, THE client SHALL raise the chest and burst its lid open with gold and light, swing the camera round it, and then show the result.
 - **ADV-5.3** WHEN a hunt ends without a find (shovels, give up or tide), THE client SHALL show the chest's true spot, the empty hole and, for the tide, the water rolling over the beach, before the result.
 - **ADV-5.4** WHILE reduced motion is on, THE client SHALL replace camera moves and bursts with short fades (UI-5.1).
+
+## ADV-6 Only on Reddit (Harsh, 28 Nov)
+- **ADV-6.1** THE explorer's hat SHALL show the player's flair tier: Deckhand straw, Mapmaker leather, Navigator with a feather, Cartographer blue felt with a compass pin, Legend with a gold band. The tier comes from the server's user state; logged-out players are Deckhands.
+- **ADV-6.2** WHEN a hunt reveals the chest, THE 3D client SHALL show an engraved plaque on its lid: "Buried by u/name" (or "The Old Captain"), with the chart's True or Cursed stamp once it has 3 or more votes.
+- **ADV-6.3** WHERE a redditor named the island (DAY-6.2), THE 3D dock SHALL carry a carved sign: "Named by u/name".
+- **ADV-6.4** WHEN a hunt ends, THE server SHALL add 1 to that day's wear count for each distinct tile the hunt stepped on (TTL like the day's counts). It SHALL serve the day's wear as levels 0–3, rebuilt at most once a minute. A tile shows wear only after 3 or more hunts crossed it, and the server never sends who walked where.
+- **ADV-6.5** THE 3D client SHALL blend worn tiles from grass or sand towards a trodden dirt path by wear level, so the day's crowd shows on the island.
+- **ADV-6.6** WHILE a logged-in player is hunting, THE client MAY send its tile at most once every 2 s while moving. THE server SHALL rate-limit this, attach the player's name and broadcast it on the day's realtime channel. The server never stores these positions.
+- **ADV-6.7** THE 3D client SHALL draw up to 8 other hunters as faint lantern-lit ghosts with their u/name, gliding between updates and fading out after 10 s without one. Under reduced motion they appear without gliding. The player SHALL be able to hide them.
+
+## ADV-7 Performance (Harsh: "make sure performance stays")
+- **ADV-7.1** THE 3D client SHALL measure its frame time. IF the average over 3 s drops below 40 fps, THEN it SHALL step down one level: first shadows off, then half the plants and no birds, then pixel ratio 1. It never steps back up within a session.
+- **ADV-7.2** THE game entry's JavaScript SHALL stay within 450 KB gzip in total, with three.js and the world in the lazy chunk (UI-7.1). Fonts SHALL be subset to Latin woff2.
+
+## ADV-8 Type (Harsh, 28 Nov)
+- **ADV-8.1** THE client SHALL use Fraunces (bold display) for titles, island names and big moments, Bricolage Grotesque for the HUD, buttons and body text, and IM Fell English SC only on the paper chart and the share image. All are bundled (OFL), with no outside requests (rule 4).
+
