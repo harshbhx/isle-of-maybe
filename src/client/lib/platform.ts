@@ -2,6 +2,7 @@
 // local preview (tools/preview) where there is no Reddit host.
 import {
   connectRealtime,
+  context,
   getShareData,
   getWebViewMode,
   navigateTo,
@@ -33,6 +34,18 @@ export const go = (url: string): void => {
     navigateTo(url);
   } catch {
     // No host to navigate in the preview.
+  }
+};
+
+/** The subreddit this post lives in, or undefined outside Reddit (COM-2.8). */
+export const subredditName = (): string | undefined => {
+  try {
+    const name = context.subredditName;
+    return name !== undefined && /^[A-Za-z0-9_]{2,21}$/.test(name)
+      ? name
+      : undefined;
+  } catch {
+    return undefined;
   }
 };
 
