@@ -1,6 +1,6 @@
 # Screenshots
 
-Phone (390 px) captures from the local preview (`npm run preview:local`, `tools/preview/`), taken 28 Nov 2026. The preview runs before launch day, so day numbers read negative; on Reddit they start at Day 1 on 5 Dec.
+Captures of the 3D island in Tropical day, from the local preview set to 9 Dec (Day 5) with `PREVIEW_DAY=2026-12-09`, taken 28 Nov 2026 by `python3 tools/assets/gallery.py --capture-only` (phone 390 px; the wide hunt at 1280 px).
 
 | File | Screen |
 |---|---|
