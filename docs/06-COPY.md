@@ -180,6 +180,7 @@ Voice: short, salty, kind. Tease the map, never the player. Every string lives i
 | bury.loginCta / bury.browse / bury.pickTile | Log in / Just browse / Tap a tile you've walked near. |
 | chart.undo / chart.clear / chart.remove / chart.stamps | Undo / Clear / Remove / Stamps |
 | ink.continue | Continue |
+| result.tomorrow / result.countdown | Tomorrow's island / Lands in {t} (DAY-7.1) |
 | result.streak / result.total / result.noChest | Streak {n} / {n} gold total / No chest buried yet. |
 | share.already | Already shared under today's chart thread. |
 | dispatch.sampleTitle / dispatch.tier / dispatch.tierTop / dispatch.cta | Sample / {tier} · {finds} / {next} finds / {tier} · {finds} finds / Today's island → |
