@@ -73,5 +73,15 @@
   "scripts": {
     "dev": "vite build --watch",
     "build": "vite build"
+  },
+  "settings": {
+    "subreddit": {
+      "crewGoal": {
+        "type": "number",
+        "label": "Crew goal: chests found per day",
+        "helpText": "When the community finds this many chests in a day, the next island is Lantern night (DAY-8). Default 50.",
+        "defaultValue": 50
+      }
+    }
   }
 }

@@ -16,6 +16,7 @@ import {
 } from '../components/ui.tsx';
 import { copy, fmt } from '../copy.ts';
 import { listen, share } from '../lib/platform.ts';
+import { CrewGoal } from '../components/CrewGoal.tsx';
 import { Teaser } from '../components/Teaser.tsx';
 import { ShareSheet } from './ShareSheet.tsx';
 
@@ -115,7 +116,8 @@ export const Result = () => {
         <p className="tabular text-sm text-ink-soft" aria-live="polite">
           {fmt(copy.splash.counts, counts)}
         </p>
-        <Teaser today={init.today} />
+        <CrewGoal found={counts.found} target={init.goal} />
+        <Teaser seed={init.tomorrow.seed} modifier={init.tomorrow.modifier} />
       </Card>
       <div className="flex flex-col gap-2">
         {u.buried && u.chartId === null && chest !== null && (

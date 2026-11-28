@@ -24,6 +24,7 @@ const port0 = {
   stickyComment: async () => 't1_sticky',
   setFlairs: async () => {},
   replies: async () => [],
+  crewGoal: async () => 50,
 };
 
 // Yesterday's island with a chart by "you", so the Dispatch and the Hall have something to show.

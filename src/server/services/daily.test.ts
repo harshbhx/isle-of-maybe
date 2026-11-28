@@ -33,6 +33,7 @@ const fakePort = (): DailyPort & {
     },
     setFlairs: async () => {},
     replies: async () => [],
+    crewGoal: async () => 50,
   };
   return port;
 };
@@ -150,4 +151,47 @@ test('DAY-6.2 with no usable reply (or a failing call) the generated name stays'
   const init = await initFor(kv, alice, DAY, NOW);
   assert.equal(init.island.namedBy, null);
   assert.ok(init.island.name.length > 0);
+});
+
+test('DAY-8.2 meeting the crew goal makes the next island Lantern night, and it stays frozen', async () => {
+  const kv = new FakeKv();
+  await runDaily(
+    kv,
+    { ...fakePort(), crewGoal: async () => 12 },
+    NOW - 86_400_000
+  );
+  await kv.hSet(K.dayCounts('2026-12-06'), { found: '12' });
+  const before = await initFor(
+    kv,
+    alice,
+    '2026-12-06',
+    NOW - 86_400_000 + 1000
+  );
+  assert.equal(before.goal, 12);
+  assert.equal(before.tomorrow.modifier, 'lanterns');
+  await runDaily(kv, fakePort(), NOW); // Monday: normally Clear skies
+  assert.equal((await readDay(kv, DAY))?.modifier, 'lanterns');
+  await kv.hSet(K.dayCounts('2026-12-06'), { found: '0' });
+  await runDaily(kv, fakePort(), NOW + 1000);
+  assert.equal((await readDay(kv, DAY))?.modifier, 'lanterns');
+});
+
+test('DAY-8.1 the crew goal comes from the setting, clamped, with 50 by default', async () => {
+  const kv = new FakeKv();
+  await runDaily(kv, { ...fakePort(), crewGoal: async () => 1 }, NOW);
+  assert.equal((await readDay(kv, DAY))?.goal, 5);
+  const kv2 = new FakeKv();
+  await runDaily(
+    kv2,
+    {
+      ...fakePort(),
+      crewGoal: async () => {
+        throw new Error('no settings');
+      },
+    },
+    NOW
+  );
+  assert.equal((await readDay(kv2, DAY))?.goal, 50);
+  const init = await initFor(kv2, alice, DAY, NOW);
+  assert.equal(init.tomorrow.modifier, 'twins');
 });

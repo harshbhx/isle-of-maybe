@@ -72,6 +72,10 @@ export type InitResponse = {
     namedBy: string | null;
   };
   counts: { buried: number; found: number; hunts: number };
+  /** Today's crew goal in finds (DAY-8.1). */
+  goal: number;
+  /** Tomorrow's seed and modifier, for the teaser (DAY-7.1, DAY-8.2). */
+  tomorrow: { seed: string; modifier: Modifier };
   user: UserState;
   dispatch: Dispatch;
 };

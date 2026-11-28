@@ -5,7 +5,8 @@ import type {
   UserState,
 } from '../../shared/api.ts';
 import type { Grade } from '../../shared/chart.ts';
-import { dayNumber, utcDay } from '../../shared/day.ts';
+import { addDays, dayNumber, nextModifier, utcDay } from '../../shared/day.ts';
+import { seedFor } from '../../shared/island.ts';
 import { depthClass } from '../../shared/depth.ts';
 import { tierFor } from '../../shared/scoring.ts';
 import type { Island } from '../../shared/types.ts';
@@ -111,6 +112,11 @@ export const initFor = async (
       buried: num(counts.buried),
       found: num(counts.found),
       hunts: num(counts.hunts),
+    },
+    goal: rec.goal,
+    tomorrow: {
+      seed: seedFor(addDays(day, 1)),
+      modifier: nextModifier(addDays(day, 1), num(counts.found), rec.goal),
     },
     user,
     dispatch: await dispatchFor(kv, actor, today, user.finds),
