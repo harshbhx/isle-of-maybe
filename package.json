@@ -9,14 +9,14 @@
     "deploy": "npm run test:types && npm run lint && devvit upload",
     "dev": "devvit playtest",
     "launch": "npm run deploy && devvit publish",
-    "lint": "eslint 'src/**/*.{ts,tsx}'",
+    "lint": "eslint \"src/**/*.{ts,tsx}\"",
     "login": "devvit login",
     "prettier": "prettier --write .",
     "test:types": "tsc --build",
     "test:unit": "node --experimental-strip-types --no-warnings=ExperimentalWarning --test \"src/**/*.test.ts\"",
     "preview:local": "node --experimental-strip-types --no-warnings=ExperimentalWarning tools/preview/server.ts",
     "atlas": "node --experimental-strip-types --no-warnings=ExperimentalWarning tools/atlas/atlas.ts",
-    "qa": "python3 tools/preview/qa.py"
+    "qa": "node tools/py.mjs tools/preview/qa.py"
   },
   "engines": {
     "node": ">=24.0.0"
