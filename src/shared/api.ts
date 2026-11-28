@@ -20,7 +20,7 @@ export type ChartPublic = {
   cursedVotes: number;
 };
 
-export type PickSlot = 'trusted' | 'fresh' | 'captain';
+export type PickSlot = 'challenge' | 'trusted' | 'fresh' | 'captain';
 
 export type PickResponse = { charts: { slot: PickSlot; chart: ChartPublic }[] };
 
