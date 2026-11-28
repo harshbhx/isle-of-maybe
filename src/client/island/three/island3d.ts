@@ -52,6 +52,11 @@ import { createBirds } from './world/life.ts';
 import { createMist, type Mist } from './world/mist.ts';
 import { createExplorer, type Pose } from './world/explorer.ts';
 import { createQuicksand } from './world/quicksand.ts';
+import {
+  createCinematic,
+  type Cinematic,
+  type Stamp,
+} from './world/cinematic.ts';
 import { hazardsFor } from '../../../shared/hazards.ts';
 import { createSea, type Sea } from './world/sea.ts';
 import { createSky, skyLook } from './world/sky.ts';
@@ -76,6 +81,14 @@ export type Island3D = {
   pose: (p: Pose | null) => void;
   /** The explorer's position in tile units, while driving. */
   position: () => { x: number; y: number } | null;
+  /** The end of a hunt on screen (ADV-5): resolves when it has played. */
+  cinematic: (c: {
+    kind: 'found' | 'missed' | 'tide';
+    chest: Tile;
+    label: string;
+    stamp: Stamp;
+    font: string;
+  }) => Promise<void>;
   dispose: () => void;
 };
 
@@ -104,6 +117,8 @@ export const qualityTier = (): Quality => {
 };
 
 const seaLevelFor = (tide: number): number => {
+  // Past level 3 is the tide's final surge at the end of a hunt (ADV-5.3).
+  if (tide > 3) return (SEA_LEVELS[3] ?? 0.375) + (tide - 3) * 0.18;
   const lo = Math.max(0, Math.min(3, Math.floor(tide)));
   const hi = Math.min(3, lo + 1);
   const f = Math.max(0, Math.min(1, tide - lo));
@@ -537,6 +552,14 @@ export const createIsland3D = (
   let heading = 0;
   let lastT = 0;
   let zoomNow = 1;
+  let yaw = 0;
+  let cin: {
+    c: Cinematic;
+    start: number;
+    kind: 'found' | 'missed' | 'tide';
+    at: Vector3;
+    done: () => void;
+  } | null = null;
 
   const footGeo = new CircleGeometry(0.05, 6);
   footGeo.rotateX(-Math.PI / 2);
@@ -1065,10 +1088,32 @@ export const createIsland3D = (
               c.scale.y = 0.85 + Math.sin(t * 11 + c.id) * 0.15;
           });
     }
+    if (cin !== null) {
+      const age = t - cin.start;
+      const going = cin.c.tick(age);
+      wantTarget = cin.at.clone().add(new Vector3(0, 0.5, 0));
+      wantDistance = cin.kind === 'found' ? 5.4 : 8.5;
+      tilt = (cin.kind === 'found' ? 32 : 44) * (Math.PI / 180);
+      if (!opts.reducedMotion) {
+        yaw = cin.kind === 'found' ? Math.min(1.3, age * 0.45) : 0;
+        if (cin.kind === 'tide') {
+          tide = 3 + Math.min(1, age / 1.6);
+          sea?.setLevel(seaLevelFor(tide));
+        }
+      } else {
+        target.copy(wantTarget);
+        distance = wantDistance;
+      }
+      if (!going) {
+        const done = cin.done;
+        cin = { ...cin, done: () => undefined };
+        done();
+      }
+    }
     camera.position.set(
-      target.x,
+      target.x + distance * Math.cos(tilt) * Math.sin(yaw),
       target.y + distance * Math.sin(tilt),
-      target.z + distance * Math.cos(tilt)
+      target.z + distance * Math.cos(tilt) * Math.cos(yaw)
     );
     camera.lookAt(target);
     sea?.tick(opts.reducedMotion ? 0 : t);
@@ -1157,6 +1202,31 @@ export const createIsland3D = (
       }
     },
     position: () => (drv === null ? null : { x: pos.x, y: pos.y }),
+    cinematic: (c) =>
+      new Promise<void>((resolve) => {
+        const w = toWorld(c.chest);
+        const at = new Vector3(w.x, heights?.at(w.x, w.z) ?? 0.3, w.z);
+        if (cin !== null) {
+          scene.remove(cin.c.group);
+          cin.c.dispose();
+        }
+        const made = createCinematic({
+          kind: c.kind,
+          at,
+          label: c.label,
+          stamp: c.stamp,
+          font: c.font,
+          reduced: opts.reducedMotion,
+        });
+        scene.add(made.group);
+        held = c.kind === 'found' ? 'celebrate' : 'dejected';
+        path = [];
+        stick.x = 0;
+        stick.y = 0;
+        if (drv !== null)
+          heading = Math.atan2(w.x - toWorld(pos).x, w.z - toWorld(pos).z);
+        cin = { c: made, start: lastT, kind: c.kind, at, done: resolve };
+      }),
     dispose: () => {
       alive = false;
       cancelAnimationFrame(frame);
