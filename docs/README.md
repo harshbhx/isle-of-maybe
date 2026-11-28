@@ -41,6 +41,7 @@
 | `docs/14-INSPIRATION.md` | Past winners and the Featuring guide reviewed; 7 ideas we adopted |
 | `docs/15-COMPONENTS.md` | Component kit and the wireframe → file map |
 | `docs/16-QA-REPORT.md` | Automated QA run (`npm run qa`) and the break-test map |
+| `docs/17-JUDGE-REDTEAM.md` | Who judges, their advice as a checklist, our scorecard, findings J1–J9 and the judge-day checklist |
 | `docs/assets/`, `docs/img/` | Catalog art, listing text, screenshots, glyph sheet |
 | `tools/create-issues.sh` | Labels, milestones and 64 GitHub issues from the tasks (`DRY_RUN=1` to preview; skips existing) |
 

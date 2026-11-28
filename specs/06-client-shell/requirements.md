@@ -16,11 +16,14 @@ Scope: look, feel, structure and quality of every screen. Source: `docs/03-DESIG
 ## UI-3 Island view
 - **UI-3.1** THE client SHALL render the island on Canvas 2D with fog, sailor, footprints and holes at 60 fps while walking on a mid phone.
 - **UI-3.2** THE client SHALL support tap-to-move with route preview, keyboard arrows, Space to dig, M to toggle the chart, and zoom buttons (1×–2×).
+- **UI-3.3** WHILE zoomed in, THE camera SHALL be able to pan up to a quarter of the view past the island's edge (drawn as open sea), so the sailor stays near the middle of the screen at the dock and on the coast.
+- **UI-3.4** WHERE the game is at least 1024 px wide, THE hunt screen SHALL show the followed chart at full size beside the island, always open, instead of a thumbnail and overlay.
 
 ## UI-4 Screens and states
 - **UI-4.1** THE client SHALL implement W1–W12 from `docs/04-WIREFRAMES.md`, including empty, error, logged-out and old-day states.
 - **UI-4.2** THE client SHALL take every user-facing string from `copy.ts`.
 - **UI-4.3** THE client SHALL show each hint from `06-COPY.md` once, at the moment it applies.
+- **UI-4.4** THE client SHALL show at most one hint at a time on the hunt screen; WHEN the player first walks, THE walk hint SHALL retire (counted as seen) and the shovel hint SHALL take its place.
 
 ## UI-5 Motion and sound
 - **UI-5.1** THE client SHALL animate only `transform` and `opacity` and SHALL replace movement with fades when `prefers-reduced-motion` is set.

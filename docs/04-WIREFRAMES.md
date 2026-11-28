@@ -6,16 +6,19 @@ Low-fi. `[Gold]` = primary button, `(ink)` = secondary. Desktop: same stack, cen
 ```
 ┌──────────────────────────────────────┐
 │  ISLE OF MAYBE               🔥 4  ⛀ 1,240 │
-│  Day 12 · GULLROCK              │
-│  ~ Sea fog today: you see 2 tiles ~  │
-│                                      │
-│   ⚑ 38 chests buried · 51 found      │
-│   📜 Your chart from Day 11: 9 found │   ← only if you have one
-│                                      │
+│  Day 12 · GULLROCK · Wed 9 Dec       │
+│  Follow a stranger's map to buried   │
+│  gold. Then bury yours.              │   ← splash.pitch, always
+│  ┌──────────────┐ ~ Sea fog today ~  │
+│  │  today's     │ ⚑ 38 buried · 51   │
+│  │  coastline   │ ▓▓▓▓░ crew goal    │
+│  │  (hero)      │ 📜 Day 11: 9 found │   ← only if you have one
+│  └──────────────┘                    │
+│  🌴 Follow a map › ⛏ Dig › ✕ Bury yours │ ← only when ≥ 440 px tall
 │           [   Set sail   ]           │
 └──────────────────────────────────────┘
 ```
-No canvas. No scrolling. Tap anywhere else = nothing.
+No canvas. No scrolling. Tap anywhere else = nothing. The coastline is shape only (no landmarks), so the splash never helps anyone chart from memory. (DAY-3.4, DAY-3.5)
 
 ## W2 · Dispatch (first screen of a new day, if you have results)
 ```
@@ -60,7 +63,17 @@ Phone: horizontal swipe carousel with dots, big card, [Follow this chart].
 └──────────────────────────────────────┘
   hint: "Tap the island to walk. Open the chart any time."
 ```
-Route preview: dotted line + ghost sailor at destination; second tap walks.
+Route preview: dotted line + ghost sailor at destination; second tap walks. One hint at a time: after the first walk the shovel hint replaces the walk hint (UI-4.4). Zoomed in, the camera can pan a quarter-screen past the coast so the sailor isn't pinned to the edge (UI-3.3).
+
+Wide (≥ 1024 px): island on the left, the chart full size on the right, always open, hints and Report under it (UI-3.4).
+```
+┌─────────────────────────────┬───────────────┐
+│  island (canvas)            │  chart (full) │
+│                             │  by u/marlin  │
+│                             │  hint · Report│
+│ (Give up)  (− +)  [ Dig ]   │               │
+└─────────────────────────────┴───────────────┘
+```
 
 ## W5 · Reveal
 Found:
@@ -130,7 +143,8 @@ Submit disabled until X placed. Counter text: "4 of 6 stamps · 3 of 8 path step
 │                                      │
 │ [ Hunt another chart (2 left) ]      │
 │ (Share my chart) (Challenge a friend)│
-│ (Leaderboards)   (Join the crew)     │
+│ (Leaderboards)                       │
+│ New island daily · Join the crew →   │   ← opens the subreddit (COM-2.8)
 └──────────────────────────────────────┘
 ```
 

@@ -16,6 +16,7 @@ Scope: safety, moderation, boards, sharing, live activity and flair. Source: PRD
 - **COM-2.3** THE client SHALL never require sharing, commenting or subscribing to continue, and SHALL keep each as a separate button.
 - **COM-2.4** WHEN a player taps "Challenge a friend", THE client SHALL open Reddit's share sheet with share data `{ type: 'challenge', chartId }` (≤ 1,024 characters).
 - **COM-2.5** WHEN a shared comment is deleted, THE server SHALL clear the stored link to it.
+- **COM-2.8** THE result card SHALL offer "Join the crew" as a separate, optional link that opens the subreddit (`navigateTo`), where the player subscribes with Reddit's own Join button. THE app SHALL NOT call a subscribe API: until the app version is approved, `runAs: 'USER'` acts as the app account.
 - **COM-2.6** (P1) THE client SHALL build a spoiler-free result line (day, shovels used, found or missed, depth, Ink grade; never coordinates or landmark positions) used in shares and challenges.
 
 ## COM-3 Leaderboards

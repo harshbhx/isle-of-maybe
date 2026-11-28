@@ -9,3 +9,4 @@
 - [x] T60 Community names tomorrow's island from the top reply — DAY-6.1, DAY-6.2
 - [x] T61 Tomorrow's coastline teaser with countdown — DAY-7.1
 - [x] T62 Crew goal progress and Lantern night reward — DAY-8.1, DAY-8.2
+- [ ] T80 Splash that sells the game: pitch, date, coastline hero, how-it-works strip — DAY-3.4, DAY-3.5
