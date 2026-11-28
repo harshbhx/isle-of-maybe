@@ -540,6 +540,48 @@ export const createIsland3D = (
   let tide = 0;
   let sky: { group: Group; tick: (t: number) => void } | null = null;
   let birds: { group: Group; tick: (t: number) => void } | null = null;
+  // Adaptive quality (ADV-7.1): measured frame time steps the world down, never back up.
+  let level = 0;
+  let floraMeshes: InstancedMesh[] = [];
+  const frames: number[] = [];
+  let watchFrom = 0;
+  const applyLevel = (): void => {
+    canvas.dataset.quality = String(level);
+    if (level >= 1 && renderer.shadowMap.enabled) {
+      renderer.shadowMap.enabled = false;
+      sun.castShadow = false;
+      // Materials compiled with shadows must recompile without them.
+      scene.traverse((o) => {
+        if (o instanceof Mesh || o instanceof InstancedMesh) {
+          const m = o.material;
+          if (Array.isArray(m)) m.forEach((x) => (x.needsUpdate = true));
+          else m.needsUpdate = true;
+        }
+      });
+    }
+    if (level >= 2) {
+      for (const m of floraMeshes)
+        m.count = Math.ceil(m.instanceMatrix.count / 2);
+      if (birds !== null) birds.group.visible = false;
+    }
+    if (level >= 3) renderer.setPixelRatio(1);
+  };
+  const watchFrames = (t: number, dt: number): void => {
+    if (level >= 3 || dt <= 0) return;
+    if (watchFrom === 0) watchFrom = t + 2; // let the first frames (shader compiles) pass
+    if (t < watchFrom) return;
+    frames.push(dt);
+    const total = frames.reduce((a, b) => a + b, 0);
+    if (total < 3) return;
+    const fps = frames.length / total;
+    frames.length = 0;
+    if (fps < 40) {
+      level += 1;
+      applyLevel();
+      // Give the new level a moment before judging it.
+      watchFrom = t + 1;
+    }
+  };
   let heights: Heights | null = null;
   let quicksandTick: (t: number) => void = () => undefined;
   // Quicksand shows where a screen passes the hunt's hazards (the hunt does; Practice Cove doesn't).
@@ -715,6 +757,8 @@ export const createIsland3D = (
       }
     const flora = createFlora(next, h, wind, quality === 'high' ? 1 : 0.45);
     for (const m of flora.meshes) world.add(m);
+    floraMeshes = flora.meshes;
+    applyLevel();
     lastQs = null;
 
     landmarks = next.landmarks.map((l) => {
@@ -1102,6 +1146,7 @@ export const createIsland3D = (
       camera.updateProjectionMatrix();
     }
     const t = now / 1000;
+    watchFrames(t, lastT === 0 ? 0 : t - lastT);
     const dt = Math.min(0.05, lastT === 0 ? 0 : t - lastT);
     lastT = t;
     if (drv !== null) {
