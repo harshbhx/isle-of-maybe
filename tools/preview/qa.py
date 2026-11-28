@@ -119,6 +119,7 @@ with sync_playwright() as pw:
             pg = page(); to_pick(pg); btn(pg, "Follow this chart").first.click(); pg.wait_for_timeout(600)
             # In 3D each dig plays a 1.1 s animation first (ADV-5.1).
             for _ in range(3): btn(pg, "Dig", True).click(); pg.wait_for_timeout(2200)
+            pg.wait_for_timeout(3200)  # the ending plays on the island before the result (ADV-5.3)
             t = pg.inner_text("main"); ok = ("paces" in t or "found" in t) and "+0 gold" not in t; pg.close()
             return ok, "three digs end the hunt with a reveal line"
         check("Q5", "Miss all three shovels → reveal with distance", q5)
