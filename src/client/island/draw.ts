@@ -45,6 +45,12 @@ export type Scene = {
   puffs?: readonly { at: Tile; t: number }[];
   /** When the reveal's X-to-chest line started drawing itself; it takes 500 ms. */
   linkFrom?: number;
+  /** The hunt's hazards (ADV-3.5): quicksand, and sand under the tide at `tide`. */
+  hazards?: {
+    tide: number;
+    coast: Uint8Array;
+    quicksand: ReadonlySet<number>;
+  };
   now: number;
 };
 
@@ -255,6 +261,50 @@ export const drawScene = (
         ctx.arc(X(x + 0.35), Y(y + 0.4), t * 0.18, 0, Math.PI * 2);
         ctx.arc(X(x + 0.65), Y(y + 0.62), t * 0.14, 0, Math.PI * 2);
         ctx.fill();
+      }
+    }
+  }
+
+  // Quicksand and the tide (ADV-3.5): the 2D view shows both, like the 3D island.
+  if (s.hazards !== undefined) {
+    const hz = s.hazards;
+    for (const i of hz.quicksand) {
+      const x = i % W;
+      const y = (i - x) / W;
+      ctx.fillStyle = 'rgba(107,80,48,0.75)';
+      ctx.beginPath();
+      ctx.ellipse(
+        X(x + 0.5),
+        Y(y + 0.5),
+        t * 0.46,
+        t * 0.38,
+        0,
+        0,
+        Math.PI * 2
+      );
+      ctx.fill();
+      ctx.strokeStyle = 'rgba(242,217,155,0.6)';
+      ctx.lineWidth = Math.max(1, t * 0.05);
+      ctx.beginPath();
+      ctx.ellipse(
+        X(x + 0.5),
+        Y(y + 0.5),
+        t * 0.24,
+        t * 0.18,
+        0,
+        0,
+        Math.PI * 2
+      );
+      ctx.stroke();
+    }
+    if (hz.tide > 0) {
+      ctx.fillStyle = 'rgba(30,154,156,0.88)';
+      for (let i = 0; i < W * H; i++) {
+        const d = hz.coast[i] ?? 0;
+        if (d > 0 && d <= hz.tide) {
+          const x = i % W;
+          cell(x, (i - x) / W);
+        }
       }
     }
   }

@@ -51,6 +51,8 @@ import { SEA_LEVELS, buildHeights, type Heights } from './world/heights.ts';
 import { createBirds } from './world/life.ts';
 import { createMist, type Mist } from './world/mist.ts';
 import { createExplorer, type Pose } from './world/explorer.ts';
+import { createQuicksand } from './world/quicksand.ts';
+import { hazardsFor } from '../../../shared/hazards.ts';
 import { createSea, type Sea } from './world/sea.ts';
 import { createSky, skyLook } from './world/sky.ts';
 import { buildTerrainGeometry } from './world/terrain.ts';
@@ -511,6 +513,7 @@ export const createIsland3D = (
   let sky: { group: Group; tick: (t: number) => void } | null = null;
   let birds: { group: Group; tick: (t: number) => void } | null = null;
   let heights: Heights | null = null;
+  let quicksandTick: (t: number) => void = () => undefined;
   const env = new Group();
   scene.add(env);
 
@@ -665,6 +668,9 @@ export const createIsland3D = (
       }
     const flora = createFlora(next, h, wind, quality === 'high' ? 1 : 0.45);
     for (const m of flora.meshes) world.add(m);
+    const qs = createQuicksand(hazardsFor(next).quicksand, h);
+    quicksandTick = qs.tick;
+    if (qs.mesh !== null) world.add(qs.mesh);
 
     landmarks = next.landmarks.map((l) => {
       const obj = landmarkModel(l.type);
@@ -1051,6 +1057,7 @@ export const createIsland3D = (
       sky?.tick(t);
       birds?.tick(t);
       mist?.tick(t);
+      quicksandTick(t);
       for (const l of landmarks)
         if (l.type === 'campfire')
           l.obj.children.forEach((c) => {
