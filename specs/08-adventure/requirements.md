@@ -18,7 +18,7 @@ Scope: the 28 Nov rebuild Harsh asked for after playing the game. "Too simple, r
 - **ADV-2.4** THE engine SHALL keep rock tiles impassable (cliffs), as today.
 
 ## ADV-3 Explorer and movement (client)
-- **ADV-3.1** WHILE hunting in 3D, THE client SHALL move an original explorer character (hat, satchel, shovel) continuously. On touch: a joystick in the lower left, where pushing far makes him run. On desktop: WASD or the arrow keys, with Shift to run. A third-person camera follows him smoothly.
+- **ADV-3.1** WHILE hunting in 3D, THE client SHALL move an original explorer character (hat, satchel, shovel) continuously. On touch: a floating stick that appears wherever the thumb lands in the lower-left movement zone (the left 60 % of the island view, below its top third), follows the thumb, and disappears on release; pushing far runs. A faint ring marks the zone until the player first moves. On desktop: WASD or the arrow keys, with Shift to run. A third-person camera follows him smoothly.
 - **ADV-3.2** THE client SHALL stop the explorer at impassable or flooded tiles, sliding along their edges, and SHALL slow him in jungle and trap him briefly in quicksand, matching ADV-2.2.
 - **ADV-3.3** THE client SHALL turn continuous movement into 4-directional tile steps. A diagonal crossing goes through a walkable neighbour; if neither neighbour is walkable, the corner is blocked. Steps go to the server in batches, as today (HUNT-3.1, HUNT-3.3).
 - **ADV-3.4** THE explorer SHALL have idle, walk, run, dig, stuck (quicksand), celebrate and dejected animations. All are built in code, with no external assets.
@@ -51,4 +51,11 @@ Scope: the 28 Nov rebuild Harsh asked for after playing the game. "Too simple, r
 
 ## ADV-8 Type (Harsh, 28 Nov)
 - **ADV-8.1** THE client SHALL use Fraunces (bold display) for titles, island names and big moments, Bricolage Grotesque for the HUD, buttons and body text, and IM Fell English SC only on the paper chart and the share image. All are bundled (OFL), with no outside requests (rule 4).
+
+## ADV-9 First-time experience and polish (Harsh, 28 Nov: "UX should be the greatest")
+- **ADV-9.1** WHEN a player opens the game for the first time, THE client SHALL offer Practice Cove in 3D (2D where there is no WebGL). It is a guided run of 5 coached steps, each shown as one short line and waiting for the player to do it: move, run, read the chart, beat the tide (a gentle 60 s practice tide with no fail), dig on the X. It ends in the found-chest cinematic. It is skippable at any step, takes under 60 seconds, and is remembered (UI-9.2).
+- **ADV-9.2** THE coach SHALL show its step number and progress dots, point at the control it means (stick zone, chart thumbnail, timer, Dig button), and adapt its words to touch or keyboard.
+- **ADV-9.3** THE first time a player opens the chart editor, THE client SHALL show a 4-step coach strip: stamp what you remember, draw the path from the dock, mark the X, check and submit. It highlights the matching tool, moves on when each step is done, and can be dismissed.
+- **ADV-9.4** ON touch screens, THE chart editor SHALL label every stamp under its glyph, keep every control at least 48 px tall, show a magnifier loupe above the finger while placing or dragging, and give a light vibration on snap where the device supports it.
+- **ADV-9.5** THE client SHALL use small, dependency-free motion components where they help reading: gold that counts up, a shimmer on the found line, a soft spotlight on the chart you're about to pick, and a spark burst on key taps. All animate only `transform` and `opacity` and stay still under reduced motion (UI-5.1).
 
