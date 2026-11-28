@@ -6,6 +6,9 @@ export const serverCopy = {
   shareSticky: (n: number) =>
     `🗺️ Chart shares for Day ${n} go here. Share yours from inside the game: it replies to this comment from your account.`,
   captainName: 'Old Captain',
+  /** share.comment in docs/06-COPY.md */
+  shareComment: (depth: 'shallow' | 'buried' | 'deep', island: string) =>
+    `Buried a ${depth === 'buried' ? 'well-buried' : depth} chest on ${island}. Can you read my map?`,
   /** Tier names, also used as user flair (COM-6.1). Same text as tier.* in docs/06-COPY.md. */
   tierName: {
     deckhand: 'Deckhand',

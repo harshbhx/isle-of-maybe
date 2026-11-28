@@ -113,7 +113,7 @@ Voice: short, salty, kind. Tease the map, never the player. Every string lives i
 |---|---|
 | share.title | Share your chart? |
 | share.body | This posts a comment from your account (u/{name}) under today's chart thread, with this image. |
-| share.comment | Buried a {depth} chest on {island}. Can you read my map? |
+| share.comment | Buried a {depth} chest on {island}. Can you read my map? ({depth} = shallow / well-buried / deep; built on the server, COM-2.7) |
 | share.post | Post comment |
 | share.cancel | Cancel |
 | share.done | Posted. Sailors can find it under today's chart thread. |
