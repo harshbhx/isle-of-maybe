@@ -1,8 +1,6 @@
-// Shared plumbing for /api routes: who is calling, which day this post is, and error responses.
-import type { Context } from 'hono';
+// Devvit plumbing for /api routes: the Redis client, who is calling, and which day this post is.
 import { context, redis } from '@devvit/web/server';
-import type { ApiErrorBody } from '../../shared/api.ts';
-import { ApiError, toApiError } from '../store/errors.ts';
+import { ApiError } from '../store/errors.ts';
 import { K } from '../store/keys.ts';
 import type { Kv } from '../store/kv.ts';
 import { actorFrom, type Actor } from '../services/actor.ts';
@@ -31,23 +29,3 @@ export const postDay = async (): Promise<string> => {
   }
   throw new ApiError('not_found', 'this post is not an island');
 };
-
-/** Run a handler and turn thrown errors into JSON error responses. */
-export const handle = async <T>(
-  c: Context,
-  fn: () => Promise<T>
-): Promise<Response> => {
-  try {
-    return c.json(await fn(), 200);
-  } catch (e) {
-    const err = toApiError(e);
-    if (err.status >= 500 || err.code === 'bad_request')
-      console.error(`api ${c.req.path}: ${err.message}`);
-    return c.json<ApiErrorBody>(
-      { error: err.code, message: err.message },
-      err.status
-    );
-  }
-};
-
-export { rateLimit } from './http-limits.ts';
