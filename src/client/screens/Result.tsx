@@ -15,7 +15,7 @@ import {
   Title,
 } from '../components/ui.tsx';
 import { copy, fmt } from '../copy.ts';
-import { listen, share } from '../lib/platform.ts';
+import { go, listen, share, subredditName } from '../lib/platform.ts';
 import { CrewGoal } from '../components/CrewGoal.tsx';
 import { Teaser } from '../components/Teaser.tsx';
 import { ShareSheet } from './ShareSheet.tsx';
@@ -31,6 +31,7 @@ export const Result = () => {
   const u = init.user;
   const [counts, setCounts] = useState(init.counts);
   const [sharing, setSharing] = useState(false);
+  const sub = subredditName();
   useEffect(
     () => listen(liveChannel(init.day), (m) => setCounts({ ...m.counts })),
     [init.day]
@@ -180,6 +181,20 @@ export const Result = () => {
           </Button>
         </div>
       </div>
+      {sub !== undefined && (
+        // Optional and separate (COM-2.3): opens the subreddit, where Reddit's own Join button
+        // subscribes the player. No subscribe API: before approval it would act as the app (COM-2.8).
+        <p className="text-center text-sm text-muted-night">
+          {copy.result.joinLine}{' '}
+          <button
+            type="button"
+            className="min-h-11 font-bold text-gold underline underline-offset-4"
+            onClick={() => go(`https://www.reddit.com/r/${sub}`)}
+          >
+            {copy.result.join}
+          </button>
+        </p>
+      )}
       <ShareSheet open={sharing} onClose={() => setSharing(false)} />
     </div>
   );
