@@ -16,11 +16,12 @@ import {
   type MyChest,
   type Screen,
 } from './app-context.ts';
-import { ErrorState, Loading, TopBar } from './components/ui.tsx';
+import { Banner, ErrorState, Loading, TopBar } from './components/ui.tsx';
 import { copy, fmt } from './copy.ts';
 import { ApiFailure, get } from './lib/api.ts';
 import { flag } from './lib/hints.ts';
-import { shareData } from './lib/platform.ts';
+import { go as navigate, shareData } from './lib/platform.ts';
+
 import { Boards } from './screens/Boards.tsx';
 import { Bury } from './screens/Bury.tsx';
 import { ChartEditor } from './screens/ChartEditor.tsx';
@@ -29,6 +30,10 @@ import { Hunt } from './screens/Hunt.tsx';
 import { Pick } from './screens/Pick.tsx';
 import { Result } from './screens/Result.tsx';
 import { Reveal } from './screens/Reveal.tsx';
+
+/** Today's post, from an older day's post (DAY-3.3, W12). */
+const openPost = (postId: string): void =>
+  navigate(`https://www.reddit.com/comments/${postId.replace(/^t3_/, '')}`);
 
 /** A share link's payload is untrusted; only a well-formed challenge is kept (COM-2.4, HUNT-1.4). */
 const readChallenge = (): { chartId: string } | null => {
@@ -199,6 +204,18 @@ export const App = () => {
           streak={init.user.streak}
           gold={init.user.gold}
         />
+        {!init.isToday && init.todayPost !== null && (
+          <div className="px-3 pb-2">
+            <Banner
+              onClick={() => init.todayPost && openPost(init.todayPost.postId)}
+            >
+              {fmt(copy.splash.oldDay, {
+                n: init.dayNumber,
+                today: init.todayPost.dayNumber,
+              })}
+            </Banner>
+          </div>
+        )}
         <main className="min-h-0 flex-1 overflow-y-auto">{body}</main>
       </div>
       <div className="sr-only" aria-live="assertive" role="status">
