@@ -19,7 +19,7 @@
 | D15 | Share = optional comment **as the user**, reply to the day's sticky comment, after a confirm sheet | Auto-posting results, required sharing | User-action rules (C-2) |
 | D16 | 30-day TTL on all user content | Keep forever | Deletion guidance (C-4) |
 | D17 | No AI at runtime, no external fetch | LLM-written island lore | Not needed; avoids premium-feature review |
-| D18 | Fonts: IM Fell English SC + Atkinson Hyperlegible, bundled (OFL) | Google Fonts CDN | Webview only loads its own domain |
+| D18 | Fonts: IM Fell English SC + Atkinson Hyperlegible, bundled (OFL). *Superseded by D30 (28 Nov).* | Google Fonts CDN | Webview only loads its own domain |
 | D19 | No push notifications | Streak reminders | Beta program, out of time |
 | D20 | Demo subreddit: public, under 200 members, testers capped at 150 | Private sub | Rules require under 200 members and judge access |
 | D21 | Optional 60-second video: make it (P1) | Skip | Not required, but cheap insurance if judges skim |
@@ -31,3 +31,8 @@
 | D27 | Rising tide: every hunt has 150 s; sand floods in three waves; the server enforces it with its own clock and per-step minimum times. *Harsh, 28 Nov.* | No timer; a plain countdown | Urgency and difficulty that come from the island itself, and a map can now send you the long way round |
 | D28 | Hazards from the seed: quicksand patches (trap 2.5 s), thicket at the jungle's edge slows (half speed), cliffs and jungle block. Derived from the island, so `island.ts` output and posted days are unchanged. *Harsh, 28 Nov.* | New terrain types in `island.ts` | Rule 9 (never regenerate a posted day) and a smaller, testable change |
 | D29 | Sculpted, stylised-realistic world (smooth terrain, wave-shader sea, sun and shadows, swaying flora, birds, mist) with quality tiers, and a cinematic dig and reveal. All built in code, no downloaded assets. *Harsh, 28 Nov: "all of these and more".* | Photo-real textures; a game engine | Must run smoothly in the Reddit app on phones and keep the bundle within budget; procedural art also keeps IP clean |
+| D30 | Type: Fraunces (display), Bricolage Grotesque (HUD, buttons, text), IM Fell English SC on the paper chart only; bundled Latin woff2. *Harsh, 28 Nov: "Adventure pro".* | Lilita One + Nunito (too cartoony); keeping IM Fell everywhere | A warm, confident display face and a crisp HUD face read as a finished game; the antique face stays where it's in character, on paper |
+| D31 | Reddit-only features: flair hats, engraved chest plaques, a named-by dock sign, crowd-worn paths and live ghost explorers. *Harsh, 28 Nov.* | Message in a bottle (later) | They make the island visibly the subreddit's: who you are (flair), who hid it (u/name), who named it, where everyone walked, who's out there now |
+| D32 | Worn paths are aggregate only: counted once per hunt per tile, shown after 3+ hunts, rebuilt at most once a minute. Ghost positions are broadcast, never stored. | Per-player trails; storing positions | Privacy and Redis cost; the crowd is the clue, not any one person |
+| D33 | Classic version kept: branch `classic-beta` (tile-by-tile, before the rebuild) is preserved as v0.9 beta; `main` becomes v1.0. *Harsh, 28 Nov: "don't delete the last version".* | Overwriting history | Lets us compare and roll back |
+
