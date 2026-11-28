@@ -117,7 +117,7 @@ Voice: short, salty, kind. Tease the map, never the player. Every string lives i
 |---|---|
 | share.title | Share your chart? |
 | share.body | This posts a comment from your account (u/{name}) under today's chart thread, with this image. |
-| share.comment | Buried a {depth} chest on {island}. Can you read my map? ({depth} = shallow / well-buried / deep; built on the server, COM-2.7) |
+| share.comment | Hid a {depth} chest on {island}. Can you read my map? ({depth} = shallow / well-buried / deep; built on the server, COM-2.7) |
 | share.post | Post comment |
 | share.cancel | Cancel |
 | share.done | Posted. Sailors can find it under today's chart thread. |
@@ -196,4 +196,4 @@ Voice: short, salty, kind. Tease the map, never the player. Every string lives i
 | common.* | Reading the charts… / Back / Close / Sound / Charted by u/{name} / Charted by u/{name} · Day {n} / Charted by the Old Captain |
 | landmark.* | Palm, Twin palms, Boulder, Skull rock, Hut, Wreck, Well, Statue, Campfire, Cave |
 | err.retry | Try again |
-| resultLine.* | Isle of Maybe · Day {n} / Found a chest with {n} shovels / Missed after {n} shovels / Buried a {depth} chest / Ink: {grade} (COM-2.6, joined with ·) |
+| resultLine.* | Isle of Maybe · Day {n} / Found a chest with {n} shovels / Missed after {n} shovels / Hid a {depth} chest / Ink: {grade} (COM-2.6, joined with ·; {depth} = shallow / well-buried / deep) |

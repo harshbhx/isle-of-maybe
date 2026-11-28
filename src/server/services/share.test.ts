@@ -49,7 +49,7 @@ test('COM-2.7 the preview gives the exact image and server-written text', async 
   const kv = await setup();
   const p = await sharePreview(kv, alice, DAY);
   assert.ok(p.image.startsWith('data:image/png;base64,'));
-  assert.match(p.text, /^Buried a deep chest on .+\. Can you read my map\?$/);
+  assert.match(p.text, /^Hid a deep chest on .+\. Can you read my map\?$/);
   assert.equal(p.shared, false);
   await assert.rejects(sharePreview(kv, anon, DAY), code('not_logged_in'));
   await assert.rejects(sharePreview(kv, bob, DAY), code('conflict'));
