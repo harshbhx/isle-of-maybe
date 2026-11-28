@@ -51,7 +51,7 @@ export const Result = () => {
             },
       chest: chest === null ? null : { depth: chest.depth, grade },
     },
-    { ...copy.resultLine, depth: copy.common.depth, ink: copy.ink }
+    { ...copy.resultLine, ink: copy.ink }
   );
   const challenge = (): void => {
     if (u.chartId === null) return;

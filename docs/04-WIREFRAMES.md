@@ -153,7 +153,7 @@ Submit disabled until X placed. Counter text: "4 of 6 stamps · 3 of 8 path step
  Share your chart?
  This posts a comment from YOUR account (u/name) under today's
  chart thread, with this image:  [chart preview]
- "Buried a Deep chest on Gullrock. Can you read my map?"
+ "Hid a deep chest on Gullrock. Can you read my map?"
         (Cancel)          [ Post comment ]
 ```
 

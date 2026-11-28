@@ -166,8 +166,14 @@ export const copy = {
     day: 'Isle of Maybe · Day {n}',
     found: 'Found a chest with {n} {n:shovel|shovels}',
     missed: 'Missed after {n} {n:shovel|shovels}',
-    chest: 'Buried a {depth} chest',
+    chest: 'Hid a {depth} chest',
     grade: 'Ink: {grade}',
+    // Lower-case so the line reads "Hid a well-buried chest", never "Buried a Buried chest".
+    depth: {
+      shallow: 'shallow',
+      buried: 'well-buried',
+      deep: 'deep',
+    } satisfies Record<Depth, string>,
   },
   dispatch: {
     title: 'Dispatch',
