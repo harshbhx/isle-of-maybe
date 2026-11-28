@@ -38,7 +38,14 @@ import {
   type Material,
 } from 'three';
 import type { LandmarkType } from '../../../shared/types.ts';
-import { H, W, type Island, type Tile } from '../../../shared/types.ts';
+import {
+  H,
+  idx,
+  SAND,
+  W,
+  type Island,
+  type Tile,
+} from '../../../shared/types.ts';
 import {
   landmarkVisible,
   tileKind,
@@ -65,6 +72,11 @@ import { createSea, type Sea } from './world/sea.ts';
 import { createSky, skyLook } from './world/sky.ts';
 import { buildTerrainGeometry } from './world/terrain.ts';
 import { createWeather, type Weather } from './world/weather.ts';
+import {
+  createFootfalls,
+  type Footfalls,
+  type Footing,
+} from './world/footfalls.ts';
 import { BIOME_LOOKS } from './world/biome.ts';
 import { biomeFor } from '../../../shared/biome.ts';
 
@@ -122,6 +134,9 @@ export type Drive = {
 /** Tiles per second (ADV-3.1). Running diagonally still stays under the server's 5 steps/s. */
 const WALK = 2.2;
 const RUN = 3.4;
+// Feel (ADV-11.1): time constant for easing into and out of a stride, and how fast the explorer turns.
+const EASE_SECONDS = 0.04;
+const TURN_RATE = 16;
 const RADIUS = 0.22;
 const TRAP_S = 2.5;
 
@@ -549,6 +564,7 @@ export const createIsland3D = (
   let sky: { group: Group; tick: (t: number) => void } | null = null;
   let birds: { group: Group; tick: (t: number) => void } | null = null;
   let weather: Weather | null = null;
+  let footfalls: Footfalls | null = null;
   // Adaptive quality (ADV-7.1): measured frame time steps the world down, never back up.
   let level = 0;
   let floraMeshes: InstancedMesh[] = [];
@@ -573,6 +589,7 @@ export const createIsland3D = (
         m.count = Math.ceil(m.instanceMatrix.count / 2);
       if (birds !== null) birds.group.visible = false;
       if (weather !== null) weather.group.visible = false;
+      if (footfalls !== null) footfalls.group.visible = false;
     }
     if (level >= 3) renderer.setPixelRatio(1);
   };
@@ -623,6 +640,9 @@ export const createIsland3D = (
   let trapped = 0;
   let held: Pose | null = null;
   let heading = 0;
+  let wantHeading = 0;
+  // Smoothed walking velocity in tiles per second (ADV-11.1).
+  const vel = { x: 0, y: 0 };
   let lastT = 0;
   let zoomNow = 1;
   let yaw = 0;
@@ -740,6 +760,18 @@ export const createIsland3D = (
       ? null
       : createWeather(biome.ambient, next.seed, h, quality === 'high');
     if (weather !== null) env.add(weather.group);
+    footfalls?.dispose();
+    footfalls = opts.reducedMotion
+      ? null
+      : createFootfalls({
+          sand: biome.ground.drySand,
+          earth: 0xcdbb92,
+          water: 0xffffff,
+        });
+    if (footfalls !== null) {
+      footfalls.group.visible = level < 2;
+      env.add(footfalls.group);
+    }
 
     terrain = new Mesh(
       buildTerrainGeometry(next, h, biome.ground),
@@ -1079,12 +1111,16 @@ export const createIsland3D = (
     if (held !== null) {
       curPose = held;
       curSpeed = 0;
+      vel.x = 0;
+      vel.y = 0;
       return;
     }
     if (trapped > 0) {
       trapped -= dt;
       curPose = 'stuck';
       curSpeed = 0;
+      vel.x = 0;
+      vel.y = 0;
       return;
     }
     let vx = stick.x;
@@ -1109,23 +1145,44 @@ export const createIsland3D = (
       }
     }
     mag = Math.min(1, mag);
-    if (mag < 0.05) {
+    // The velocity it wants this frame; the walker eases toward it rather than jumping (ADV-11.1).
+    let wantX = 0;
+    let wantY = 0;
+    let running = false;
+    if (mag >= 0.05) {
+      running = stick.run || mag > 0.75 || path.length > 6;
+      const g = drv.ground(here.x, here.y);
+      const speed = (running ? RUN : WALK) * (g === 'open' ? 1 : 0.5);
+      const len = Math.hypot(vx, vy) || 1;
+      wantX = (vx / len) * speed * Math.max(mag, 0.35);
+      wantY = (vy / len) * speed * Math.max(mag, 0.35);
+      wantHeading = Math.atan2(vx, vy);
+    }
+    // About 0.12 s to reach full speed or to stop; never faster than the wanted speed.
+    const k = 1 - Math.exp(-dt / EASE_SECONDS);
+    vel.x += (wantX - vel.x) * k;
+    vel.y += (wantY - vel.y) * k;
+    const v = Math.hypot(vel.x, vel.y);
+    if (v < 0.05 && mag < 0.05) {
+      vel.x = 0;
+      vel.y = 0;
       curPose = 'idle';
       curSpeed = 0;
       return;
     }
-    const running = stick.run || mag > 0.75 || path.length > 6;
-    const g = drv.ground(here.x, here.y);
-    const speed = (running ? RUN : WALK) * (g === 'open' ? 1 : 0.5);
-    const len = Math.hypot(vx, vy) || 1;
-    const sx = (vx / len) * speed * dt * Math.max(mag, 0.35);
-    const sy = (vy / len) * speed * dt * Math.max(mag, 0.35);
-    // Slide along walls: try each axis on its own.
+    const sx = vel.x * dt;
+    const sy = vel.y * dt;
+    // Slide along walls: try each axis on its own, and lose the speed that hit.
     if (!hits(pos.x + sx, pos.y)) pos.x += sx;
+    else vel.x = 0;
     if (!hits(pos.x, pos.y + sy)) pos.y += sy;
-    heading = Math.atan2(vx, vy);
-    curPose = running ? 'run' : 'walk';
-    curSpeed = speed;
+    else vel.y = 0;
+    // Turn along the shortest arc toward where it's heading.
+    let turn = wantHeading - heading;
+    turn = Math.atan2(Math.sin(turn), Math.cos(turn));
+    heading += turn * (1 - Math.exp(-dt * TURN_RATE));
+    curPose = running || v > WALK * 1.05 ? 'run' : 'walk';
+    curSpeed = v;
     stepTo(tileOf(pos));
   };
 
@@ -1176,12 +1233,14 @@ export const createIsland3D = (
     if (drv !== null) {
       move(dt);
       const w = toWorld(pos);
-      wantTarget = new Vector3(w.x, 0.6, w.z);
+      wantTarget.set(w.x, 0.6, w.z);
       if (opts.reducedMotion) target.copy(wantTarget);
     }
     if (!opts.reducedMotion) {
-      target.lerp(wantTarget, 0.16);
-      distance += (wantDistance - distance) * 0.16;
+      // The same follow at any frame rate (ADV-11.2): 0.16 per frame at 60 Hz.
+      const follow = 1 - Math.exp(-dt * 10.5);
+      target.lerp(wantTarget, follow);
+      distance += (wantDistance - distance) * follow;
       wind.value = t;
       sky?.tick(t);
       birds?.tick(t);
@@ -1241,6 +1300,23 @@ export const createIsland3D = (
         sailor.position.set(wpos.x, Math.max(ground, seaY() - 0.25), wpos.z);
         sailor.rotation.y = heading;
         explorer.animate(dt, curPose, curSpeed);
+        if (footfalls !== null && island !== null) {
+          const t = tileOf(at);
+          const footing: Footing =
+            ground < seaY() - 0.02
+              ? 'water'
+              : island.terrain[idx(t.x, t.y)] === SAND
+                ? 'sand'
+                : 'earth';
+          footfalls.tick(
+            dt,
+            wpos.x,
+            Math.max(ground, seaY()),
+            wpos.z,
+            drv !== null ? curSpeed : 0,
+            footing
+          );
+        }
       } else sailor.visible = false;
       // Sand puffs: grains thrown out over 300 ms.
       dispose(dynamic);
@@ -1413,6 +1489,7 @@ export const createIsland3D = (
       alive = false;
       cancelAnimationFrame(frame);
       weather?.dispose();
+      footfalls?.dispose();
       dispose(scene);
       renderer.dispose();
     },
