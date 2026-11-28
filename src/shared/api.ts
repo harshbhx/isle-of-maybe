@@ -57,6 +57,8 @@ export type InitResponse = {
   /** Today's UTC day; differs from `day` on an old post. */
   today: string;
   isToday: boolean;
+  /** Today's island post, when this post is an older day (DAY-3.3). */
+  todayPost: { postId: string; dayNumber: number } | null;
   island: { seed: string; modifier: Modifier; name: string };
   counts: { buried: number; found: number; hunts: number };
   user: UserState;

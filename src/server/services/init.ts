@@ -14,7 +14,7 @@ import type { Kv } from '../store/kv.ts';
 import type { Actor } from './actor.ts';
 import { MAX_HUNTS_PER_DAY, readStats } from './charts.ts';
 import { dispatchFor } from './dispatch.ts';
-import { requireDay } from './island.ts';
+import { readDay, requireDay } from './island.ts';
 import { readStreak } from './streak.ts';
 
 const num = (v: string | undefined): number =>
@@ -74,6 +74,16 @@ export const userState = async (
   };
 };
 
+const todayPost = async (
+  kv: Kv,
+  today: string
+): Promise<InitResponse['todayPost']> => {
+  const rec = await readDay(kv, today);
+  return rec === null
+    ? null
+    : { postId: rec.postId, dayNumber: dayNumber(today) };
+};
+
 export const initFor = async (
   kv: Kv,
   actor: Actor,
@@ -89,6 +99,7 @@ export const initFor = async (
     dayNumber: dayNumber(day),
     today,
     isToday: day === today,
+    todayPost: day === today ? null : await todayPost(kv, today),
     island: { seed: rec.seed, modifier: rec.modifier, name: island.name },
     counts: {
       buried: num(counts.buried),

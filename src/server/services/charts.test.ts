@@ -142,3 +142,16 @@ test('HUNT-1.4 a valid challenge chart comes first; an ineligible one is ignored
     false
   );
 });
+
+test("DAY-3.3 an older post points to today's post", async () => {
+  const kv = new FakeKv();
+  await postDay(kv);
+  await postDay(kv, NOW + 86_400_000);
+  const old = await initFor(kv, alice, DAY, NOW + 86_400_000);
+  assert.equal(old.isToday, false);
+  assert.deepEqual(old.todayPost, {
+    postId: 't3_day',
+    dayNumber: old.dayNumber + 1,
+  });
+  assert.equal((await initFor(kv, alice, DAY, NOW)).todayPost, null);
+});
