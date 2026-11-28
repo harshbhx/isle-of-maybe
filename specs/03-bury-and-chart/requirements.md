@@ -9,6 +9,7 @@ Scope: burying your chest and drawing a chart from memory. Source: PRD §5.5–5
 - **CHART-1.4** WHEN the player confirms, THE server SHALL accept the tile only if it is in the seen mask, walkable, not the dock and not a landmark; and only once per player per UTC day.
 - **CHART-1.5** IF the post is not today's island, THEN THE server SHALL refuse burying with a reason and THE client SHALL link to today's post.
 - **CHART-1.6** WHILE a player is logged out, THE client SHALL show the log-in prompt at the bury step and nothing else gated.
+- **CHART-1.7** IF the player hasn't finished a hunt today, THEN THE server SHALL refuse burying (the client gate in CHART-1.1 isn't enough on its own).
 
 ## CHART-2 Chart editor (limited expression)
 - **CHART-2.1** THE client SHALL hide the island and show a parchment with only the coastline and dock pre-printed.
