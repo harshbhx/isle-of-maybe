@@ -164,6 +164,7 @@ All `/api/*` routes get the user from Devvit's request context (`context.userId`
 | `postday:{postId}` | string | day | 40 d |
 | `sharecomment:{commentId}` | string | chartId | 30 d |
 | `flair:pending` | zset | userId → time | 8 d |
+| `players:{d}` | zset | userId → time a hunt finished that UTC day (stats, SHIP-3.1) | 30 d |
 | `rl:{u}:{sec}` | counter | calls this second | 2 s |
 
 Every write sets a TTL; `cleanup.test.ts` plays a full day and fails if any key has none, or if anything but `day:*`, `day:*:counts`, `postday:*` and streak bits outlives 30 days (COM-1.5).
