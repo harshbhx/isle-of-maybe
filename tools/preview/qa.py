@@ -62,7 +62,9 @@ with sync_playwright() as pw:
     def page(w=390, h=844, reduced=False):
         pg = browser.new_page(viewport={"width": w, "height": h}, reduced_motion="reduce" if reduced else "no-preference")
         pg.logs = []
-        pg.on("console", lambda m: pg.logs.append(m.text) if m.type in ("error", "warning") else None)
+        # Headless Chrome's software WebGL reports its own driver stalls ("GL Driver Message"); those come
+        # from the browser, not the app, and never happen with a real GPU, so they don't count.
+        pg.on("console", lambda m: pg.logs.append(m.text) if m.type in ("error", "warning") and "GL Driver Message" not in m.text else None)
         pg.on("pageerror", lambda e: pg.logs.append(str(e)))
         return pg
 
@@ -226,6 +228,43 @@ with sync_playwright() as pw:
         check("J4", "Wide screens show the chart beside the island", j4)
     finally:
         srv.terminate(); srv.wait()
+
+    # The 3D island (UI-3.1, UI-3.6): the three.js chunk loads and a tap on the island walks.
+    srv = server()
+    try:
+        def j7():
+            pg = page()
+            pg.goto(BASE + "/game.html"); pg.wait_for_timeout(900)
+            for n in ["Skip", "Today’s island →"]:
+                if btn(pg, n).count(): btn(pg, n).first.click(); pg.wait_for_timeout(700)
+            btn(pg, "Follow this chart").first.click(); pg.wait_for_timeout(2500)
+            loaded = pg.evaluate("performance.getEntriesByType('resource').some(e => e.name.includes('island3d'))")
+            box = pg.locator("canvas").first.bounding_box()
+            x, y = box["x"] + box["width"] / 2, box["y"] + box["height"] * 0.45
+            pg.mouse.click(x, y); pg.wait_for_timeout(300); pg.mouse.click(x, y); pg.wait_for_timeout(2500)
+            walked = "0 steps" not in pg.inner_text("main")
+            logs = list(pg.logs); pg.close()
+            return loaded and walked and not logs, f"three.js chunk loaded: {loaded}; a tap walked the sailor: {walked}; console {logs[:2]}"
+        check("J7", "3D island renders and taps walk", j7)
+
+        # UI-3.5: a browser without WebGL gets the 2D island, silently, and the hunt still works.
+        def j9():
+            nogl = pw.chromium.launch(executable_path="/usr/bin/google-chrome", args=["--no-sandbox", "--disable-3d-apis"])
+            pg = nogl.new_page(viewport={"width": 390, "height": 844}); errs = []
+            pg.on("console", lambda m: errs.append(m.text) if m.type in ("error", "warning") else None)
+            pg.on("pageerror", lambda e: errs.append(str(e)))
+            pg.goto(BASE + "/game.html"); pg.wait_for_timeout(900)
+            for n in ["Skip", "Today’s island →"]:
+                if pg.get_by_role("button", name=n).count(): pg.get_by_role("button", name=n).first.click(); pg.wait_for_timeout(700)
+            pg.get_by_role("button", name="Follow this chart").first.click(); pg.wait_for_timeout(1200)
+            loaded = pg.evaluate("performance.getEntriesByType('resource').some(e => e.name.includes('island3d'))")
+            for _ in range(3): pg.keyboard.press("ArrowUp"); pg.wait_for_timeout(200)
+            walked = "0 steps" not in pg.inner_text("main")
+            nogl.close()
+            return (not loaded) and walked and not errs, f"no WebGL: three.js not loaded {not loaded}; walking works {walked}; console {errs[:2]}"
+        check("J9", "Without WebGL the 2D island takes over", j9)
+    finally:
+        srv.terminate(); srv.wait()
     browser.close()
 
 manual = [
@@ -242,6 +281,7 @@ manual = [
     ("§5", "Judge simulation on 7 and 8 Dec (two people, phone + desktop)"),
     ("J5", "Result card: Join the crew opens the subreddit (Reddit only: needs the post's subreddit name)"),
     ("J6", "Every judging day: ≥ 5 tester charts on today's island; Pick shows Trusted and Fresh"),
+    ("J8", "3D island on real phones in the Reddit app: smooth walking (≥ 30 fps), clouds clear as you walk, taps land on the tile you meant; a phone without WebGL gets the 2D island"),
 ]
 out = sys.argv[1] if len(sys.argv) > 1 else None
 lines = ["| ID | Check | Result | Notes |", "|---|---|---|---|"] + [f"| {a} | {b} | {c} | {d} |" for a, b, c, d in rows]

@@ -237,7 +237,8 @@ Deletion triggers: `onPostDelete` for a day post deletes that day's charts, stat
 - Keep PNG under 1 MB (simple vector art compresses well).
 
 ## 12. Client rendering
-- **Island (Canvas 2D):** tile size = floor(min(viewW, viewH) / 40 × zoom); camera follows the sailor; zoom 1×–2× with buttons (no pinch in P0). Draw: water (with a 2-frame shimmer, P1), sand/grass, blocked tiles, landmark glyphs (same silhouettes as the stamps, in colour), footprints, holes, sailor. Fog = an offscreen canvas mask redrawn only on reveal.
+- **Island (3D, three.js):** `src/client/island/three/island3d.ts`, lazy-loaded by `IslandCanvas` in the game entry only. Terrain columns per tile (heights and kinds from `src/shared/relief.ts`), jungle trees and boulders on blocked tiles (instanced), a faceted sea over a lagoon floor that shallows near land, landmark models, the sailor, footprints, holes, route dots, reveal markers, and low cloud (instanced) over unseen land that clears as you walk. Camera: perspective, 50° tilt (62° for the whole-island view), eases after the sailor; taps ray-cast to the terrain (UI-3.6). Unseen landmarks are never drawn except within lantern range on Lantern night.
+- **Island (2D fallback):** `draw.ts` on Canvas 2D, used when WebGL is missing or the 3D renderer fails (UI-3.5), and for the Ink check, whose paper-chart overlay must line up tile for tile.
 - **Chart editor (SVG):** viewBox 0 0 400 400 (10 px per tile). Coastline path generated from the island mask with a small ink wobble. All pieces are SVG `<use>` of glyph symbols. Pointer events with `touch-action: none` **only in expanded mode**, on the editor element, never on `html`/`body`.
 - **Performance budgets:** client JS ≤ 250 KB gzip; first paint of splash ≤ 1.5 s on a mid phone; 60 fps while walking.
 

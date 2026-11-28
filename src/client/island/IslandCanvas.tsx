@@ -1,6 +1,7 @@
-// The island canvas (UI-3.1): DPR-aware, redraws every frame only while something moves, and turns
-// taps into tile taps. touch-action is off on this canvas only, which lives in expanded mode.
-import { useEffect, useLayoutEffect, useRef } from 'react';
+// The island view (UI-3.1, UI-3.5): the 3D island when WebGL works, the Canvas 2D island otherwise.
+// three.js loads lazily in the game entry only; until it's ready (or if it fails) the 2D view shows.
+// touch-action is off on these canvases only, which live in expanded mode (UI-1.2).
+import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import type { Tile } from '../../shared/types.ts';
 import {
   cameraFor,
@@ -9,6 +10,8 @@ import {
   type Camera,
   type Scene,
 } from './draw.ts';
+import type { Island3D } from './three/island3d.ts';
+import { reducedMotion } from './walker.ts';
 
 type Props = {
   scene: Omit<Scene, 'now'>;
@@ -17,9 +20,108 @@ type Props = {
   onTap?: (t: Tile) => void;
   label: string;
   className?: string;
+  /** Straight-down 2D view, for overlays that must line up with the grid (the Ink check). */
+  flat?: boolean;
 };
 
-export const IslandCanvas = ({
+// Once WebGL fails in this page, stay on 2D (UI-3.5): no flicker between renderers.
+let webglBroken = false;
+
+let webglChecked: boolean | null = null;
+const webglAvailable = (): boolean => {
+  if (webglBroken) return false;
+  if (webglChecked !== null) return webglChecked;
+  try {
+    const c = document.createElement('canvas');
+    webglChecked =
+      c.getContext('webgl2') !== null || c.getContext('webgl') !== null;
+  } catch {
+    webglChecked = false;
+  }
+  return webglChecked;
+};
+
+export const IslandCanvas = (props: Props) => {
+  const [mode, setMode] = useState<'2d' | '3d'>(() =>
+    props.flat !== true && webglAvailable() ? '3d' : '2d'
+  );
+  return mode === '3d' ? (
+    <Canvas3D
+      {...props}
+      onFail={() => {
+        webglBroken = true;
+        setMode('2d');
+      }}
+    />
+  ) : (
+    <Canvas2D {...props} />
+  );
+};
+
+const Canvas3D = ({
+  scene,
+  zoom,
+  focus,
+  onTap,
+  label,
+  className = '',
+  onFail,
+}: Props & { onFail: () => void }) => {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const handle = useRef<Island3D | null>(null);
+  const latest = useRef({ scene, zoom, focus });
+  useLayoutEffect(() => {
+    latest.current = { scene, zoom, focus };
+    handle.current?.update(scene, zoom, focus);
+  });
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    let live = true;
+    import('./three/island3d.ts').then(
+      (m) => {
+        if (!live) return;
+        try {
+          const h = m.createIsland3D(canvas, {
+            reducedMotion: reducedMotion(),
+            onFail,
+          });
+          handle.current = h;
+          const l = latest.current;
+          h.update(l.scene, l.zoom, l.focus);
+        } catch {
+          onFail();
+        }
+      },
+      () => live && onFail()
+    );
+    return () => {
+      live = false;
+      handle.current?.dispose();
+      handle.current = null;
+    };
+    // The renderer lives as long as the canvas; scene changes go through update() above.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+  return (
+    <canvas
+      ref={canvasRef}
+      role="img"
+      aria-label={label}
+      className={`block h-full w-full ${className}`}
+      style={{ touchAction: 'none' }}
+      onPointerUp={(e) => {
+        const h = handle.current;
+        if (!h || !onTap) return;
+        const r = e.currentTarget.getBoundingClientRect();
+        const t = h.tileAt(e.clientX - r.left, e.clientY - r.top);
+        if (t !== null) onTap(t);
+      }}
+    />
+  );
+};
+
+const Canvas2D = ({
   scene,
   zoom,
   focus,
