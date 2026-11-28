@@ -1,1 +1,154 @@
+/* Design tokens (docs/03-DESIGN.md §3–5) and the two bundled fonts. No external requests. */
 @import 'tailwindcss';
+
+@font-face {
+  font-family: 'IM Fell English SC';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('../../node_modules/@fontsource/im-fell-english-sc/files/im-fell-english-sc-latin-400-normal.woff2')
+    format('woff2');
+}
+@font-face {
+  font-family: 'Atkinson Hyperlegible';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('../../node_modules/@fontsource/atkinson-hyperlegible/files/atkinson-hyperlegible-latin-400-normal.woff2')
+    format('woff2');
+}
+@font-face {
+  font-family: 'Atkinson Hyperlegible';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('../../node_modules/@fontsource/atkinson-hyperlegible/files/atkinson-hyperlegible-latin-700-normal.woff2')
+    format('woff2');
+}
+
+@theme {
+  --color-parchment: #f3e6c8;
+  --color-parchment-dark: #e4d2a8;
+  --color-ink: #2b2118;
+  --color-ink-soft: #5c4a36;
+  --color-seal: #9e2a22;
+  --color-compass: #2f6b4f;
+  --color-night: #14202b;
+  --color-night-2: #1b2a37;
+  --color-on-night: #f3e6c8;
+  --color-muted-night: #a9b4bf;
+  --color-gold: #e8b341;
+  --color-sea: #2e6f8e;
+  --color-sea-deep: #1f4f68;
+  --color-sand: #e9d29a;
+  --color-grass: #8db86b;
+  --color-rock: #7a7166;
+  --color-jungle: #4e7a43;
+  --font-display: 'IM Fell English SC', Georgia, serif;
+  --font-body: 'Atkinson Hyperlegible', system-ui, sans-serif;
+  --radius-card: 6px;
+}
+
+@layer base {
+  html,
+  body,
+  #root {
+    height: 100%;
+  }
+  body {
+    margin: 0;
+    background: var(--color-night);
+    color: var(--color-on-night);
+    font-family: var(--font-body);
+    font-size: 16px;
+    -webkit-tap-highlight-color: transparent;
+  }
+  button {
+    font: inherit;
+    cursor: pointer;
+  }
+  button:disabled {
+    cursor: not-allowed;
+  }
+  :focus-visible {
+    outline: 3px solid var(--color-gold);
+    outline-offset: 2px;
+  }
+  .tabular {
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+/* Parchment card: cut paper, not a pill. The top edge is torn with one shared mask. */
+.parchment {
+  background-color: var(--color-parchment);
+  color: var(--color-ink);
+  border-radius: var(--radius-card);
+  box-shadow:
+    inset 0 0 0 1px var(--color-parchment-dark),
+    inset 0 0 24px rgba(92, 74, 54, 0.12),
+    0 6px 18px rgba(0, 0, 0, 0.35);
+}
+.torn {
+  -webkit-mask:
+    url('./assets/torn-edge.svg') top / 100% 10px no-repeat,
+    linear-gradient(#000 0 0) 0 9px / 100% calc(100% - 9px) no-repeat;
+  mask:
+    url('./assets/torn-edge.svg') top / 100% 10px no-repeat,
+    linear-gradient(#000 0 0) 0 9px / 100% calc(100% - 9px) no-repeat;
+  padding-top: 10px;
+}
+
+/* Motion: transform and opacity only (UI-5.1). */
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes thud {
+  0% {
+    opacity: 0;
+    transform: scale(1.6) rotate(-8deg);
+  }
+  60% {
+    opacity: 1;
+    transform: scale(0.95) rotate(-3deg);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) rotate(-4deg);
+  }
+}
+@keyframes fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+.anim-rise {
+  animation: rise 260ms ease-out both;
+}
+.anim-thud {
+  animation: thud 420ms cubic-bezier(0.2, 0.9, 0.3, 1.2) both;
+}
+.anim-fade {
+  animation: fade 300ms ease-out both;
+}
+@media (prefers-reduced-motion: reduce) {
+  .anim-rise,
+  .anim-thud {
+    animation: fade 200ms ease-out both;
+  }
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0.01ms !important;
+  }
+}
