@@ -2,10 +2,22 @@
 // server replays them with the shared rules, and the chest stays here until the hunt ends.
 import type {
   DigResponse,
+  EndReason,
   HuntStartResponse,
   Reveal,
   StepsResponse,
 } from '../../shared/api.ts';
+import {
+  PACE_SLACK_SECONDS,
+  hazardsFor,
+  stepSeconds,
+} from '../../shared/hazards.ts';
+import {
+  HUNT_SECONDS,
+  coastDistance,
+  flooded,
+  tideLevel,
+} from '../../shared/tide.ts';
 import { chartX } from '../../shared/chart.ts';
 import { revealRadius, utcDay } from '../../shared/day.ts';
 import {
@@ -61,6 +73,10 @@ type Hunt = {
   shovels: number;
   index: number;
   done: boolean;
+  /** Server ms when the hunt started; null for clockless hunts made by tests. */
+  start: number | null;
+  /** Summed minimum seconds of the accepted steps (ADV-2.3). */
+  minT: number;
 };
 
 const num = (v: string | undefined): number =>
@@ -81,6 +97,8 @@ const loadHunt = async (kv: Kv, actor: Actor, id: string): Promise<Hunt> => {
     shovels: num(h.shovels),
     index: num(h.index),
     done: h.done === '1',
+    start: h.start === undefined ? null : num(h.start),
+    minT: num(h.minT),
   };
 };
 
@@ -98,13 +116,25 @@ const reveal = async (
   await addSeen(kv, actor.id, day, set);
 };
 
-/** Start a hunt at the dock with 3 shovels (HUNT-2.1 – HUNT-2.3). */
+const elapsedS = (hunt: Hunt, nowMs: number): number =>
+  hunt.start === null ? 0 : (nowMs - hunt.start) / 1000;
+
+const expired = (hunt: Hunt, nowMs: number | undefined): boolean =>
+  hunt.start !== null &&
+  nowMs !== undefined &&
+  elapsedS(hunt, nowMs) >= HUNT_SECONDS;
+
+/**
+ * Start a hunt at the dock with 3 shovels (HUNT-2.1 – HUNT-2.3). With `nowMs` the hunt runs on
+ * the server's clock: tide, pace and time limit apply (ADV-1, ADV-2). Routes always pass it.
+ */
 export const startHunt = async (
   kv: Kv,
   actor: Actor,
   day: string,
   chartId: string,
-  huntId: string
+  huntId: string,
+  nowMs?: number
 ): Promise<HuntStartResponse> => {
   const { island } = await requireDay(kv, day);
   const chart = await readChart(kv, chartId);
@@ -139,36 +169,81 @@ export const startHunt = async (
       shovels: String(SHOVELS),
       index: '0',
       done: '0',
+      minT: '0',
+      ...(nowMs === undefined ? {} : { start: String(nowMs) }),
     },
     TTL.hunt
   );
   await reveal(kv, actor, day, island, [island.dock]);
-  return { huntId, at: island.dock, shovels: SHOVELS };
+  return {
+    huntId,
+    at: island.dock,
+    shovels: SHOVELS,
+    clock:
+      nowMs === undefined
+        ? null
+        : { startedAt: nowMs, endsAt: nowMs + HUNT_SECONDS * 1000, now: nowMs },
+  };
 };
 
-/** Apply a batch of steps. Idempotent by step index; all-or-nothing on bad steps (HUNT-3.1 – HUNT-3.3). */
+/**
+ * Apply a batch of steps. Idempotent by step index; all-or-nothing on bad steps (HUNT-3.1 – HUNT-3.3).
+ * On the server clock, each step also has to be possible in time and above the tide (ADV-1.4, ADV-2.3).
+ */
 export const applySteps = async (
   kv: Kv,
   actor: Actor,
   huntId: string,
   from: number,
-  steps: readonly Tile[]
+  steps: readonly Tile[],
+  nowMs?: number
 ): Promise<StepsResponse> => {
   const hunt = await loadHunt(kv, actor, huntId);
   if (hunt.done) throw new ApiError('conflict', 'hunt is over');
+  if (expired(hunt, nowMs) && nowMs !== undefined) {
+    const r = await endHunt(
+      kv,
+      actor,
+      hunt,
+      false,
+      hunt.shovels,
+      nowMs,
+      'tide'
+    );
+    return { at: hunt.at, index: hunt.index, reveal: r };
+  }
   if (from > hunt.index)
     throw new ApiError('conflict', `expected steps from index ${hunt.index}`);
   const fresh = steps.slice(hunt.index - from);
   if (fresh.length === 0) return { at: hunt.at, index: hunt.index };
 
   const { island } = await requireDay(kv, hunt.day);
+  const clocked = hunt.start !== null && nowMs !== undefined;
+  const hz = clocked ? hazardsFor(island) : null;
+  const coast = clocked ? coastDistance(island) : null;
   let prev = hunt.at;
+  let minT = hunt.minT;
   for (const s of fresh) {
     if (!isAdjacent4(prev, s) || !walkable(island.terrain, s.x, s.y)) {
       throw new ApiError('bad_request', `illegal step to ${s.x},${s.y}`);
     }
+    if (hz !== null && coast !== null) {
+      minT += stepSeconds(hz, s);
+      // The earliest this step can have happened; the tide was at least this high then (ADV-1.4).
+      if (flooded(coast, s, tideLevel(minT)))
+        throw new ApiError('bad_request', `the tide covers ${s.x},${s.y}`);
+    }
     prev = s;
   }
+  if (
+    clocked &&
+    nowMs !== undefined &&
+    minT > elapsedS(hunt, nowMs) + PACE_SLACK_SECONDS
+  )
+    throw new ApiError(
+      'bad_request',
+      'steps arrived faster than anyone can run'
+    );
   await hSetTtl(
     kv,
     K.hunt(huntId),
@@ -177,6 +252,7 @@ export const applySteps = async (
       y: String(prev.y),
       steps: String(hunt.steps + fresh.length),
       index: String(hunt.index + fresh.length),
+      minT: String(minT),
     },
     TTL.hunt
   );
@@ -190,7 +266,8 @@ const endHunt = async (
   hunt: Hunt,
   found: boolean,
   shovelsLeft: number,
-  nowMs: number
+  nowMs: number,
+  reason: EndReason
 ): Promise<Reveal> => {
   // Exactly once, even if the client double-taps (no double pay).
   const first = (await kv.hSetNX(K.hunt(hunt.id), 'ended', '1')) === 1;
@@ -279,6 +356,7 @@ const endHunt = async (
 
   const result: Reveal = {
     found,
+    reason,
     chest: chart.chest,
     chartX: x,
     distance: x === null ? null : Math.round(euclid(x, chart.chest)),
@@ -305,11 +383,32 @@ export const dig = async (
 ): Promise<DigResponse> => {
   const hunt = await loadHunt(kv, actor, huntId);
   if (hunt.done) throw new ApiError('conflict', 'hunt is over');
+  if (expired(hunt, nowMs))
+    return {
+      found: false,
+      shovelsLeft: hunt.shovels,
+      done: true,
+      reveal: await endHunt(
+        kv,
+        actor,
+        hunt,
+        false,
+        hunt.shovels,
+        nowMs,
+        'tide'
+      ),
+    };
   if (at.x !== hunt.at.x || at.y !== hunt.at.y)
     throw new ApiError('bad_request', 'you can only dig where you stand');
   if (hunt.shovels <= 0) throw new ApiError('conflict', 'no shovels left');
   const chart = await readChart(kv, hunt.chartId);
   if (chart === null) throw new ApiError('not_found', 'chart expired');
+  if (hunt.start !== null) {
+    const { island } = await requireDay(kv, hunt.day);
+    // Keep the shovel: the player can step back up the beach and dig again (ADV-1.5).
+    if (flooded(coastDistance(island), at, tideLevel(elapsedS(hunt, nowMs))))
+      throw new ApiError('conflict', 'the tide has covered this spot');
+  }
 
   const shovelsLeft = hunt.shovels - 1;
   await hSetTtl(kv, K.hunt(huntId), { shovels: String(shovelsLeft) }, TTL.hunt);
@@ -320,7 +419,15 @@ export const dig = async (
     found,
     shovelsLeft,
     done: true,
-    reveal: await endHunt(kv, actor, hunt, found, shovelsLeft, nowMs),
+    reveal: await endHunt(
+      kv,
+      actor,
+      hunt,
+      found,
+      shovelsLeft,
+      nowMs,
+      found ? 'found' : 'shovels'
+    ),
   };
 };
 
@@ -335,5 +442,13 @@ export const giveUp = async (
     const stored = await kv.hGet(K.hunt(huntId), 'reveal');
     if (stored !== undefined) return JSON.parse(stored);
   }
-  return endHunt(kv, actor, hunt, false, hunt.shovels, nowMs);
+  return endHunt(
+    kv,
+    actor,
+    hunt,
+    false,
+    hunt.shovels,
+    nowMs,
+    expired(hunt, nowMs) ? 'tide' : 'gaveUp'
+  );
 };

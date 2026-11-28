@@ -103,7 +103,8 @@ export const createApi = (d: ApiDeps): Hono => {
         d.actor(),
         await d.postDay(),
         reqString(await body(c), 'chartId', 80),
-        d.newId()
+        d.newId(),
+        d.now()
       )
     )
   );
@@ -115,7 +116,8 @@ export const createApi = (d: ApiDeps): Hono => {
         d.actor(),
         reqString(b, 'huntId'),
         reqInt(b, 'from', 0, 100_000),
-        reqTiles(b, 'steps', MAX_STEPS_PER_CALL)
+        reqTiles(b, 'steps', MAX_STEPS_PER_CALL),
+        d.now()
       );
     })
   );
