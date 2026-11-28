@@ -1,6 +1,7 @@
 // W9 · Result card (DAY-3, COM-2, COM-5.2): today's hunt, your chest and grade, streak and gold,
 // how your chart is doing, live counts, and separate buttons to hunt again, share, challenge or
 // see the boards. Nothing here is required to continue (COM-2.3).
+import { DeleteChart } from '../components/DeleteChart.tsx';
 import { useEffect, useState } from 'react';
 import { msUntilNextDay } from '../../shared/day.ts';
 import { liveChannel } from '../../shared/live.ts';
@@ -114,6 +115,9 @@ export const Result = () => {
             {fmt(copy.result.total, { n: u.gold.toLocaleString() })}
           </span>
         </p>
+        {u.chartId !== null && (
+          <DeleteChart chartId={u.chartId} className="self-start px-0" />
+        )}
         {chest !== null && chest.attempts > 0 && (
           <p className="font-bold">
             {fmt(copy.result.live, { n: chest.attempts })}

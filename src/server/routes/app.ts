@@ -18,7 +18,7 @@ import {
 } from '../services/hunts.ts';
 import { initFor, markPracticed } from '../services/init.ts';
 import { rateChart } from '../services/rating.ts';
-import { reportChart } from '../services/reports.ts';
+import { reportChart, deleteOwnChart } from '../services/reports.ts';
 import { postShare, sharePreview, type SharePort } from '../services/share.ts';
 import { toApiError } from '../store/errors.ts';
 import {
@@ -172,6 +172,11 @@ export const createApi = (d: ApiDeps): Hono => {
         reqVote(b, 'vote')
       );
     })
+  );
+  api.post('/chart/delete', (c) =>
+    handle(c, async () =>
+      deleteOwnChart(kv, d.actor(), reqString(await body(c), 'chartId', 80))
+    )
   );
   api.post('/chart/report', (c) =>
     handle(c, async () =>

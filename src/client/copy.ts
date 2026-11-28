@@ -127,6 +127,12 @@ export const copy = {
       'Check it and submit',
     ],
     coachDone: 'Got it, hide this',
+    delete: 'Delete my chart',
+    deleteTitle: 'Delete this chart?',
+    deleteBody:
+      'It disappears from the island, the picker and the boards, and nobody can follow it any more. Your chest stays buried for today. This can’t be undone.',
+    deleteYes: 'Delete it',
+    deleted: 'Chart deleted.',
     budget: '{s} of 6 stamps · {p} of 8 path steps',
     needX: 'Every chart needs an X.',
     submit: 'Submit chart',

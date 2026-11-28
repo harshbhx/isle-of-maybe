@@ -15,7 +15,13 @@ import {
   postDay,
 } from '../testing/fixtures.ts';
 import { pickCharts } from './charts.ts';
-import { applyReview, reportChart, reviewQueue } from './reports.ts';
+import {
+  applyReview,
+  deleteOwnChart,
+  reportChart,
+  reviewQueue,
+} from './reports.ts';
+import { requireDay } from './island.ts';
 
 const code = (c: string) => (e: unknown) =>
   e instanceof ApiError && e.code === c;
@@ -120,4 +126,29 @@ test('COM-1.3 the form submission is parsed defensively', () => {
   assert.equal(parseReview({ charts: [], action: ['delete'] }), null);
   assert.equal(parseReview({ charts: ['a'], action: ['nuke'] }), null);
   assert.equal(parseReview('nope'), null);
+});
+
+test('COM-1.6 the author can delete their own chart; nobody else can, and the chest stays buried', async () => {
+  const kv = new FakeKv();
+  await postDay(kv);
+  const { island } = await requireDay(kv, DAY);
+  const at =
+    island.landmarks.length > 0
+      ? { x: island.dock.x, y: island.dock.y - 1 }
+      : island.dock;
+  await addChart(kv, {
+    id: 'mine',
+    author: alice,
+    chest: at,
+    depth: 'shallow',
+    pieces: [{ k: 'x', x: at.x, y: at.y }],
+  });
+  await kv.hSet(K.userDay(alice.id, DAY), { chartId: 'mine', buried: '1' });
+  await assert.rejects(deleteOwnChart(kv, bob, 'mine'), ApiError);
+  await assert.rejects(deleteOwnChart(kv, anon, 'mine'), ApiError);
+  assert.deepEqual(await deleteOwnChart(kv, alice, 'mine'), { deleted: true });
+  assert.equal(await kv.hGet(K.chart('mine'), 'day'), undefined);
+  assert.equal(await kv.hGet(K.userDay(alice.id, DAY), 'chartId'), undefined);
+  assert.equal(await kv.hGet(K.userDay(alice.id, DAY), 'buried'), '1');
+  await assert.rejects(deleteOwnChart(kv, alice, `cap-${DAY}-0`), ApiError);
 });
