@@ -196,38 +196,146 @@ export const Hunt = ({ start, chart }: Props) => {
     ? copy.common.captainBy
     : fmt(copy.common.by, { name: chart.author });
 
+  const chartInfo = (
+    <div className="flex items-center justify-between gap-2 px-1 pt-2">
+      <span className="text-sm text-ink-soft">
+        {by}
+        {chart.note !== null && (
+          <em className="block font-display text-[16px] text-ink">
+            “{copy.notes[chart.note]}”
+          </em>
+        )}
+      </span>
+      {!chart.captain && (
+        <Button kind="danger" onClick={() => void report()}>
+          {copy.hunt.report}
+        </Button>
+      )}
+    </div>
+  );
+
   return (
-    <div className="flex h-full flex-col">
-      <SrTitle>{island.name}</SrTitle>
-      <div className="flex items-center gap-3 px-3 py-1 text-sm">
-        <span
-          className="inline-flex gap-0.5"
-          role="img"
-          aria-label={fmt(copy.hunt.shovels, { n: shovels })}
-        >
-          {Array.from({ length: start.shovels }, (_, i) => (
-            <ShovelIcon key={i} used={i >= shovels} />
-          ))}
-        </span>
-        <span className="tabular text-muted-night">
-          {fmt(copy.hunt.steps, { n: steps })}
-        </span>
-        <span className="ml-auto" aria-live="polite" />
+    <div className="flex h-full">
+      <div className="flex min-w-0 flex-1 flex-col">
+        <SrTitle>{island.name}</SrTitle>
+        <div className="flex items-center gap-3 px-3 py-1 text-sm">
+          <span
+            className="inline-flex gap-0.5"
+            role="img"
+            aria-label={fmt(copy.hunt.shovels, { n: shovels })}
+          >
+            {Array.from({ length: start.shovels }, (_, i) => (
+              <ShovelIcon key={i} used={i >= shovels} />
+            ))}
+          </span>
+          <span className="tabular text-muted-night">
+            {fmt(copy.hunt.steps, { n: steps })}
+          </span>
+          <span className="ml-auto" aria-live="polite" />
+        </div>
+        <div className="relative min-h-0 flex-1">
+          <IslandCanvas
+            scene={scene}
+            zoom={zoom}
+            focus={walker.pos}
+            onTap={(t) => (walker.busy ? walker.skip() : input.onTap(t))}
+            label={`${island.name}. ${fmt(copy.hunt.shovels, { n: shovels })}`}
+          />
+          <button
+            type="button"
+            onClick={() => setChartOpen(true)}
+            aria-label={copy.hunt.chartOpen}
+            className="parchment absolute right-2 top-2 w-24 p-1 sm:w-32 lg:hidden"
+          >
+            <ChartView
+              island={island}
+              pieces={chart.pieces}
+              depth={chart.depth}
+              captain={chart.captain}
+              label={by}
+            />
+          </button>
+          <div className="absolute left-2 right-28 top-2 flex flex-col gap-2 sm:right-36 lg:right-2">
+            {/* One hint at a time (UI-4.4): walking retires the walk hint, then digging is next. */}
+            {walked ? <Hint k="dig" /> : <Hint k="hunt" />}
+            {error !== null && (
+              <button
+                type="button"
+                onClick={() =>
+                  void flush().then(
+                    () => setError(null),
+                    () => undefined
+                  )
+                }
+                className="rounded-[6px] bg-night-2 px-3 py-2 text-left text-sm"
+                role="alert"
+              >
+                {error}{' '}
+                <span className="text-gold underline">{copy.err.retry}</span>
+              </button>
+            )}
+          </div>
+          {chartOpen && (
+            <div className="absolute inset-0 z-10 flex flex-col items-center justify-center bg-night/40 p-3 anim-fade lg:hidden">
+              <div className="parchment w-full max-w-[460px] p-2 opacity-[0.92]">
+                <ChartView
+                  island={island}
+                  pieces={chart.pieces}
+                  depth={chart.depth}
+                  captain={chart.captain}
+                  label={by}
+                />
+                {chartInfo}
+                <div className="flex justify-end px-1 pt-2">
+                  <Button onClick={() => setChartOpen(false)}>
+                    {copy.hunt.chartClose}
+                  </Button>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+        <div className="flex items-center gap-2 px-3 py-3">
+          <Button
+            kind="quiet"
+            className="text-on-night"
+            onClick={() => setConfirmQuit(true)}
+            disabled={busy}
+          >
+            {copy.hunt.giveup}
+          </Button>
+          <div className="ml-auto flex gap-1">
+            <Button
+              kind="ink"
+              className="w-12 border-muted-night/50 px-0 text-on-night"
+              label={copy.hunt.zoomOut}
+              onClick={() => setZoom((z) => Math.max(0, z - 0.5))}
+            >
+              −
+            </Button>
+            <Button
+              kind="ink"
+              className="w-12 border-muted-night/50 px-0 text-on-night"
+              label={copy.hunt.zoomIn}
+              onClick={() => setZoom((z) => Math.min(2, z + 0.5))}
+            >
+              +
+            </Button>
+          </div>
+          <Button
+            kind="gold"
+            className="min-w-28"
+            onClick={() => void dig()}
+            disabled={busy || walker.busy || shovels <= 0}
+          >
+            {copy.hunt.dig}
+          </Button>
+        </div>
       </div>
-      <div className="relative min-h-0 flex-1">
-        <IslandCanvas
-          scene={scene}
-          zoom={zoom}
-          focus={walker.pos}
-          onTap={(t) => (walker.busy ? walker.skip() : input.onTap(t))}
-          label={`${island.name}. ${fmt(copy.hunt.shovels, { n: shovels })}`}
-        />
-        <button
-          type="button"
-          onClick={() => setChartOpen(true)}
-          aria-label={copy.hunt.chartOpen}
-          className="parchment absolute right-2 top-2 w-24 p-1 sm:w-32"
-        >
+      {/* Wide screens (UI-3.4): the chart sits beside the island, full size and always open, so
+          the player compares map and island at a glance instead of toggling an overlay. */}
+      <aside className="hidden w-[min(420px,36vw)] shrink-0 flex-col justify-center p-3 lg:flex">
+        <div className="parchment p-2">
           <ChartView
             island={island}
             pieces={chart.pieces}
@@ -235,97 +343,9 @@ export const Hunt = ({ start, chart }: Props) => {
             captain={chart.captain}
             label={by}
           />
-        </button>
-        <div className="absolute left-2 right-28 top-2 flex flex-col gap-2 sm:right-36">
-          {/* One hint at a time (UI-4.4): walking retires the walk hint, then digging is next. */}
-          {walked ? <Hint k="dig" /> : <Hint k="hunt" />}
-          {error !== null && (
-            <button
-              type="button"
-              onClick={() =>
-                void flush().then(
-                  () => setError(null),
-                  () => undefined
-                )
-              }
-              className="rounded-[6px] bg-night-2 px-3 py-2 text-left text-sm"
-              role="alert"
-            >
-              {error}{' '}
-              <span className="text-gold underline">{copy.err.retry}</span>
-            </button>
-          )}
+          {chartInfo}
         </div>
-        {chartOpen && (
-          <div className="absolute inset-0 z-10 flex flex-col items-center justify-center bg-night/40 p-3 anim-fade">
-            <div className="parchment w-full max-w-[460px] p-2 opacity-[0.92]">
-              <ChartView
-                island={island}
-                pieces={chart.pieces}
-                depth={chart.depth}
-                captain={chart.captain}
-                label={by}
-              />
-              <div className="flex items-center justify-between gap-2 px-1 pt-2">
-                <span className="text-sm text-ink-soft">
-                  {by}
-                  {chart.note !== null && (
-                    <em className="block font-display text-[16px] text-ink">
-                      “{copy.notes[chart.note]}”
-                    </em>
-                  )}
-                </span>
-                <div className="flex gap-2">
-                  {!chart.captain && (
-                    <Button kind="danger" onClick={() => void report()}>
-                      {copy.hunt.report}
-                    </Button>
-                  )}
-                  <Button onClick={() => setChartOpen(false)}>
-                    {copy.hunt.chartClose}
-                  </Button>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
-      </div>
-      <div className="flex items-center gap-2 px-3 py-3">
-        <Button
-          kind="quiet"
-          className="text-on-night"
-          onClick={() => setConfirmQuit(true)}
-          disabled={busy}
-        >
-          {copy.hunt.giveup}
-        </Button>
-        <div className="ml-auto flex gap-1">
-          <Button
-            kind="ink"
-            className="w-12 border-muted-night/50 px-0 text-on-night"
-            label={copy.hunt.zoomOut}
-            onClick={() => setZoom((z) => Math.max(0, z - 0.5))}
-          >
-            −
-          </Button>
-          <Button
-            kind="ink"
-            className="w-12 border-muted-night/50 px-0 text-on-night"
-            label={copy.hunt.zoomIn}
-            onClick={() => setZoom((z) => Math.min(2, z + 0.5))}
-          >
-            +
-          </Button>
-        </div>
-        <Button
-          kind="gold"
-          className="min-w-28"
-          onClick={() => void dig()}
-          disabled={busy || walker.busy || shovels <= 0}
-        >
-          {copy.hunt.dig}
-        </Button>
-      </div>
+      </aside>
       <Sheet
         open={confirmQuit}
         onClose={() => setConfirmQuit(false)}
