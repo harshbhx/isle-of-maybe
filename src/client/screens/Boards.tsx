@@ -32,7 +32,7 @@ const TABS: readonly { key: Tab; label: string }[] = [
 
 const Row = ({ r, me, unit }: { r: BoardRow; me: boolean; unit: string }) => (
   <li
-    className={`grid grid-cols-[2.5rem_1fr_auto] items-center gap-2 px-3 py-2 ${me ? 'bg-gold/25 font-bold' : ''}`}
+    className={`grid grid-cols-[2.5rem_1fr_auto] items-center gap-2 px-3 py-2 ${me ? 'bg-mango/25 font-bold' : ''}`}
   >
     <span className="tabular text-ink-soft">{r.rank}</span>
     <span className="truncate">
@@ -63,15 +63,13 @@ const Board = ({ kind }: { kind: BoardKind }) => {
   if (err) return <ErrorState message={copy.err.network} />;
   if (data === null) return <Loading />;
   if (data.rows.length === 0)
-    return (
-      <p className="p-6 text-center text-muted-night">{copy.boards.empty}</p>
-    );
+    return <p className="p-6 text-center text-seafoam">{copy.boards.empty}</p>;
   const unit = kind === 'trusted' ? '%' : '';
   const meName = init.user.name;
   const inTop =
     data.me !== null && data.rows.some((r) => r.rank === data.me?.rank);
   return (
-    <ol className="parchment divide-y divide-parchment-dark overflow-hidden p-0">
+    <ol className="parchment divide-y divide-paper-2 overflow-hidden p-0">
       {data.rows.map((r) => (
         <Row
           key={`${r.rank}-${r.name}`}
@@ -112,7 +110,7 @@ const HallDayCard = ({ day }: { day: HallDay }) => {
         ))}
       </div>
       {day.cursed !== null && (
-        <p className="mt-2 text-sm text-seal">
+        <p className="mt-2 text-sm text-hibiscus">
           {copy.boards.cursed}: u/{day.cursed.author} ·{' '}
           {fmt(copy.pick.attempts, {
             n: day.cursed.attempts,
@@ -140,9 +138,7 @@ const Hall = () => {
   if (err) return <ErrorState message={copy.err.network} />;
   if (data === null) return <Loading />;
   if (data.days.length === 0)
-    return (
-      <p className="p-6 text-center text-muted-night">{copy.boards.empty}</p>
-    );
+    return <p className="p-6 text-center text-seafoam">{copy.boards.empty}</p>;
   return (
     <div className="flex flex-col gap-3">
       {data.days.map((d) => (
@@ -162,7 +158,7 @@ export const Boards = () => {
       {tab === 'hall' ? <Hall /> : <Board key={tab} kind={tab} />}
       <Button
         kind="quiet"
-        className="text-on-night"
+        className="text-foam"
         onClick={() => app.go({ k: 'result' })}
       >
         {copy.boards.back}

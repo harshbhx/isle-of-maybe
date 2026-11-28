@@ -59,7 +59,7 @@ export const Pieces = ({
           key={i}
           points={p.pts.map((t) => `${px(t.x)},${px(t.y)}`).join(' ')}
           fill="none"
-          stroke="#2B2118"
+          stroke="#2B1D12"
           strokeWidth={2.5}
           strokeDasharray="4 4"
           strokeLinecap="round"
@@ -75,7 +75,7 @@ export const Pieces = ({
           x={px(p.x)}
           y={px(p.y)}
           size={22}
-          color="#2B2118"
+          color="#2B1D12"
           width={1.8}
         />
       ) : null
@@ -88,7 +88,7 @@ export const Pieces = ({
           x={px(p.x)}
           y={px(p.y)}
           size={24}
-          color="#9E2A22"
+          color="#B8233F"
           width={4}
         />
       ) : null
@@ -99,16 +99,16 @@ export const Pieces = ({
 /** Original wax seal: a red disc with an anchor (Old Captain charts). */
 export const Seal = ({ x, y }: { x: number; y: number }) => (
   <g transform={`translate(${x} ${y})`} aria-hidden>
-    <circle r="18" fill="#9E2A22" />
-    <circle r="14" fill="none" stroke="#7a1f19" strokeWidth="1.5" />
+    <circle r="18" fill="#B8233F" />
+    <circle r="14" fill="none" stroke="#8E1A31" strokeWidth="1.5" />
     <path
       d="M0 -8v15M-6 -3h12M-8 3c2 5 6 6 8 6s6-1 8-6"
       fill="none"
-      stroke="#F3E6C8"
+      stroke="#FFF4DC"
       strokeWidth="2"
       strokeLinecap="round"
     />
-    <circle cy="-10" r="2.5" fill="none" stroke="#F3E6C8" strokeWidth="1.8" />
+    <circle cy="-10" r="2.5" fill="none" stroke="#FFF4DC" strokeWidth="1.8" />
   </g>
 );
 
@@ -156,33 +156,33 @@ export const ChartView = ({
         >
           <path
             d="M2 7h10"
-            stroke="#C9B58C"
+            stroke="#8CC5BC"
             strokeWidth="1.2"
             strokeLinecap="round"
           />
           <path
             d="M14 0h8M14 14h8"
-            stroke="#C9B58C"
+            stroke="#8CC5BC"
             strokeWidth="1.2"
             strokeLinecap="round"
           />
         </pattern>
       </defs>
-      <rect width={CHART_PX} height={CHART_PX} fill="#F3E6C8" />
+      <rect width={CHART_PX} height={CHART_PX} fill="#FFF4DC" />
       <rect
         x="6"
         y="6"
         width={CHART_PX - 12}
         height={CHART_PX - 12}
         fill="url(#sea-hatch)"
-        stroke="#5C4A36"
+        stroke="#6A513A"
         strokeWidth="1.5"
       />
       <path
         d={coast}
-        fill="#E4D2A8"
+        fill="#F3E1B8"
         fillRule="evenodd"
-        stroke="#2B2118"
+        stroke="#2B1D12"
         strokeWidth="2"
         strokeLinejoin="round"
       />
@@ -191,7 +191,7 @@ export const ChartView = ({
         x={px(island.dock.x)}
         y={px(island.dock.y)}
         size={14}
-        color="#2B2118"
+        color="#2B1D12"
         width={1.6}
       />
       <GlyphAt
@@ -199,7 +199,7 @@ export const ChartView = ({
         x={CHART_PX - 30}
         y={32}
         size={36}
-        color="#5C4A36"
+        color="#6A513A"
         width={1.4}
       />
       {dots > 0 && (
@@ -210,8 +210,8 @@ export const ChartView = ({
               cx={20 + i * 13}
               cy={20}
               r={4.5}
-              fill={i < dots ? '#2B2118' : 'none'}
-              stroke="#2B2118"
+              fill={i < dots ? '#2B1D12' : 'none'}
+              stroke="#2B1D12"
               strokeWidth="1.2"
               opacity={i < dots ? 1 : 0.35}
             />

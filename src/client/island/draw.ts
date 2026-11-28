@@ -51,21 +51,22 @@ export type Scene = {
 export type Camera = { tile: number; ox: number; oy: number };
 
 const COL = {
-  sea: '#2E6F8E',
-  seaDeep: '#1F4F68',
-  wave: 'rgba(243,230,200,0.10)',
-  sand: '#E9D29A',
-  sandEdge: '#d9bd78',
-  grass: '#8DB86B',
-  grass2: '#82ae60',
-  rock: '#7A7166',
-  jungle: '#4E7A43',
-  pond: '#5A9BB5',
-  ink: '#2B2118',
-  fog: 'rgba(20,32,43,0.94)',
-  fogSoft: 'rgba(20,32,43,0.55)',
-  seal: '#9E2A22',
-  gold: '#E8B341',
+  // Tropical day island (docs/03-DESIGN.md §3). This is the 2D fallback; the 3D scene uses the same.
+  sea: '#1E9A9C',
+  seaDeep: '#0A6468',
+  wave: 'rgba(255,247,232,0.16)',
+  sand: '#F2D99B',
+  sandEdge: '#D9B872',
+  grass: '#6DBE5A',
+  grass2: '#5FAF4E',
+  rock: '#8A8178',
+  jungle: '#2E7D3A',
+  pond: '#6FD3E0',
+  ink: '#2B1D12',
+  fog: 'rgba(244,251,248,0.94)',
+  fogSoft: 'rgba(244,251,248,0.6)',
+  seal: '#B8233F',
+  gold: '#FFB21E',
   plank: '#8a6a44',
 };
 
@@ -78,7 +79,7 @@ const LANDMARK_FILL: Record<string, string> = {
   wreck: '#8a6a44',
   well: '#9b9186',
   statue: '#b9b0a2',
-  campfire: '#E8B341',
+  campfire: '#FFB21E',
   cave: '#4a4038',
 };
 
@@ -331,7 +332,7 @@ export const drawScene = (
     ): void => {
       const g = ctx.createLinearGradient(ax, ay, bx, by);
       g.addColorStop(0, COL.fog);
-      g.addColorStop(1, 'rgba(20,32,43,0)');
+      g.addColorStop(1, 'rgba(244,251,248,0)');
       ctx.fillStyle = g;
       ctx.fillRect(rx, ry, rw, rh);
     };
@@ -363,8 +364,8 @@ export const drawScene = (
         const cx = X(l.at.x + 0.5);
         const cy = Y(l.at.y + 0.5);
         const glow = ctx.createRadialGradient(cx, cy, 0, cx, cy, t * 1.4);
-        glow.addColorStop(0, 'rgba(232,179,65,0.55)');
-        glow.addColorStop(1, 'rgba(232,179,65,0)');
+        glow.addColorStop(0, 'rgba(255,178,30,0.55)');
+        glow.addColorStop(1, 'rgba(255,178,30,0)');
         ctx.fillStyle = glow;
         ctx.fillRect(cx - t * 1.4, cy - t * 1.4, t * 2.8, t * 2.8);
         drawGlyph(
@@ -385,7 +386,7 @@ export const drawScene = (
     for (let i = 0; i < W * H; i++) {
       if (((s.highlight[i >> 3] ?? 0) >> (i & 7)) & 1) continue;
       if (s.seen !== null && !seenAt(s, i)) continue;
-      ctx.fillStyle = 'rgba(20,32,43,0.45)';
+      ctx.fillStyle = 'rgba(244,251,248,0.45)';
       cell(i % W, Math.floor(i / W));
     }
   }

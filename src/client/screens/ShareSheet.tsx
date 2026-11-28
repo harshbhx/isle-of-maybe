@@ -58,7 +58,7 @@ export const ShareSheet = ({
           <img
             src={preview.image}
             alt={preview.text}
-            className="mx-auto w-full max-w-[280px] rounded-[4px] border border-parchment-dark"
+            className="mx-auto w-full max-w-[280px] rounded-[4px] border border-paper-2"
           />
           <figcaption className="text-center italic">
             “{preview.text}”
@@ -66,7 +66,7 @@ export const ShareSheet = ({
         </figure>
       )}
       {state === 'error' && (
-        <p className="mb-3 text-seal" role="alert">
+        <p className="mb-3 text-hibiscus" role="alert">
           {copy.err.network}
         </p>
       )}

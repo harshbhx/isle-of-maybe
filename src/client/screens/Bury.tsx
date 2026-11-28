@@ -155,7 +155,7 @@ export const Bury = () => {
 
   return (
     <div className="mx-auto flex h-full w-full max-w-[720px] flex-col gap-2 p-3">
-      <Title className="text-on-night">{copy.bury.title}</Title>
+      <Title className="text-foam">{copy.bury.title}</Title>
       <Hint k="bury" />
       <div className="relative aspect-square max-h-[56vh] w-full self-center overflow-hidden rounded-[6px]">
         <IslandCanvas

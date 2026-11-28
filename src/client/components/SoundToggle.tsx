@@ -15,7 +15,7 @@ export const SoundToggle = () => {
         setOn(!on);
         if (!on) play('coin');
       }}
-      className="inline-flex h-11 w-11 items-center justify-center rounded-[6px] text-muted-night hover:text-on-night"
+      className="inline-flex h-11 w-11 items-center justify-center rounded-[6px] text-seafoam hover:text-foam"
     >
       <svg width="20" height="20" viewBox="0 0 20 20" aria-hidden>
         <path d="M3 8h3l4-3v10l-4-3H3z" fill="currentColor" />

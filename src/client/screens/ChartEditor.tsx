@@ -174,11 +174,11 @@ export const ChartEditor = ({ at, depth }: { at: Tile; depth: Depth }) => {
   return (
     <div className="mx-auto flex w-full max-w-[560px] flex-col gap-2 p-3 anim-fade">
       <div className="flex items-center gap-2">
-        <Title className="text-on-night">{copy.chart.title}</Title>
+        <Title className="text-foam">{copy.chart.title}</Title>
         <div className="ml-auto flex gap-1">
           <Button
             kind="ink"
-            className="border-muted-night/50 px-3 text-on-night"
+            className="border-seafoam/50 px-3 text-foam"
             onClick={() => dispatch({ k: 'undo' })}
             disabled={s.history.length === 0}
           >
@@ -186,7 +186,7 @@ export const ChartEditor = ({ at, depth }: { at: Tile; depth: Depth }) => {
           </Button>
           <Button
             kind="ink"
-            className="border-muted-night/50 px-3 text-on-night"
+            className="border-seafoam/50 px-3 text-foam"
             onClick={() => dispatch({ k: 'clear' })}
             disabled={s.pieces.length === 0}
           >
@@ -216,7 +216,7 @@ export const ChartEditor = ({ at, depth }: { at: Tile; depth: Depth }) => {
               cy={px(sel.y)}
               r={15}
               fill="none"
-              stroke="#E8B341"
+              stroke="#FFB21E"
               strokeWidth={3}
               strokeDasharray="5 3"
             />
@@ -224,7 +224,7 @@ export const ChartEditor = ({ at, depth }: { at: Tile; depth: Depth }) => {
         </ChartView>
       </div>
       <p
-        className="tabular text-center text-sm text-muted-night"
+        className="tabular text-center text-sm text-seafoam"
         aria-live="polite"
       >
         {fmt(copy.chart.budget, { s: c.stamps, p: c.steps })}
@@ -242,16 +242,16 @@ export const ChartEditor = ({ at, depth }: { at: Tile; depth: Depth }) => {
             aria-pressed={tool.k === 'stamp' && tool.t === t}
             disabled={stampFull}
             onClick={() => setTool({ k: 'stamp', t })}
-            className={`parchment flex h-12 items-center justify-center disabled:opacity-40 ${tool.k === 'stamp' && tool.t === t ? 'outline outline-3 outline-gold' : ''}`}
+            className={`parchment flex h-12 items-center justify-center disabled:opacity-40 ${tool.k === 'stamp' && tool.t === t ? 'outline outline-3 outline-mango' : ''}`}
           >
-            <Glyph glyph={LANDMARK_GLYPHS[t]} size={28} color="#2B2118" />
+            <Glyph glyph={LANDMARK_GLYPHS[t]} size={28} color="#2B1D12" />
           </button>
         ))}
       </div>
       <div className="flex items-center gap-2">
         <Button
           kind="ink"
-          className="border-muted-night/50 text-on-night"
+          className="border-seafoam/50 text-foam"
           pressed={tool.k === 'path'}
           onClick={() => setTool({ k: 'path' })}
           disabled={c.steps >= MAX_SEGMENTS && tool.k !== 'path'}
@@ -269,16 +269,16 @@ export const ChartEditor = ({ at, depth }: { at: Tile; depth: Depth }) => {
         </Button>
         <Button
           kind="ink"
-          className="border-muted-night/50 text-on-night"
+          className="border-seafoam/50 text-foam"
           pressed={tool.k === 'x'}
           onClick={() => setTool({ k: 'x' })}
         >
-          <Glyph glyph={X_GLYPH} size={20} color="#e7a29b" /> {copy.chart.x}
+          <Glyph glyph={X_GLYPH} size={20} color="#FF9DB0" /> {copy.chart.x}
         </Button>
         {s.sel !== null && (
           <Button
             kind="quiet"
-            className="text-on-night"
+            className="text-foam"
             onClick={() => dispatch({ k: 'remove' })}
           >
             {copy.chart.remove}
@@ -288,10 +288,10 @@ export const ChartEditor = ({ at, depth }: { at: Tile; depth: Depth }) => {
       <button
         type="button"
         onClick={() => setPicking(true)}
-        className="min-h-11 rounded-[6px] border border-dashed border-muted-night/60 px-3 text-left text-sm text-muted-night"
+        className="min-h-11 rounded-[6px] border border-dashed border-seafoam/60 px-3 text-left text-sm text-seafoam"
       >
         {copy.chart.note}:{' '}
-        <em className="text-on-night">
+        <em className="text-foam">
           {note === null ? copy.chart.noNote : copy.notes[note]}
         </em>
       </button>
@@ -306,7 +306,7 @@ export const ChartEditor = ({ at, depth }: { at: Tile; depth: Depth }) => {
               key={n ?? 'none'}
               kind="ink"
               pressed={note === n}
-              className={`justify-start text-left ${note === n ? 'bg-gold/30' : ''}`}
+              className={`justify-start text-left ${note === n ? 'bg-mango/30' : ''}`}
               onClick={() => {
                 setNote(n);
                 setPicking(false);
@@ -326,9 +326,7 @@ export const ChartEditor = ({ at, depth }: { at: Tile; depth: Depth }) => {
         {copy.chart.submit}
       </Button>
       {!c.hasX && (
-        <p className="text-center text-sm text-muted-night">
-          {copy.chart.needX}
-        </p>
+        <p className="text-center text-sm text-seafoam">{copy.chart.needX}</p>
       )}
       {err !== null && <Banner>{err}</Banner>}
     </div>
