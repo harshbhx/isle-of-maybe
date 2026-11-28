@@ -1,0 +1,20 @@
+:root {
+  --paper: #FFF4DC; /* Card and chart background */
+  --paper-2: #F3E1B8; /* Pressed states, chart margins */
+  --ink: #2B1D12; /* Text on paper */
+  --ink-soft: #6A513A; /* Secondary text on paper */
+  --hibiscus: #B8233F; /* The X, warnings, the Old Captain's seal */
+  --palm: #1E5B3A; /* True map, success */
+  --lagoon: #0A6468; /* App frame */
+  --lagoon-2: #08575C; /* Bars and panels on the frame */
+  --foam: #FFF7E8; /* Text on lagoon */
+  --seafoam: #C8EEE7; /* Secondary text on lagoon */
+  --sun: #FFCF6B; /* Gold, links on lagoon */
+  --mango: #FFB21E; /* Primary button */
+  --sea: #1E9A9C; /* Open water */
+  --shallows: #4CC3B9; /* Shallows, the logo's ring */
+  --sand: #F2D99B; /* Beach, the logo's island */
+  --grass: #6DBE5A; /* Meadows */
+  --jungle: #2E7D3A; /* Jungle */
+  --rock: #8A8178; /* Cliffs and rocks */
+}
