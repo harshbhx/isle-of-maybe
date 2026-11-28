@@ -44,6 +44,9 @@ import { play } from '../lib/sound.ts';
 
 type Props = { start: HuntStartResponse; chart: ChartPublic; slot: PickSlot };
 
+/** Fonts are bundled, so the canvas plaque can use them without loading anything (rule 4). */
+const PLAQUE_FONT = "'Fraunces', 'IM Fell English SC', Georgia, serif";
+
 const clock = (s: number): string =>
   `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, '0')}`;
 
@@ -263,6 +266,28 @@ export const Hunt = ({ start, chart }: Props) => {
     return () => window.clearInterval(id);
   }, [h3d, app]);
 
+  /** The end of the hunt on the island first (ADV-5), then the result screen. */
+  const end = async (rev: Reveal, finalHoles: Tile[]): Promise<void> => {
+    if (h3d !== null) {
+      const votes = chart.trueVotes + chart.cursedVotes;
+      await h3d.cinematic({
+        kind: rev.found ? 'found' : rev.reason === 'tide' ? 'tide' : 'missed',
+        chest: rev.chest,
+        label: chart.captain
+          ? copy.hunt.plaqueCaptain
+          : fmt(copy.hunt.plaque, { name: chart.author }),
+        stamp:
+          votes >= 3
+            ? chart.trueVotes >= chart.cursedVotes
+              ? 'true'
+              : 'cursed'
+            : null,
+        font: PLAQUE_FONT,
+      });
+    }
+    finish(rev, finalHoles);
+  };
+
   const finish = (rev: Reveal, finalHoles: Tile[]): void => {
     app.setLastHunt({ chart, reveal: rev });
     app.announce(
@@ -276,7 +301,7 @@ export const Hunt = ({ start, chart }: Props) => {
     app.go({ k: 'reveal', chart, reveal: rev, holes: finalHoles });
   };
   useEffect(() => {
-    ended.current = (rev) => finish(rev, holes);
+    ended.current = (rev) => void end(rev, holes);
   });
 
   const dig = async (): Promise<void> => {
@@ -306,7 +331,7 @@ export const Hunt = ({ start, chart }: Props) => {
       setHoles(nextHoles);
       setShovels(res.shovelsLeft);
       if (res.done && res.reveal !== undefined)
-        return finish(res.reveal, nextHoles);
+        return void end(res.reveal, nextHoles);
       const line =
         shovels === start.shovels ? copy.hunt.miss1 : copy.hunt.miss2;
       toast(line);
@@ -330,7 +355,7 @@ export const Hunt = ({ start, chart }: Props) => {
       const res = await post<{ reveal: Reveal }>('/hunt/giveup', {
         huntId: start.huntId,
       });
-      finish(res.reveal, holes);
+      await end(res.reveal, holes);
     } catch {
       setBusy(false);
       setError(copy.err.network);

@@ -78,6 +78,8 @@ export const copy = {
     timeLeft: 'Time before the tide: {t}',
     tideCovered: 'The tide has covered this spot. Get to higher sand.',
     tideRising: 'The tide is coming in! The low beach is going under.',
+    plaque: 'Buried by u/{name}',
+    plaqueCaptain: 'The Old Captain',
     confirmGiveup: 'Give up and see where the chest was?',
   },
   reveal: {
