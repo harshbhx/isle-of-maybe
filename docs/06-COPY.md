@@ -26,6 +26,16 @@ Voice: short, salty, kind. Tease the map, never the player. Every string lives i
 | mod.lanterns | Lantern night: landmarks glow through the fog. |
 | mod.storm | Storm: one landmark gets knocked over at noon (UTC). |
 
+## Biomes (ADV-10.3)
+| Key | Name (title card) | Line (splash) |
+|---|---|---|
+| biome.tropical | Tropical isle | A tropical isle: palms and warm shallows. |
+| biome.volcanic | Volcanic isle | A volcanic isle: black sand under a smoking peak. |
+| biome.autumn | Autumn isle | An autumn isle: golden meadows and falling leaves. |
+| biome.mangrove | Mangrove isle | A mangrove isle: mud flats and mist on the water. |
+| biome.frost | Frost isle | A frost isle: snow on the meadows, ice in the ponds. |
+| biome.coral | Coral isle | A coral isle: white sand and a reef offshore. |
+
 ## Hints (each shown once)
 | Key | Text |
 |---|---|

@@ -2,6 +2,7 @@
 // `{name}` placeholders and `{n:one|many}` word choices are filled with fmt().
 import { fillTemplate } from '../shared/template.ts';
 import type { Grade } from '../shared/chart.ts';
+import type { Biome } from '../shared/biome.ts';
 import type { Modifier } from '../shared/day.ts';
 import { NOTES } from '../shared/notes.ts';
 import type { Tier } from '../shared/scoring.ts';
@@ -38,6 +39,33 @@ export const copy = {
     lanterns: 'Lantern night: landmarks glow through the fog.',
     storm: 'Storm: one landmark gets knocked over at noon (UTC).',
   } satisfies Record<Modifier, string>,
+  // Today's biome (ADV-10.3): a name for the title card, a line for the splash.
+  biome: {
+    tropical: {
+      name: 'Tropical isle',
+      line: 'A tropical isle: palms and warm shallows.',
+    },
+    volcanic: {
+      name: 'Volcanic isle',
+      line: 'A volcanic isle: black sand under a smoking peak.',
+    },
+    autumn: {
+      name: 'Autumn isle',
+      line: 'An autumn isle: golden meadows and falling leaves.',
+    },
+    mangrove: {
+      name: 'Mangrove isle',
+      line: 'A mangrove isle: mud flats and mist on the water.',
+    },
+    frost: {
+      name: 'Frost isle',
+      line: 'A frost isle: snow on the meadows, ice in the ponds.',
+    },
+    coral: {
+      name: 'Coral isle',
+      line: 'A coral isle: white sand and a reef offshore.',
+    },
+  } satisfies Record<Biome, { name: string; line: string }>,
   hint: {
     pick: 'Strangers drew these from memory. Pick one.',
     hunt: 'Tap the island to walk. Open the chart any time.',
