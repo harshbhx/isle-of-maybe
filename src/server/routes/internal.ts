@@ -5,7 +5,9 @@ import type { TriggerResponse, UiResponse } from '@devvit/web/shared';
 import { serverCopy } from '../copy.ts';
 import { redditPort } from '../jobs/reddit-port.ts';
 import { runDaily } from '../services/daily.ts';
+import { onCommentDeleted, onPostDeleted } from '../services/cleanup.ts';
 import { applyReview, reviewQueue } from '../services/reports.ts';
+import { isRecord } from '../store/guards.ts';
 import { parseReview, reviewFormFor } from './review-form.ts';
 
 export const internal = new Hono();
@@ -92,5 +94,47 @@ internal.post('/forms/review', async (c) => {
   } catch (e) {
     console.error(`review form failed: ${String(e)}`);
     return c.json<UiResponse>({ showToast: serverCopy.toastFailed }, 200);
+  }
+});
+
+const idField = async (
+  body: Promise<unknown>,
+  field: 'postId' | 'commentId'
+): Promise<string | null> => {
+  const b = await body.catch(() => null);
+  const v = isRecord(b) ? b[field] : undefined;
+  return typeof v === 'string' && v !== '' ? v : null;
+};
+
+/** COM-1.4: a deleted island post removes that day's charts, stats and indexes. */
+internal.post('/triggers/post-delete', async (c) => {
+  const postId = await idField(c.req.json(), 'postId');
+  try {
+    const n = postId === null ? 0 : await onPostDeleted(redis, postId);
+    return c.json<TriggerResponse>(
+      { status: 'success', message: `removed ${n}` },
+      200
+    );
+  } catch (e) {
+    console.error(`post-delete: ${String(e)}`);
+    return c.json<TriggerResponse>(
+      { status: 'error', message: 'cleanup failed' },
+      400
+    );
+  }
+});
+
+/** COM-2.5: a deleted share comment clears the chart's link to it. */
+internal.post('/triggers/comment-delete', async (c) => {
+  const commentId = await idField(c.req.json(), 'commentId');
+  try {
+    if (commentId !== null) await onCommentDeleted(redis, commentId);
+    return c.json<TriggerResponse>({ status: 'success' }, 200);
+  } catch (e) {
+    console.error(`comment-delete: ${String(e)}`);
+    return c.json<TriggerResponse>(
+      { status: 'error', message: 'cleanup failed' },
+      400
+    );
   }
 });

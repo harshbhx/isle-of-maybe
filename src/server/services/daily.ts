@@ -11,7 +11,7 @@ import { generateIsland, seedFor } from '../../shared/island.ts';
 import { rngFor } from '../../shared/rng.ts';
 import { serverCopy } from '../copy.ts';
 import { K } from '../store/keys.ts';
-import { TTL, hSetTtl, type Kv } from '../store/kv.ts';
+import { TTL, hSetOnce, hSetTtl, type Kv } from '../store/kv.ts';
 import { applyFlairs, type SetFlairs } from './flair.ts';
 import { islandOf, readDay } from './island.ts';
 
@@ -106,7 +106,7 @@ const postIsland = async (
   const n = dayNumber(day);
 
   // Claim the day. Only the first caller creates a post (DAY-1.1, DAY-1.5).
-  const claimed = (await kv.hSetNX(K.day(day), 'postId', 'pending')) === 1;
+  const claimed = await hSetOnce(kv, K.day(day), 'postId', 'pending', TTL.day);
   if (!claimed) {
     const rec = await readDay(kv, day);
     if (rec !== null) {
@@ -115,7 +115,7 @@ const postIsland = async (
           rec.postId,
           serverCopy.shareSticky(n)
         );
-        await kv.hSet(K.day(day), { shareCommentId: sticky });
+        await hSetTtl(kv, K.day(day), { shareCommentId: sticky }, TTL.day);
       }
       await storeCaptainCharts(kv, day, rec.seed, rec.modifier);
       return { day, dayNumber: n, postId: rec.postId, created: false };
@@ -127,19 +127,24 @@ const postIsland = async (
   const modifier = modifierFor(day);
   const existingSeed = await kv.hGet(K.day(day), 'seed');
   const island = generateIsland(existingSeed ?? seedFor(day), modifier);
-  await kv.hSet(K.day(day), { seed: island.seed, modifier, name: island.name });
+  await hSetTtl(
+    kv,
+    K.day(day),
+    { seed: island.seed, modifier, name: island.name },
+    TTL.day
+  );
 
   const postId = await port.createPost(serverCopy.postTitle(n, island.name), {
     day,
     seed: island.seed,
     modifier,
   });
-  await kv.hSet(K.day(day), { postId });
+  await hSetTtl(kv, K.day(day), { postId }, TTL.day);
   await kv.set(K.postDay(postId), day);
   await kv.expire(K.postDay(postId), TTL.dayCounts);
 
   const sticky = await port.stickyComment(postId, serverCopy.shareSticky(n));
-  await kv.hSet(K.day(day), { shareCommentId: sticky });
+  await hSetTtl(kv, K.day(day), { shareCommentId: sticky }, TTL.day);
 
   await storeCaptainCharts(kv, day, island.seed, modifier);
   return { day, dayNumber: n, postId, created: true };

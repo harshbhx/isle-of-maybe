@@ -28,6 +28,8 @@ const DAY_S = 86_400;
 
 /** Expiry per key family, in seconds (docs/05-ARCHITECTURE.md §5, COM-1.5, CHART-4.1). */
 export const TTL = {
+  /** The day record outlives its charts so old posts and the Hall still load (seed, name). */
+  day: 400 * DAY_S,
   dayCounts: 40 * DAY_S,
   chart: 30 * DAY_S,
   user: 30 * DAY_S,
@@ -35,7 +37,7 @@ export const TTL = {
   seen: 2 * DAY_S,
   streak: 400 * DAY_S,
   hunt: 2 * DAY_S,
-  board: 40 * DAY_S,
+  board: 30 * DAY_S,
   reports: 30 * DAY_S,
   flair: 8 * DAY_S,
   rate: 2,
