@@ -14,9 +14,10 @@ import { useApp } from '../app-context.ts';
 import { ChartView } from '../components/ChartView.tsx';
 import { Glyph } from '../components/Glyph.tsx';
 import { Hint } from '../components/Hint.tsx';
-import { Banner, Button, Title } from '../components/ui.tsx';
+import { Banner, Button, Sheet, Title } from '../components/ui.tsx';
 import { copy, fmt } from '../copy.ts';
 import { useKeys } from '../island/input.ts';
+import { NOTE_IDS, type NoteId } from '../../shared/notes.ts';
 import { ApiFailure, post } from '../lib/api.ts';
 import * as ed from '../lib/editor.ts';
 import { px } from '../lib/geom.ts';
@@ -67,6 +68,8 @@ export const ChartEditor = ({ at, depth }: { at: Tile; depth: Depth }) => {
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState<string | null>(null);
   const [result, setResult] = useState<ChartSubmitResponse | null>(null);
+  const [note, setNote] = useState<NoteId | null>(null);
+  const [picking, setPicking] = useState(false);
   const svg = useRef<SVGSVGElement | null>(null);
   const drag = useRef<{ moved: boolean } | null>(null);
   const c = ed.counts(s.pieces);
@@ -282,6 +285,38 @@ export const ChartEditor = ({ at, depth }: { at: Tile; depth: Depth }) => {
           </Button>
         )}
       </div>
+      <button
+        type="button"
+        onClick={() => setPicking(true)}
+        className="min-h-11 rounded-[6px] border border-dashed border-muted-night/60 px-3 text-left text-sm text-muted-night"
+      >
+        {copy.chart.note}:{' '}
+        <em className="text-on-night">
+          {note === null ? copy.chart.noNote : copy.notes[note]}
+        </em>
+      </button>
+      <Sheet
+        open={picking}
+        onClose={() => setPicking(false)}
+        title={copy.chart.note}
+      >
+        <div className="grid max-h-[50vh] grid-cols-1 gap-1.5 overflow-y-auto sm:grid-cols-2">
+          {[null, ...NOTE_IDS].map((n) => (
+            <Button
+              key={n ?? 'none'}
+              kind="ink"
+              pressed={note === n}
+              className={`justify-start text-left ${note === n ? 'bg-gold/30' : ''}`}
+              onClick={() => {
+                setNote(n);
+                setPicking(false);
+              }}
+            >
+              {n === null ? copy.chart.noNote : copy.notes[n]}
+            </Button>
+          ))}
+        </div>
+      </Sheet>
       <Button
         kind="gold"
         className="w-full"

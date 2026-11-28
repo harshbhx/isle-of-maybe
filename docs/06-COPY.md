@@ -178,6 +178,7 @@ Voice: short, salty, kind. Tease the map, never the player. Every string lives i
 | reveal.buryCta / reveal.again / reveal.results | Bury your chest / Hunt another chart / See results |
 | reveal.chartX / reveal.chest | Chart's X / Chest (map legend) |
 | bury.loginCta / bury.browse / bury.pickTile | Log in / Just browse / Tap a tile you've walked near. |
+| chart.note / chart.noNote | Margin note / No note (phrases: `src/shared/notes.ts`, CHART-2.7) |
 | chart.undo / chart.clear / chart.remove / chart.stamps | Undo / Clear / Remove / Stamps |
 | ink.continue | Continue |
 | result.tomorrow / result.countdown | Tomorrow's island / Lands in {t} (DAY-7.1) |

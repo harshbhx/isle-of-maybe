@@ -265,7 +265,14 @@ export const Hunt = ({ start, chart }: Props) => {
                 label={by}
               />
               <div className="flex items-center justify-between gap-2 px-1 pt-2">
-                <span className="text-sm text-ink-soft">{by}</span>
+                <span className="text-sm text-ink-soft">
+                  {by}
+                  {chart.note !== null && (
+                    <em className="block font-display text-[16px] text-ink">
+                      “{copy.notes[chart.note]}”
+                    </em>
+                  )}
+                </span>
                 <div className="flex gap-2">
                   {!chart.captain && (
                     <Button kind="danger" onClick={() => void report()}>
