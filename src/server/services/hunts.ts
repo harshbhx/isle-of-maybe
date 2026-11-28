@@ -25,7 +25,14 @@ import {
 import type { Island, Tile } from '../../shared/types.ts';
 import { ApiError } from '../store/errors.ts';
 import { K } from '../store/keys.ts';
-import { TTL, hIncrTtl, hSetTtl, zIncrTtl, type Kv } from '../store/kv.ts';
+import {
+  TTL,
+  hIncrTtl,
+  hSetOnce,
+  hSetTtl,
+  zIncrTtl,
+  type Kv,
+} from '../store/kv.ts';
 import type { Actor } from './actor.ts';
 import {
   MAX_HUNTS_PER_DAY,
@@ -33,6 +40,7 @@ import {
   readChart,
   readStats,
   usedCharts,
+  usedField,
 } from './charts.ts';
 import { requireDay } from './island.ts';
 import { addSeen } from './seen.ts';
@@ -107,13 +115,16 @@ export const startHunt = async (
   if (num(await kv.hGet(udKey, 'hunts')) >= MAX_HUNTS_PER_DAY)
     throw new ApiError('conflict', 'no hunts left today');
 
-  await hIncrTtl(kv, udKey, 'hunts', 1, TTL.userDay);
-  await hSetTtl(
-    kv,
-    udKey,
-    { used: JSON.stringify([...used, chartId]) },
-    TTL.userDay
-  );
+  // Claim the chart and the hunt slot atomically: parallel starts must not slip past either.
+  if (!(await hSetOnce(kv, udKey, usedField(chartId), '1', TTL.userDay))) {
+    throw new ApiError('conflict', 'you already hunted this chart');
+  }
+  const n = await hIncrTtl(kv, udKey, 'hunts', 1, TTL.userDay);
+  if (n > MAX_HUNTS_PER_DAY) {
+    await kv.hIncrBy(udKey, 'hunts', -1);
+    await kv.hDel(udKey, [usedField(chartId)]);
+    throw new ApiError('conflict', 'no hunts left today');
+  }
   await hSetTtl(
     kv,
     K.hunt(huntId),
