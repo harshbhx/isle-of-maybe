@@ -20,6 +20,8 @@ import { Button, ErrorState, Loading, TopBar } from './components/ui.tsx';
 import { copy, fmt } from './copy.ts';
 import { ApiFailure, get } from './lib/api.ts';
 import { shareData } from './lib/platform.ts';
+import { Bury } from './screens/Bury.tsx';
+import { ChartEditor } from './screens/ChartEditor.tsx';
 import { Hunt } from './screens/Hunt.tsx';
 import { Pick } from './screens/Pick.tsx';
 import { Reveal } from './screens/Reveal.tsx';
@@ -153,6 +155,12 @@ export const App = () => {
           holes={screen.holes}
         />
       );
+      break;
+    case 'bury':
+      body = <Bury />;
+      break;
+    case 'chart':
+      body = <ChartEditor at={screen.at} depth={screen.depth} />;
       break;
     default:
       body = <Placeholder onBack={() => go({ k: 'pick' })} />;
