@@ -1,6 +1,10 @@
 # 19 — Chrome runbook (Reddit, developers.reddit.com, Devpost)
 
-For a Claude session that has **Claude in Chrome** on Harsh's laptop, signed in to his Reddit and Devpost accounts. It covers every browser step the laptop agent can't do from a terminal. Files to upload are in the laptop clone: `~/code/isle-of-maybe/docs/assets/`. Run `git pull` there first.
+For a Claude session that has **Claude in Chrome** on Harsh's laptop, signed in to his Reddit and Devpost accounts. It covers every browser step the laptop agent can't do from a terminal.
+
+**Tested 28 Nov:**
+- **Devpost works.** Registration is done, and the submission draft is filled (see `docs/09-SUBMISSION.md` §2).
+- **reddit.com and developers.reddit.com are blocked** for Claude in Chrome ("not allowed due to safety restrictions"). Sections B and C are therefore done by Harsh by hand, following the same steps (about 15 minutes in total), and he pastes the three Reddit links back for the Devpost draft. Files to upload are in the laptop clone: `~/code/isle-of-maybe/docs/assets/`. Run `git pull` there first.
 
 ## Ground rules
 
