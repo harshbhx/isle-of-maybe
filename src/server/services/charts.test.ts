@@ -37,7 +37,7 @@ test('HUNT-1.2 never offers your own, hidden or already-hunted charts', async ()
   await addChart(kv, { id: 'hidden', author: bob, trust: 0.95, hidden: true });
   await addChart(kv, { id: 'done', author: bob, trust: 0.9 });
   await addChart(kv, { id: 'ok', author: carol, trust: 0.6 });
-  await kv.hSet(K.userDay(alice.id, DAY), { used: JSON.stringify(['done']) });
+  await kv.hSet(K.userDay(alice.id, DAY), { 'used:done': '1' });
   const ids = (await pickCharts(kv, alice, DAY)).charts.map((c) => c.chart.id);
   assert.ok(
     !ids.includes('mine') && !ids.includes('hidden') && !ids.includes('done')

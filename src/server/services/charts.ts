@@ -92,22 +92,17 @@ export const toPublic = async (
   };
 };
 
+/** The user-day field that marks a chart as hunted today; claimed with hSetNX (HUNT-1.2). */
+export const usedField = (chartId: string): string => `used:${chartId}`;
+
 export const usedCharts = async (
   kv: Kv,
   actor: Actor,
   day: string
-): Promise<string[]> => {
-  try {
-    const v: unknown = JSON.parse(
-      (await kv.hGet(K.userDay(actor.id, day), 'used')) ?? '[]'
-    );
-    return Array.isArray(v)
-      ? v.filter((x): x is string => typeof x === 'string')
-      : [];
-  } catch {
-    return [];
-  }
-};
+): Promise<string[]> =>
+  Object.keys(await kv.hGetAll(K.userDay(actor.id, day)))
+    .filter((f) => f.startsWith('used:'))
+    .map((f) => f.slice(5));
 
 /** Can this actor hunt this chart today? (HUNT-1.2, HUNT-2.3) */
 export const eligible = (
