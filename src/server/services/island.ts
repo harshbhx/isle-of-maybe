@@ -1,5 +1,6 @@
 // Loads a day's frozen island (seed + modifier from the day record) with a per-instance cache.
 import type { Modifier } from '../../shared/day.ts';
+import { clampGoal } from '../../shared/day.ts';
 import { generateIsland } from '../../shared/island.ts';
 import type { Island } from '../../shared/types.ts';
 import { ApiError } from '../store/errors.ts';
@@ -15,6 +16,8 @@ export type DayRecord = {
   shareCommentId: string;
   /** Who named this island from the comments, or '' (DAY-6.2). */
   namedBy: string;
+  /** The crew goal for this day (DAY-8.1). */
+  goal: number;
 };
 
 const MODIFIERS: readonly Modifier[] = [
@@ -44,6 +47,7 @@ export const readDay = async (
     name: h.name ?? '',
     shareCommentId: h.shareCommentId ?? '',
     namedBy: h.namedBy ?? '',
+    goal: clampGoal(h.goal === undefined ? undefined : Number(h.goal)),
   };
 };
 

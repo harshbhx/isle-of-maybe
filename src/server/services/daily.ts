@@ -2,9 +2,12 @@
 // chests (DAY-1). Idempotent: running it again only fills in whatever is missing.
 import { captainChart, captainChests } from '../../shared/captain.ts';
 import {
-  dayNumber,
   addDays,
+  clampGoal,
+  CREW_GOAL_DEFAULT,
+  dayNumber,
   modifierFor,
+  nextModifier,
   utcDay,
   type Modifier,
 } from '../../shared/day.ts';
@@ -15,7 +18,7 @@ import { K } from '../store/keys.ts';
 import { TTL, hSetOnce, hSetTtl, type Kv } from '../store/kv.ts';
 import { pickName, type NameReply } from '../../shared/naming.ts';
 import { applyFlairs, type SetFlairs } from './flair.ts';
-import { islandOf, readDay } from './island.ts';
+import { asModifier, islandOf, readDay } from './island.ts';
 
 /** The two Reddit calls the job needs, so tests can fake them. */
 export type DailyPort = {
@@ -25,6 +28,8 @@ export type DailyPort = {
   ) => Promise<string>;
   stickyComment: (postId: string, text: string) => Promise<string>;
   setFlairs: SetFlairs;
+  /** The subreddit's crew goal setting (DAY-8.1). */
+  crewGoal: () => Promise<number>;
   /** Direct replies to a comment (DAY-6.2). */
   replies: (commentId: string) => Promise<NameReply[]>;
 };
@@ -101,6 +106,15 @@ export const runDaily = async (
   return r;
 };
 
+const todaysModifier = async (kv: Kv, day: string): Promise<Modifier> => {
+  const yesterday = addDays(day, -1);
+  const prev = await readDay(kv, yesterday);
+  if (prev === null) return modifierFor(day);
+  const found =
+    Number((await kv.hGet(K.dayCounts(yesterday), 'found')) ?? 0) || 0;
+  return nextModifier(day, found, prev.goal);
+};
+
 /** Yesterday's top usable reply under the sticky names today's island (DAY-6.2). Best effort. */
 const communityName = async (
   kv: Kv,
@@ -143,16 +157,28 @@ const postIsland = async (
     // A previous run claimed the day but died before posting: take over.
   }
 
-  // Freeze the seed the first time a day is generated (DAY-1.6).
-  const modifier = modifierFor(day);
-  const existingSeed = await kv.hGet(K.day(day), 'seed');
+  // Freeze the seed and modifier the first time a day is generated (DAY-1.6). Yesterday's crew
+  // goal decides whether today is Lantern night (DAY-8.2).
+  const frozen = await kv.hMGet(K.day(day), ['seed', 'modifier']);
+  const existingSeed = frozen[0] ?? undefined;
+  const modifier =
+    frozen[1] !== null && frozen[1] !== undefined
+      ? asModifier(frozen[1])
+      : await todaysModifier(kv, day);
+  const goal = clampGoal(await port.crewGoal().catch(() => CREW_GOAL_DEFAULT));
   const island = generateIsland(existingSeed ?? seedFor(day), modifier);
   const named = await communityName(kv, port, addDays(day, -1));
   const name = named?.name ?? island.name;
   await hSetTtl(
     kv,
     K.day(day),
-    { seed: island.seed, modifier, name, namedBy: named?.by ?? '' },
+    {
+      seed: island.seed,
+      modifier,
+      name,
+      namedBy: named?.by ?? '',
+      goal: String(goal),
+    },
     TTL.day
   );
 

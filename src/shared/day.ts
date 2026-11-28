@@ -69,3 +69,17 @@ export const LANTERN_RANGE = 6;
 /** Fog reveal radius in tiles (ENG-3.3). */
 export const revealRadius = (m: Modifier): number =>
   m === 'clear' ? 4 : m === 'fog' ? 2 : 3;
+
+/** Daily community target of finds (DAY-8.1); moderators can change it in the app settings. */
+export const CREW_GOAL_DEFAULT = 50;
+export const clampGoal = (v: unknown): number =>
+  typeof v === 'number' && Number.isFinite(v)
+    ? Math.min(10_000, Math.max(5, Math.round(v)))
+    : CREW_GOAL_DEFAULT;
+
+/** Tomorrow's modifier: Lantern night if today's crew goal was met (DAY-8.2), else the weekday's. */
+export const nextModifier = (
+  tomorrow: string,
+  foundToday: number,
+  goalToday: number
+): Modifier => (foundToday >= goalToday ? 'lanterns' : modifierFor(tomorrow));
