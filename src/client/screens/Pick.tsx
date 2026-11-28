@@ -147,7 +147,8 @@ export const Pick = () => {
       </div>
     );
   }
-  const onlyCaptain = data.charts.every((c) => c.slot === 'captain');
+  // Logged-out players only ever get Old Captain charts, so "be the first" would be untrue for them.
+  const onlyCaptain = app.init.user.loggedIn && data.charts.every((c) => c.slot === 'captain');
   return (
     <div className="flex flex-col gap-3 py-3">
       <div className="px-4">
