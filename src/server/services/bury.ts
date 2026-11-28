@@ -138,5 +138,7 @@ export const submitChart = async (
   await kv.expire(K.chartsAttempts(day), TTL.chart);
   if (actor.name !== null)
     await hSetTtl(kv, K.user(actor.id), { name: actor.name }, TTL.user);
-  return { chartId, ink: inkCheck(island, chest, pieces) };
+  const ink = inkCheck(island, chest, pieces);
+  await hSetTtl(kv, udKey, { grade: ink.grade }, TTL.userDay);
+  return { chartId, ink };
 };

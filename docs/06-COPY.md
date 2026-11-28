@@ -188,3 +188,4 @@ Voice: short, salty, kind. Tease the map, never the player. Every string lives i
 | common.* | Reading the charts… / Back / Close / Sound / Charted by u/{name} / Charted by u/{name} · Day {n} / Charted by the Old Captain |
 | landmark.* | Palm, Twin palms, Boulder, Skull rock, Hut, Wreck, Well, Statue, Campfire, Cave |
 | err.retry | Try again |
+| resultLine.* | Isle of Maybe · Day {n} / Found a chest with {n} shovels / Missed after {n} shovels / Buried a {depth} chest / Ink: {grade} (COM-2.6, joined with ·) |

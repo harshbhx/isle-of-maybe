@@ -6,6 +6,7 @@ import { K } from '../store/keys.ts';
 import type { Kv } from '../store/kv.ts';
 import type { Actor } from './actor.ts';
 import { readChart, readStats } from './charts.ts';
+import { islandOf, readDay } from './island.ts';
 
 export const DISPATCH_DAYS = 3;
 
@@ -24,7 +25,15 @@ export const dispatchFor = async (
       const chart = await readChart(kv, chartId);
       if (chart === null) continue;
       const s = await readStats(kv, chartId);
+      const rec = await readDay(kv, day);
+      if (rec === null) continue;
       charts.push({
+        island: {
+          seed: rec.seed,
+          modifier: rec.modifier,
+          name: rec.name !== '' ? rec.name : islandOf(rec).name,
+        },
+        pieces: chart.pieces,
         day,
         dayNumber: dayNumber(day),
         chartId,

@@ -16,14 +16,18 @@ import {
   type MyChest,
   type Screen,
 } from './app-context.ts';
-import { Button, ErrorState, Loading, TopBar } from './components/ui.tsx';
+import { ErrorState, Loading, TopBar } from './components/ui.tsx';
 import { copy, fmt } from './copy.ts';
 import { ApiFailure, get } from './lib/api.ts';
+import { flag } from './lib/hints.ts';
 import { shareData } from './lib/platform.ts';
+import { Boards } from './screens/Boards.tsx';
 import { Bury } from './screens/Bury.tsx';
 import { ChartEditor } from './screens/ChartEditor.tsx';
+import { Dispatch } from './screens/Dispatch.tsx';
 import { Hunt } from './screens/Hunt.tsx';
 import { Pick } from './screens/Pick.tsx';
+import { Result } from './screens/Result.tsx';
 import { Reveal } from './screens/Reveal.tsx';
 
 /** A share link's payload is untrusted; only a well-formed challenge is kept (COM-2.4, HUNT-1.4). */
@@ -49,15 +53,6 @@ const readChallenge = (): { chartId: string } | null => {
   return null;
 };
 
-const Placeholder = ({ onBack }: { onBack: () => void }) => (
-  <div className="flex flex-col items-center gap-3 p-6 text-center text-muted-night">
-    <p>{copy.common.loading}</p>
-    <Button kind="gold" onClick={onBack}>
-      {copy.common.back}
-    </Button>
-  </div>
-);
-
 export const App = () => {
   const [init, setInit] = useState<InitResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -74,7 +69,18 @@ export const App = () => {
       setError(null);
       if (first.current) {
         first.current = false;
-        if (next.user.huntsLeft === 0 && challenge === null)
+        // Dispatch first on a new day with news, or once as a sample for first-timers (DAY-5.1, DAY-5.2).
+        const news =
+          next.dispatch.charts.length > 0 &&
+          flag.get(`dispatch:${next.today}`) === null;
+        const sample =
+          next.user.loggedIn &&
+          next.user.chest === null &&
+          next.dispatch.charts.length === 0 &&
+          flag.get('sampleSeen') === null;
+        if (challenge === null && (news || sample))
+          setScreen({ k: 'dispatch' });
+        else if (next.user.huntsLeft === 0 && challenge === null)
           setScreen({ k: 'result' });
       }
     },
@@ -156,14 +162,30 @@ export const App = () => {
         />
       );
       break;
+    case 'dispatch':
+      body = (
+        <Dispatch
+          sample={init.dispatch.charts.length === 0}
+          onDone={() => {
+            flag.set(`dispatch:${init.today}`, '1');
+            flag.set('sampleSeen', '1');
+            go({ k: init.user.huntsLeft > 0 ? 'pick' : 'result' });
+          }}
+        />
+      );
+      break;
+    case 'result':
+      body = <Result />;
+      break;
+    case 'boards':
+      body = <Boards />;
+      break;
     case 'bury':
       body = <Bury />;
       break;
     case 'chart':
       body = <ChartEditor at={screen.at} depth={screen.depth} />;
       break;
-    default:
-      body = <Placeholder onBack={() => go({ k: 'pick' })} />;
   }
 
   return (

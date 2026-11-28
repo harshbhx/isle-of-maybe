@@ -144,6 +144,13 @@ export const copy = {
     text: 'I buried a chest on {island}. Here’s my map. Bet you can’t find it.',
     title: 'Isle of Maybe',
   },
+  resultLine: {
+    day: 'Isle of Maybe · Day {n}',
+    found: 'Found a chest with {n} shovels',
+    missed: 'Missed after {n} shovels',
+    chest: 'Buried a {depth} chest',
+    grade: 'Ink: {grade}',
+  },
   dispatch: {
     title: 'Dispatch',
     line: '{tried} tried · {found} found',
