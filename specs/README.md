@@ -23,6 +23,7 @@ GitHub issue  →  branch  →  PR (links issue + requirement IDs)  →  squash 
 | `05-community/` | Reports, moderation, leaderboards, Hall of Charts, sharing, realtime, flair | `COM` |
 | `06-client-shell/` | Design system, splash, screens, states, accessibility, performance | `UI` |
 | `07-launch/` | App README, playtest community, submission, judging week | `SHIP` |
+| `08-adventure/` | Explorer and free movement, rising tide, hazards, sculpted world, cinematic dig | `ADV` |
 
 ## Writing requirements (EARS)
 Each requirement has an ID and uses one of these shapes:
